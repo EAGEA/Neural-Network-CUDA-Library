@@ -4,22 +4,21 @@
 
 #include "dataset.h"
 
+#include <cstdlib>
+
 
 dataset::dataset()
 {
-    // TODO
-    _elements = new();
 }
 
 dataset::dataset(std::vec<element> elements)
 {
-    // TODO
     _elements = elements;
 }
 
 void dataset::add(matrix features, matrix labels)
 {
-    add(new element(features, labels));
+    add(element(features, labels));
 }
 
 void dataset::add(element elem)
@@ -29,12 +28,17 @@ void dataset::add(element elem)
 
 void dataset::remove(element elem)
 {
-
+    _elements.clear(elemen);
 }
 
 void dataset::remove(size_t i)
 {
+    _elements.erase(_elements.begin() + i);
+}
 
+void dataset::get(size_t i)
+{
+    return _elements.at(i);
 }
 
 std::vec<elements> dataset::get_elements()
@@ -42,25 +46,40 @@ std::vec<elements> dataset::get_elements()
     return _elements;
 }
 
-const size_t dataset::size()
+size_t dataset::size() const
 {
-    return std::min(_features.size_x(), _labels.size_x());
+    return _elements.size();
 }
 
-std::pair<dataset, dataset> dataset::train_test_split(float train_size = 0.8f)
+std::pair<dataset, dataset> dataset::train_test_split(float train_size_ratio = 0.8f)
 {
+    if (train_size < 0 || 1 < train_size)
+    {
+        // Invalid.
+        util::print_error("dataset::train_test_split", "Invalid @training_size_ratio");
+        util::exit_error();
+    }
+
     dataset train;
     dataset test;
+    size_t size = size();
+    size_t nb_selected = 0;
+    size_t train_size = size * train_size_ratio;
 
-    // TODO
-    dataset test = new(_elements.copy());
-    dataset train = new ();
-
-    for (size_t i = 0; i < size() * train_size; i ++)
+    for (size_t i = 0; (i < size) && (nb_selected < train_size); i ++)
     {
-        size_t random = getRandom() % test.size();
-        train.add(test.at(random));
-        test.remove(random);
+        float probability_to_be_selected = (train_size - nb_selected) / (size - i);
+        float random = ((float) std::rand() / (float) (RAND_MAX)) * (float) (size - i);
+
+        if (random <= probability_to_be_selected)
+        {
+            train.add(get(i));
+            nb_selected ++;
+        }
+        else
+        {
+            test.add(get(i));
+        }
     }
 
     return std::pair<dataset, dataset>(train, test);
@@ -68,15 +87,27 @@ std::pair<dataset, dataset> dataset::train_test_split(float train_size = 0.8f)
 
 dataset dataset::get_random_batch(size_t batch_size)
 {
-    // TODO
-    dataset batch;
-    std::vec<elements> elements = _elements.copy();
-
-    for (size_t i = 0; i < batch_size; i ++)
+    if (batch_size < 0 || size < batch_size)
     {
-        size_t random = RANDOM() % elements.size();
-        batch.add(elements.at(random));
-        elements.clear(random);
+        // Invalid.
+        util::print_error("dataset::get_random_batch", "Invalid @batch_size");
+        util::exit_error();
+    }
+
+    dataset batch;
+    size_t size = size();
+    size_t nb_selected = 0;
+
+    for (size_t i = 0; (i < size) && (nb_selected < batch_size); i ++)
+    {
+        float probability_to_be_selected = (batch_size - nb_selected) / (size - i);
+        float random = ((float) std::rand() / (float) (RAND_MAX)) * (float) (size - i);
+
+        if (random <= probability_to_be_selected)
+        {
+            batch.add(get(i));
+            nb_selected ++;
+        }
     }
 
     return batch;
@@ -85,11 +116,11 @@ dataset dataset::get_random_batch(size_t batch_size)
 static dataset dataset::loadMNIST()
 {
     dataset data;
+    // TODO
+    /*
     uint32_t num_items;
     uint32_t rows;
     uint32_t cols;
-    char label;
-    char *pixels = new char[rows * cols];
 
     // Open files.
     std::ifstream image_file(MNIST_IMAGE_FILENAME, std::ios::in | std::ios::binary);
@@ -101,6 +132,9 @@ static dataset dataset::loadMNIST()
     num_items = util::swap_endian(num_items);
     rows = util::swap_endian(rows);
     cols = util::swap_endian(cols);
+
+    char label;
+    char *pixels = new char[rows * cols];
     // Read pixels and label of each image.
     for (int i = 0; i < num_items; i ++)
     {
@@ -117,6 +151,6 @@ static dataset dataset::loadMNIST()
     }
 
     delete[] pixels;
-
+*/
     return data;
 }

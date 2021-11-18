@@ -19,23 +19,31 @@ neural_network::neural_network(layer layer_, ...)
     va_end(va);
 }
 
-void neural_network::fit(dataset data, int epochs = 1, size_t batch_size = 1)
+void neural_network::fit(dataset data,
+                         matrix (*loss_function)(matrix, matrix) = nullptr,
+                         size_t epochs = 1,
+                         size_t batch_size = 1)
 {
-    for (int i = 1; i <= epochs; i ++)
+    if (loss_function == nullptr)
     {
-        for (int j = 1; j <= x.size() / batch; j ++)
+        // Invalid.
+        util::print_error("neural_network::fit", "Invalid @loss_function");
+        util::exit_error();
+    }
+
+    for (size_t i = 1; i <= epochs; i ++)
+    {
+        for (size_t j = 1; j <= x.size() / batch; j ++)
         {
             // Get a sample of "batch size" (features + labels).
-            dataset batch = data.get_random_batch(batch_size);
+            auto batch = data.get_random_batch(batch_size);
             // Train with it:
-            for (int k = 0; k < batch_size; k ++)
+            for (size_t k = 0; k < batch_size; k ++)
             {
-                // 1. Forward + backward propagation.
-                matrix predictions = _forward_propagation(batch.get_features().at(k));
-                _backward_propagation(predictions, batch.get_labels().at(k));
-                // 2. Updates of parameters.
-                _update_weights();
-                _update_biases();
+                auto element_ = batch.get(k);
+                // Forward + backward propagation.
+                auto predictions = _forward_propagation(element_.get_features());
+                _backward_propagation(predictions, element_.get_labels(), &loss_function);
             }
         }
     }
@@ -48,9 +56,9 @@ data neural_network::predict(matrix features)
 
 matrix neural_network::_forward_propagation(matrix features)
 {
-    matrix predictions = features;
+    auto predictions = features;
 
-    for (auto layer_: layers)
+    for (auto layer_: _layers)
     {
         predictions = layer_.forward_propagation(predictions);
     }
@@ -59,11 +67,13 @@ matrix neural_network::_forward_propagation(matrix features)
 }
 
 void neural_network::_backward_propagation(matrix predictions, matrix labels,
-                                           float (*loss_function)(, ))
+                                           matrix (*loss_function)(matrix, matrix))
 {
-    // TODO
-    for ()
+    auto errors = _loss_function.cost(predictions, labels);
+
+    for (size_t i = _layers.size() - 1; i >= 0; i --)
     {
-        layer_.backward_propagation();
+        auto layer_ = _layers.at(i);
+        errors = layer_.backward_propagation(errors, _loss_function);
     }
 }

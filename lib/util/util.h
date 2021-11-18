@@ -6,9 +6,16 @@
 #define CUDANN_UTIL_H
 
 
+#include <cstdlib>
+#include <iostream>
+#include <string>
+
+
 namespace util
 {
     uint32_t swap_endian(uint32_t val);
+    void print_error(std::string location, std::string err);
+    void exit_error();
 };
 
 

@@ -12,8 +12,8 @@ class element
 
         element(matrix _features, matrix _labels);
 
-        const matrix get_features();
-        const matrix get_labels();
+        const matrix get_features() const;
+        const matrix get_labels() const;
 
     private:
 

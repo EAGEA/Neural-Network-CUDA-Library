@@ -15,7 +15,11 @@ class neural_network: public neural_network
 
         neural_network(layer layers, ...);
 
-        virtual void fit(matrix features, matrix labels, int epochs = 1, size_t batch_size = 1) override;
+        virtual void fit(dataset data,
+                         matrix (*loss_function)(matrix, matrix) = nullptr,
+                         size_t epochs = 1,
+                         size_t batch_size = 1) override;
+
         virtual matrix predict(matrix features) override;
 
     private:
@@ -29,15 +33,13 @@ class neural_network: public neural_network
 
         /**
          * Backpropagation; calculate and store the gradients of intermediate
-         * variables and parameters.
+         * variables and parameters, using the given loss function.
          * @param predictions
          * @param labels
+         * @param loss_function
          */
-        void _backward_propagation(matrix predictions, matrix labels);
-
-        void _update_weights();
-
-        void _update_biases();
+        void _backward_propagation(matrix predictions, matrix labels,
+                                   matrix (*loss_function)(matrix, matrix))
 
         const std::vector<layer> _layers;
 };

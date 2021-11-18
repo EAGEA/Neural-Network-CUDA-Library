@@ -17,10 +17,15 @@ class model
         /**
          * Train the model on the given training dataset ("features", "labels").
          * @param data features and labels to work on.
+         * @param loss_function function that may be used to calculate cost
+         *                      during backpropagation of neural networks for example.
          * @param epochs the number of iterations of the training process.
          * @param batch_size the size of the samples during the training.
          */
-        virtual void fit(dataset data, epochs = 1, batch_size = 1);
+        virtual void fit(dataset data,
+                         matrix (*loss_function)(matrix, matrix) = nullptr,
+                         size_t epochs = 1,
+                         size_t batch_size = 1) override;
 
         /**
          * @param features

@@ -13,10 +13,10 @@ class matrix
         matrix(std::pair<size_t, size_t> dimensions);
         matrix(size_t x, size_t y);
 
-        const std::pair<size_t, size_t> get_dimensions();
+        const std::pair<size_t, size_t> get_dimensions() const;
 
-        const float operator[](float f);
-        float& operator[](float f);
+        const float operator[](const size_t index);
+        float& operator[](const size_t index);
 
     private:
 

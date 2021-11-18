@@ -11,12 +11,12 @@ element::element(matrix features, matrix labels)
     _labels = labels;
 }
 
-const matrix element::get_features()
+const matrix element::get_features() const
 {
     return _features;
 }
 
-const matrix element::get_labels()
+const matrix element::get_labels() const
 {
     return _labels;
 }

@@ -14,34 +14,33 @@ class layer
     public:
 
         layer(std::pair<size_t, size_t> dimensions);
-        virtual matrix forward_propagation(matrix features);
-        virtual matrix back_propagation(matrix errors)
 
-        const std::pair<size_t, size_t> get_dimensions();
+        matrix forward_propagation(matrix features);
+        matrix backward_propagation(matrix errors);
+
+        const std::pair<size_t, size_t> get_dimensions() const;
 
     private:
 
-        /**
-         * Initialize the "_biases" of the layer at 0
-         * (most appropriate method in literature).
-         */
-        void _init_biases();
+        virtual matrix _kernel_forward_propagation(matrix features);
+        virtual matrix _kernel_backward_propagation(matrix errors);
 
         /**
-         * Initialize the "_weights" of the layer using the normal distribution
-         * (most appropriate method in literature).
+         * Used during backpropagation, update the weights accordingly to the "errors".
+         * @param errors
          */
-        void _init_weights();
+        virtual void _update_biases(matrix errors);
 
         /**
-         * Parameters of the activation functions.
-         * The parameters of the neuron at position (i, j) in the layer,
-         * are at position (i, j) in the matrices,
-         * where i < "_dimensions.first" and j < "_dimensions.second".
+         * Used during backpropagation, update the biases accordingly to the "errors".
+         * @param errors
+         */
+        virtual void _update_weights(matrix errors);
+
+        /**
+         * Dimensions of the layer.
          */
         const std::pair<size_t, size_t> _dimensions;
-        matrix _biases;
-        matrix _weights;
 };
 
 
