@@ -6,6 +6,9 @@
 #include <ctime>
 
 
+/**
+ * TODO DEFINE TEST
+ */
 void main(int argc, char *argv[])
 {
     // /!\ Init random generator.
@@ -22,5 +25,5 @@ void main(int argc, char *argv[])
     nn.fit(train_test.first);
     matrix predictions = nn.predict(train_test.second.get_features());
 
-    return 0;
+    return EXIT_SUCCESS;
 }

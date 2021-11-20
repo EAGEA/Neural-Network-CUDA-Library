@@ -6,6 +6,9 @@
 #define CUDANN_DATASET_H
 
 
+/**
+ * Dataset representation.
+ */
 class dataset
 {
     public:

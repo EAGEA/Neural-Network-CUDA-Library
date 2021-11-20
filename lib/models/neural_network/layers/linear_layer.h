@@ -6,17 +6,17 @@
 #define CUDANN_LINEAR_LAYER_H
 
 
+/**
+ * Layer of neurons using a linear activation function.
+ */
 class linear_layer: public layer
 {
     public:
 
+        virtual matrix forward_propagation(matrix features) override;
+        virtual matrix backward_propagation(matrix errors) override;
+
     private:
-
-        virtual matrix _kernel_forward_propagation(matrix features) override;
-        virtual matrix _kernel_back_propagation(matrix errors) override;
-
-        virtual void _update_biases(matrix errors) override;
-        virtual void _update_weights(matrix errors) override;
 
         /**
          * Initialize the "_biases" of the layer at 0
@@ -31,6 +31,7 @@ class linear_layer: public layer
         void _init_weights();
 
         /**
+         * TODO CHECK IF INDEXES ARE TRUE
          * Parameters of the activation functions.
          * The parameters of the neuron at position (i, j) in the layer,
          * are at position (i, j) in the matrices,
