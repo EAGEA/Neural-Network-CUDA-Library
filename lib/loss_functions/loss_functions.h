@@ -8,7 +8,7 @@
 
 /**
  * Compute the errors between "predictions" and "labels",
- * and return the gradient of the errors.
+ * and return the gradient of these errors.
  */
 namespace loss_functions
 {

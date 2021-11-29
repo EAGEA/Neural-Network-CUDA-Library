@@ -13,19 +13,19 @@ class layer
 {
     public:
 
-        layer(std::pair<size_t, size_t> dimensions);
+        layer(size_t nb_neurons);
 
         virtual matrix forward_propagation(matrix features);
         virtual matrix backward_propagation(matrix errors);
 
-        const std::pair<size_t, size_t> get_dimensions() const;
+        const size_t size() const;
 
     private:
 
         /**
-         * Dimensions of the layer.
+         * Dimension of the layer.
          */
-        const std::pair<size_t, size_t> _dimensions;
+        const size_t _size;
 };
 
 

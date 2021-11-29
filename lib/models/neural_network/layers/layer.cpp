@@ -3,12 +3,12 @@
 //
 
 
-layer::layer(std::pair<size_t, size_t> dimensions)
+layer::layer(size_t nb_neurons)
+: _size(nb_neurons)
 {
-    _dimensions = dimensions;
 }
 
-const std::pair<size_t, size_t> get_dimensions() const
+const size_t size() const
 {
-    return _dimensions;
+    return _size;
 }

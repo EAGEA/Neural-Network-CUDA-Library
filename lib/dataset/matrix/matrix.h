@@ -8,7 +8,9 @@
 
 /**
  * Matrix representation, allocating memory on both host and
- * device, for CUDA computations.
+ * device, and implementing computations with CUDA.
+ * A matrix of size N*M has N rows (first dimensions)
+ * and M columns (second dimension).
  */
 class matrix
 {
@@ -27,12 +29,13 @@ class matrix
          */
         void free();
 
+        matrix add(const matrix &m) const;
+        matrix multiply(const matrix &m) const;
+
         const std::pair<size_t, size_t> get_dimensions() const;
 
-        float get_host_data(const size_t i) const;
-        float get_host_data(const size_t i, const size_t j) const;
-        float get_device_data(const size_t i) const;
-        float get_device_data(const size_t i, const size_t j) const;
+        float *get_host_data();
+        float *get_device_data();
 
         void set_host_data(const size_t i, float f);
         void set_host_data(const size_t i, const size_t j, float f);
@@ -43,9 +46,11 @@ class matrix
         bool compare_device_data(const matrix &m) const;
 
         /**
-         * Operators are interacting with host memory.
+         * Boolean operators are working only on host memory.
          */
 
+        matrix operator+(const matrix &m1, const matrix& m2);
+        matrix operator*(const matrix &m1, const matrix& m2);
         bool operator==(const matrix &m1, const matrix &m2);
         bool operator!=(const matrix &m1, const matrix &m2);
         const float& operator[](const int i) const;

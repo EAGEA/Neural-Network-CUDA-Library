@@ -13,6 +13,12 @@ class linear_layer: public layer
 {
     public:
 
+        /**
+         * @param nb_neurons the total number of neurons in this layer.
+         * @param nb_features the number of features of each entry of the dataset.
+         */
+        linear_layer(size_t nb_neurons, size_t nb_features);
+
         virtual matrix forward_propagation(matrix features) override;
         virtual matrix backward_propagation(matrix errors) override;
 
@@ -31,11 +37,13 @@ class linear_layer: public layer
         void _init_weights();
 
         /**
-         * TODO CHECK IF INDEXES ARE TRUE
          * Parameters of the activation functions.
-         * The parameters of the neuron at position (i, j) in the layer,
-         * are at position (i, j) in the matrices,
-         * where i < "_dimensions.first" and j < "_dimensions.second".
+         * The parameters of the neuron n°i in the layer are
+         * at the column n°i in the matrices.
+         * "_weights" has the same number of row as the number of features,
+         * and the same number of columns as the number of neurons.
+         * "_biases" has the same number of columns as the number of neurons,
+         * and has only one row.
          */
         matrix _biases;
         matrix _weights;

@@ -5,44 +5,21 @@
 #include "linear_layer.h"
 
 
-linear_layer::linear_layer(std::pair<size_t, size_t> dimensions)
-: layer(dimensions)
+linear_layer::linear_layer(size_t nb_neurons, size_t nb_features)
+: layer(nb_neurons)
 {
-    _biases = new matrix(dimensions);
-    _weights = new matrix(dimensions);
+    _biases = new matrix(1, nb_neurons);
+    _weights = new matrix(nb_features, nb_neurons);
 
     _init_biases();
     _init_weights();
 }
 
-matrix forward_propagation(matrix features)
-{
-    // TODO matrix preparation
-    matrix outputs;
-
-    __linear_forward_propagation();
-
-    return outputs;
-}
-
-matrix backward_propagation(matrix errors)
-{
-    // TODO matrix preparation
-    matrix new_errors;
-
-    __linear_backward_propagation<<DIM_GRID, DIM_BLOCK>>();
-
-    return new_errors;
-}
-
 void linear_layer::_init_biases()
 {
-    for (int x = 0; x < _dimensions.first; x ++)
+    for (int x = 0; x < _dimensions.second; x ++)
     {
-        for (int y = 0; y < _dimensions.second; y ++)
-        {
-            _biases[y * _dimensions.first + x] = 0.f;
-        }
+        _biases[x] = 0.f;
     }
 }
 
@@ -51,26 +28,40 @@ void linear_layer::_init_weights()
     std::default_random_engine generator;
     std::normal_distribution<float> distribution(0.f, 1.f);
 
-    for (int x = 0; x < _dimensions.first; x ++)
+    for (int i = 0; i < _dimensions.first; i ++)
     {
-        for (int y = 0; y < _dimensions.second; y ++)
+        for (int j = 0; j < _dimensions.second; j ++)
         {
-            _weights[y * _dimensions.first + x] = distribution(generator);
+            _weights[i * _dimensions.second + j] = distribution(generator);
         }
     }
 }
 
-
-size_t DIM_GRID = 6;
-size_t DIM_BLOCK = 128;
-
-
-// TODO try to name function without "linear", having multiple function with the same name across
-// the layer files.
-__global__ void __linear_forward_propagation(matrix features)
+matrix linear_layer::forward_propagation(matrix features)
 {
-    int col = blockIdx.x * blockDim.x + threadIdx.x;
-    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    if (features.get_dimensions().first != _weights.get_dimensions().first)
+    {
+        // Invalid.
+        util::print_error("linear_layer::forward_propagation", "Invalid @features size");
+        util::exit_error();
+    }
+
+    // Compute entries of activation functions.
+    matrix inputs = features * _weights + _biases;
+    // Compute output of the same functions.
+    matrix outputs = ;// TODO compute output of activation function;
+
+    return outputs;
+}
+
+matrix linear_layer::backward_propagation(matrix errors)
+{
+    // TODO
+    matrix new_errors;
+
+    __linear_backward_propagation<<DIM_GRID, DIM_BLOCK>>();
+
+    return new_errors;
 }
 
 __global__ void __linear_backward_propagation(matrix errors)
