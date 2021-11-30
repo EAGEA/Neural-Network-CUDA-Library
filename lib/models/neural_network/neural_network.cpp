@@ -20,7 +20,7 @@ neural_network::neural_network(layer layer_, ...)
 }
 
 void neural_network::fit(dataset data,
-                         matrix (*loss_function)(matrix, matrix) = nullptr,
+                         loss_function_t loss_function,
                          size_t epochs = 1,
                          size_t batch_size = 1)
 {
@@ -43,7 +43,7 @@ void neural_network::fit(dataset data,
                 auto element_ = batch.get(k);
                 // Forward + backward propagation.
                 auto predictions = _forward_propagation(element_.get_features());
-                _backward_propagation(predictions, element_.get_labels(), &loss_function);
+                _backward_propagation(predictions, element_.get_labels(), loss_function);
             }
         }
     }
@@ -67,13 +67,13 @@ matrix neural_network::_forward_propagation(matrix features)
 }
 
 void neural_network::_backward_propagation(matrix predictions, matrix labels,
-                                           matrix (*loss_function)(matrix, matrix))
+                                           loss_function_t loss_function)
 {
-    auto errors = _loss_function.cost(predictions, labels);
+    auto errors = loss_function(predictions, labels);
 
     for (size_t i = _layers.size() - 1; i >= 0; i --)
     {
         auto layer_ = _layers.at(i);
-        errors = layer_.backward_propagation(errors, _loss_function);
+        errors = layer_.backward_propagation(errors);
     }
 }

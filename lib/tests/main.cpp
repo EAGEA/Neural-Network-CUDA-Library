@@ -22,7 +22,7 @@ void main(int argc, char *argv[])
     neural_network nn = neural_network(
             new layer(), ...
             );
-    nn.fit(train_test.first);
+    nn.fit(train_test.first, &loss_functions::mean_square_error);
     matrix predictions = nn.predict(train_test.second.get_features());
 
     return EXIT_SUCCESS;

@@ -16,7 +16,7 @@ class neural_network: public neural_network
         neural_network(layer layers, ...);
 
         virtual void fit(dataset data,
-                         matrix (*loss_function)(matrix, matrix) = nullptr,
+                         loss_function_t loss_function,
                          size_t epochs = 1,
                          size_t batch_size = 1) override;
 
@@ -39,7 +39,7 @@ class neural_network: public neural_network
          * @param loss_function
          */
         void _backward_propagation(matrix predictions, matrix labels,
-                                   matrix (*loss_function)(matrix, matrix))
+                                   loss_function_t loss_function)
 
         const std::vector<layer> _layers;
 };

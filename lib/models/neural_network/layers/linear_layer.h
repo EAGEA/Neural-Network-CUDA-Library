@@ -47,6 +47,8 @@ class linear_layer: public layer
          */
         matrix _biases;
         matrix _weights;
+
+        activation_function _activation_function;
 };
 
 

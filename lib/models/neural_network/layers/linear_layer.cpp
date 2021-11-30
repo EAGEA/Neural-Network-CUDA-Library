@@ -5,11 +5,13 @@
 #include "linear_layer.h"
 
 
-linear_layer::linear_layer(size_t nb_neurons, size_t nb_features)
+linear_layer::linear_layer(size_t nb_neurons, size_t nb_features,
+                           activation_function_t activation_function)
 : layer(nb_neurons)
 {
     _biases = new matrix(1, nb_neurons);
     _weights = new matrix(nb_features, nb_neurons);
+    _activation_function = activation_function;
 
     _init_biases();
     _init_weights();
@@ -46,10 +48,17 @@ matrix linear_layer::forward_propagation(matrix features)
         util::exit_error();
     }
 
+    matrix inputs, outputs;
+    std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(_dimensions.first,
+                                                          _dimensions.second);
+
     // Compute entries of activation functions.
-    matrix inputs = features * _weights + _biases;
-    // Compute output of the same functions.
-    matrix outputs = ;// TODO compute output of activation function;
+    inputs = features * _weights + _biases;
+    // Compute outputs of the same function.
+    __kernel_execute_activation_functions<<cuda_dims.first, cuda_dims.second>>(
+                    _activation_function,
+                    inputs.get_device_data(),
+                    outputs.get_device_data()) ;
 
     return outputs;
 }
@@ -64,10 +73,26 @@ matrix linear_layer::backward_propagation(matrix errors)
     return new_errors;
 }
 
+
+/**
+ * CUDA
+ */
+
+
+__global__ void __kernel_execute_activation_functions(activation_function_t activation_function,
+                                                      float *inputs, float *outputs,
+)
+{
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+
+    outputs[row * nb_cols + col] = activation_function(inputs[row * nb_cols + col]);
+}
+
 __global__ void __linear_backward_propagation(matrix errors)
 {
-    int col = blockIdx.x * blockDim.x + threadIdx.x;
-    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
 
     // Update the parameters of the activation functions.
     __update_activation_functions()<<DIM_GRID, DIM_BLOCK>>(errors);

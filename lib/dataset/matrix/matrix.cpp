@@ -219,8 +219,8 @@ const float& matrix::operator[](const int index) const
 __global__ void __kernel_add(float *output, float *data1, float *data2,
                              size_t nb_rows, size_t nb_cols)
 {
-    size_t col = blockIdx.x*blockDim.x+threadIdx.x;
-    size_t row = blockIdx.y*blockDim.y+threadIdx.y;
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
 
     float sum = 0.f;
 
@@ -239,8 +239,8 @@ __global__ void __kernel_multiply(float *output, float *data1, float *data2,
                                   size_t nb_rows_1, size_t nb_cols_1,
                                   size_t nb_rows_2, size_t nb_cols_2)
 {
-    size_t col = blockIdx.x*blockDim.x+threadIdx.x;
-    size_t row = blockIdx.y*blockDim.y+threadIdx.y;
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
 
     float sum = .0f;
 
