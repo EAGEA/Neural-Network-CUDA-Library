@@ -26,13 +26,12 @@ std::pair<dim3, dim3> get_cuda_dims(size_t nb_rows, size_t nb_columns)
     dim3 blocks_per_grid(1, 1);
     dim3 threads_per_block = dim3(nb_rows, nb_columns);
 
-    if (nb_rows * nb_columns > 512)
+    if (nb_rows * nb_columns > MAX_NB_THREADS)
     {
-        // TODO change
-        threads_per_block.x = 512;
-        threads_per_block.y = 512;
-        blocks_per_grid.x = ceil((double) nb_rows / 512.0);
-        blocks_per_grid.y = ceil((double) nb_columns / 512.0);
+        blocks_per_grid.x = std::ceilf((float) nb_rows / (float) MAX_NB_THREADS);
+        blocks_per_grid.y = std::ceilf((float) nb_columns / (float) MAX_NB_THREADS);
+        threads_per_block.x = MAX_NB_THREADS;
+        threads_per_block.y = MAX_NB_THREADS;
     }
 
     return std::pair<dim3, dim3>(blocks_per_grid, threads_per_block);

@@ -22,7 +22,7 @@ namespace util
      * @param nb_rows
      * @param nb_columns
      * @return the CUDA block/thread configuration such that it
-     *         covers a grid of size nb_rows * nb_columns.
+     *         covers a grid of size "nb_rows" * "nb_columns".
      */
     std::pair<dim3, dim3> get_cuda_dims(size_t nb_rows, size_t nb_columns)
 };

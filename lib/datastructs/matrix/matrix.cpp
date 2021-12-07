@@ -84,11 +84,11 @@ matrix matrix::multiply(const matrix &m) const
                                                           nb_columns);
 
     __kernel_multiply<<cuda_dims.first, cuda_dims.second>>(
-            output.get_device_data(),
-            _device_data,
-            m.get_device_data(),
-            _dimensions.first, _dimensions.second,
-            m.get_dimensions().first, m.get_dimensions().second);
+                    output.get_device_data(),
+                    _device_data,
+                    m.get_device_data(),
+                    _dimensions.first, _dimensions.second,
+                    m.get_dimensions().first, m.get_dimensions().second);
 }
 
 const std::pair<size_t, size_t> matrix::get_dimensions() const
@@ -222,17 +222,16 @@ __global__ void __kernel_add(float *output, float *data1, float *data2,
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
 
-    float sum = 0.f;
-
-    // TODO should be always true
     // Check if thread index is in the output dimensions.
     if (row < nb_rows && col < nb_cols)
     {
+        float sum = 0.f;
+
         sum += data1[row * nb_cols + col];
         sum += data2[row * nb_cols + col];
-    }
 
-    output[row * nb_cols + col] = sum;
+        output[row * nb_cols + col] = sum;
+    }
 }
 
 __global__ void __kernel_multiply(float *output, float *data1, float *data2,
@@ -242,17 +241,16 @@ __global__ void __kernel_multiply(float *output, float *data1, float *data2,
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
 
-    float sum = .0f;
-
-    // TODO should be always true
     // Check if thread index is in the output dimensions.
     if (row < nb_rows_1 && col < nb_cols_2)
     {
+        float sum = .0f;
+
         for (size_t i = 0; i < nb_cols_1; i ++)
         {
             sum += data1[row * nb_cols_1 + i] * data2[i * nb_cols_2 + col];
         }
-    }
 
-    output[row * nb_cols_2 + col] = sum;
+        output[row * nb_cols_2 + col] = sum;
+    }
 }
