@@ -27,8 +27,8 @@ void neural_network::fit(dataset data,
     if (loss_function == nullptr)
     {
         // Invalid.
-        util::print_error("neural_network::fit", "Invalid @loss_function");
-        util::exit_error();
+        util::ERROR("neural_network::fit", "Invalid @loss_function");
+        util::ERROR_EXIT();
     }
 
     for (size_t i = 1; i <= epochs; i ++)

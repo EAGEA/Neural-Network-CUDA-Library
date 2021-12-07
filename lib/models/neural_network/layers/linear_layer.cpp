@@ -44,8 +44,8 @@ matrix linear_layer::forward_propagation(matrix features)
     if (features.get_dimensions().second != _weights.get_dimensions().second)
     {
         // Invalid.
-        util::print_error("linear_layer::forward_propagation", "Invalid @features size");
-        util::exit_error();
+        util::ERROR("linear_layer::forward_propagation", "Invalid @features size");
+        util::ERROR_EXIT();
     }
 
     matrix inputs, outputs;

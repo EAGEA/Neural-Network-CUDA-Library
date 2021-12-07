@@ -56,8 +56,8 @@ std::pair<dataset, dataset> dataset::train_test_split(float train_size_ratio = 0
     if (train_size < 0 || 1 < train_size)
     {
         // Invalid.
-        util::print_error("dataset::train_test_split", "Invalid @training_size_ratio");
-        util::exit_error();
+        util::ERROR("dataset::train_test_split", "Invalid @training_size_ratio");
+        util::ERROR_EXIT();
     }
 
     dataset train;
@@ -90,8 +90,8 @@ dataset dataset::get_random_batch(size_t batch_size)
     if (batch_size < 0 || size < batch_size)
     {
         // Invalid.
-        util::print_error("dataset::get_random_batch", "Invalid @batch_size");
-        util::exit_error();
+        util::ERROR("dataset::get_random_batch", "Invalid @batch_size");
+        util::ERROR_EXIT();
     }
 
     dataset batch;

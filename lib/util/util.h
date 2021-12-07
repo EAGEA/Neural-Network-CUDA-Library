@@ -7,16 +7,21 @@
 
 
 #include <cstdlib>
+#include <cstdio>
+#include <cstdarg>
 #include <iostream>
 #include <string>
 
 
 namespace util
 {
-    uint32_t swap_endian(uint32_t val);
+    bool _DEBUG = true;
+    bool _ERROR = true;
 
-    void print_error(std::string location, std::string err);
-    void exit_error();
+    void DEBUG(const std::string location, const char *format, ...);
+    void ERROR(const std::string location, const char *format, ...);
+    void PRINT(const FILE *stream, const char *format, ...);
+    void ERROR_EXIT();
 
     /**
      * @param nb_rows
@@ -25,6 +30,8 @@ namespace util
      *         covers a grid of size "nb_rows" * "nb_columns".
      */
     std::pair<dim3, dim3> get_cuda_dims(size_t nb_rows, size_t nb_columns)
+
+    uint32_t swap_endian(uint32_t val);
 };
 
 

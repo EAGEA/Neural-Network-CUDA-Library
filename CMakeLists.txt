@@ -1,9 +1,25 @@
-cmake_minimum_required(VERSION 3.20)
-project(CudaNN CUDA)
+cmake_minimum_required(VERSION 3.16)
 
-set(CMAKE_CUDA_STANDARD 14)
+# Set the project name and version ######################
+project(CudaNN LANGUAGES CXX)
+#########################################################
+#########################################################
+# Set standards #########################################
+set(CMAKE_CUDA_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+#########################################################
+#########################################################
+# Include the whole project #############################
+include_directories(${PROJECT_SOURCE_DIR})
+#########################################################
+#########################################################
+# CUDA Libraries ########################################
+find_package(CUDA)
 
-add_library(CudaNN lib/models/model.h lib/models/neural_network/neural_network.cpp lib/models/neural_network/neural_network.h lib/models/neural_network/layers/layer.h lib/models/neural_network/layers/linear_layer.cpp lib/models/neural_network/layers/linear_layer.h lib/parameters/utils/util.cpp lib/parameters/utils/util.h lib/datastructs/matrix/matrix.cpp lib/datastructs/matrix/matrix.h lib/datastructs/dataset/dataset.cpp lib/datastructs/dataset/dataset.h tests/main.cpp lib/util/util.cpp lib/util/util.h lib/datastructs/dataset/element/element.cpp lib/datastructs/dataset/element/element.h lib/models/neural_network/layers/layer.cpp lib/parameters/loss_functions/loss_functions.h lib/parameters/loss_functions/loss_functions.cpp lib/parameters/activation_functions/activation_functions.cpp lib/parameters/activation_functions/activation_functions.h)
-
-set_target_properties(CudaNN PROPERTIES
-        CUDA_SEPARABLE_COMPILATION ON)
+if (CUDA_FOUND)
+    enable_language(CUDA)
+    include_directories(${CUDA_INCLUDE_DIRS} )
+    add_executable(main tests/main.cpp)
+endif ()
+#########################################################

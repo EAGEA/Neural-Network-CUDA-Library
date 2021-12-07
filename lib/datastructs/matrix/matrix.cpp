@@ -26,8 +26,8 @@ void matrix::allocate()
         if (err == cudaErrorMemoryAllocation)
         {
             // Invalid.
-            util::print_error("matrix::allocate", "memory allocation on device failed");
-            util::exit_error();
+            util::ERROR("matrix::allocate", "memory allocation on device failed");
+            util::ERROR_EXIT();
         }
 
         // Allocate memory on CPU.
@@ -51,9 +51,9 @@ matrix matrix::add(const matrix &m) const
     if (m.get_dimensions() != _dimensions)
     {
         // Invalid.
-        util::print_error("matrix::add", "Invalid @m size; not the same number"
+        util::ERROR("matrix::add", "Invalid @m size; not the same number"
                                          " of rows or/and columns");
-        util::exit_error();
+        util::ERROR_EXIT();
     }
 
     matrix output = matrix(_dimensions);
@@ -71,9 +71,9 @@ matrix matrix::multiply(const matrix &m) const
     if (_dimensions.second != m.get_dimensions().first)
     {
         // Invalid.
-        util::print_error("matrix::multiply", "Invalid @m size; not the same number"
+        util::ERROR("matrix::multiply", "Invalid @m size; not the same number"
                                               " of rows as the number of columns");
-        util::exit_error();
+        util::ERROR_EXIT();
     }
 
     size_t nb_rows = _dimensions.first;

@@ -5,18 +5,40 @@
 #include "util.h"
 
 
-uint32_t swap_endian(uint32_t val)
+void DEBUG(const std::string location, const char *format, ...)
 {
-    val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF);
-    return (val << 16) | (val >> 16);
+    if (! util::_DEBUG)
+    {
+        return;
+    }
+
+    std::cout << "[DEBUG] at " + location + " > ";
+    util::PRINT(stdout, format);
+    std::cout << std::endl;
 }
 
-void print_error(std::string location, std::string err)
+void ERROR(const std::string location, const char *format, ...)
 {
-    std::cerr << "[ERROR] at "<< location << " > " << err << "." << std::endl;
+    if (! util::_ERROR)
+    {
+        return;
+    }
+
+    std::cerr << "[ERROR] at " + location + " > ";
+    util::PRINT(stderr, format);
+    std::cerr << std::endl;
 }
 
-void exit_error()
+void PRINT(const FILE *stream, const char *format, ...)
+{
+    va_list arg;
+
+    va_start(arg, format);
+    vfprintf(stream, format, arg);
+    va_end(arg);
+}
+
+void ERROR_EXIT()
 {
     std::exit(EXIT_FAILURE);
 }
@@ -35,4 +57,10 @@ std::pair<dim3, dim3> get_cuda_dims(size_t nb_rows, size_t nb_columns)
     }
 
     return std::pair<dim3, dim3>(blocks_per_grid, threads_per_block);
+}
+
+uint32_t swap_endian(uint32_t val)
+{
+    val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF);
+    return (val << 16) | (val >> 16);
 }
