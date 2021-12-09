@@ -17,7 +17,7 @@ float binary_step(float input, float threshold = 0.f)
 
 float sigmoid(float input)
 {
-    return 1.f / 1.f + std::exp(-input);
+    return 1.f / 1.f + exp(-input);
 }
 
 float relu(float input)

@@ -5,9 +5,9 @@
 #include "matrix.h"
 
 
-matrix::matrix(std::pair<size_t, size_t> dimensions)
+matrix::matrix(const std::pair<size_t, size_t> dimensions):
+    _dimensions(dimensions)
 {
-    _dimensions = dimensions;
     _allocated = false;
 }
 
@@ -21,14 +21,7 @@ void matrix::allocate()
     if (! _allocated)
     {
         // Allocate memory on GPU.
-        cudaError_t err = cudaMalloc(&_device_data, _dimensions.first * _dimensions.second * sizeof(float));
-
-        if (err == cudaErrorMemoryAllocation)
-        {
-            // Invalid.
-            util::ERROR("matrix::allocate", "memory allocation on device failed");
-            util::ERROR_EXIT();
-        }
+        __allocate(_dimensions, _device_data);
 
         // Allocate memory on CPU.
         _host_data = new float[_dimensions.first * _dimensions.second];
@@ -39,9 +32,9 @@ void matrix::allocate()
 
 void matrix::free()
 {
-    if (allocated)
+    if (_allocated)
     {
-        cudaFree(_device_data);
+        __free(_device_data);
         delete[] _host_data;
     }
 }
@@ -52,18 +45,20 @@ matrix matrix::add(const matrix &m) const
     {
         // Invalid.
         util::ERROR("matrix::add", "Invalid @m size; not the same number"
-                                         " of rows or/and columns");
+                " of rows or/and columns");
         util::ERROR_EXIT();
     }
 
     matrix output = matrix(_dimensions);
     std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(_dimensions.first,
-                                                          _dimensions.second);
+            _dimensions.second);
 
-    __kernel_add<<cuda_dims.first, cuda_dims.second>>(
-                    output.get_device_data(),
-                    _device_data,
-                    m.get_device_data());
+    __add(cuda_dims.first, cuda_dims.second,
+            output.get_device_data(),
+            _device_data, m.get_device_data(),
+            _dimensions.first, _dimensions.second);
+
+    return output;
 }
 
 matrix matrix::multiply(const matrix &m) const
@@ -81,19 +76,30 @@ matrix matrix::multiply(const matrix &m) const
 
     matrix output = matrix(nb_rows, nb_columns);
     std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(nb_rows,
-                                                          nb_columns);
+            nb_columns);
 
-    __kernel_multiply<<cuda_dims.first, cuda_dims.second>>(
-                    output.get_device_data(),
-                    _device_data,
-                    m.get_device_data(),
-                    _dimensions.first, _dimensions.second,
-                    m.get_dimensions().first, m.get_dimensions().second);
+    __multiply(cuda_dims.first, cuda_dims.second,
+            output.get_device_data(),
+            _device_data, m.get_device_data(),
+            _dimensions.first, _dimensions.second,
+            m.get_dimensions().first, m.get_dimensions().second);
+
+    return output;
 }
 
 const std::pair<size_t, size_t> matrix::get_dimensions() const
 {
     return _dimensions;
+}
+
+const float *matrix::get_host_data() const
+{
+    return _host_data;
+}
+
+const float *matrix::get_device_data() const
+{
+    return _device_data;
 }
 
 float *matrix::get_host_data()
@@ -104,11 +110,6 @@ float *matrix::get_host_data()
 float *matrix::get_device_data()
 {
     return _device_data;
-}
-
-float matrix::get_device_data(const size_t i, const size_t j) const
-{
-    return _device_data[i * _dimensions.second + j];
 }
 
 void matrix::set_host_data(const size_t i, float f)
@@ -138,11 +139,11 @@ bool matrix::compare_host_data(const matrix &m) const
         return false;
     }
 
-    for (size_t i; i < _dimensions.first; i ++)
+    for (size_t i = 0; i < _dimensions.first; i ++)
     {
-        for (size_t j; j < _dimensions.second; j ++)
+        for (size_t j = 0; j < _dimensions.second; j ++)
         {
-            if (m.get_host_data[i * _dimensions.second + j]
+            if (m.get_host_data()[i * _dimensions.second + j]
                 != _host_data[i * _dimensions.second + j])
             {
                 return false;
@@ -160,11 +161,11 @@ bool matrix::compare_device_data(const matrix &m) const
         return false;
     }
 
-    for (size_t i; i < _dimensions.first; i ++)
+    for (size_t i = 0; i < _dimensions.first; i ++)
     {
-        for (size_t j; j < _dimensions.second; j ++)
+        for (size_t j = 0; j < _dimensions.second; j ++)
         {
-            if (m.get_device_data[i * _dimensions.second + j]
+            if (m.get_device_data()[i * _dimensions.second + j]
                 != _device_data[i * _dimensions.second + j])
             {
                 return false;
@@ -175,82 +176,38 @@ bool matrix::compare_device_data(const matrix &m) const
     return true;
 }
 
-matrix matrix::operator+(const matrix &m1, const matrix &m2)
+matrix& matrix::operator=(const matrix &m)
 {
-    return add(m2);
+    if (this == &m)
+    {
+        return *this;
+    }
+
+    // TODO check if need to call free()
+    
+    // Re-assign for const members.
+    this->~matrix();
+    new (this) matrix(m.get_dimensions());
+
+    return *this;
 }
 
-matrix matrix::operator*(const matrix &m1, const matrix &m2)
+matrix operator+(const matrix &m1, const matrix &m2)
 {
-    return multiply(m2)
+    return m1.add(m2);
 }
 
-bool matrix::operator==(const matrix &m1, const matrix &m2)
+matrix operator*(const matrix &m1, const matrix &m2)
+{
+    return m1.multiply(m2);
+}
+
+bool operator==(const matrix &m1, const matrix &m2)
 {
     return m1.compare_host_data(m2);
 }
 
-bool matrix::operator!=(const matrix &m1, const matrix &m2)
+bool operator!=(const matrix &m1, const matrix &m2)
 {
     return ! m1.compare_host_data(m2);
-}
-
-const float& matrix::operator[](const int i) const
-{
-    return _host_data.get(i);
-}
-
-float& matrix::operator[](const int i)
-{
-    return _host_data.get(i);
-}
-
-const float& matrix::operator[](const int index) const
-{
-    return _host_data.get()[index];
-}
-
-
-/**
- * CUDA.
- */
-
-
-__global__ void __kernel_add(float *output, float *data1, float *data2,
-                             size_t nb_rows, size_t nb_cols)
-{
-    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-
-    // Check if thread index is in the output dimensions.
-    if (row < nb_rows && col < nb_cols)
-    {
-        float sum = 0.f;
-
-        sum += data1[row * nb_cols + col];
-        sum += data2[row * nb_cols + col];
-
-        output[row * nb_cols + col] = sum;
-    }
-}
-
-__global__ void __kernel_multiply(float *output, float *data1, float *data2,
-                                  size_t nb_rows_1, size_t nb_cols_1,
-                                  size_t nb_rows_2, size_t nb_cols_2)
-{
-    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-
-    // Check if thread index is in the output dimensions.
-    if (row < nb_rows_1 && col < nb_cols_2)
-    {
-        float sum = .0f;
-
-        for (size_t i = 0; i < nb_cols_1; i ++)
-        {
-            sum += data1[row * nb_cols_1 + i] * data2[i * nb_cols_2 + col];
-        }
-
-        output[row * nb_cols_2 + col] = sum;
-    }
 }

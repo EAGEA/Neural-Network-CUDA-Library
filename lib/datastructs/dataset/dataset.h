@@ -5,6 +5,15 @@
 #ifndef CUDANN_DATASET_H
 #define CUDANN_DATASET_H
 
+#include "lib/datastructs/matrix/matrix.h"
+#include "lib/datastructs/dataset/element/element.h"
+#include "lib/util/util.h"
+
+#include <cstddef>
+#include <vector>
+#include <utility>
+#include <algorithm>
+
 
 /**
  * Dataset representation.
@@ -16,20 +25,24 @@ class dataset
         dataset();
 
         /**
-         * Note: copy the "elements", such that the current instance owns
+         * /!\ Note: copy the "elements", such that the current instance owns
          * the array, and does not depend on any external array.
          * @param elements
          */
-        dataset(std::vec<element> elements);
+        dataset(std::vector<element> &elements);
 
         void add(matrix features, matrix labels);
         void add(element elem);
         void remove(element elem);
         void remove(size_t i);
-        void get(size_t i);
-
-        std::vec<element> get_elements();
+        element get(size_t i);
+        std::vector<element> get_elements();
         size_t size() const;
+
+        /**
+         * @return a matrix that contains all the features concatenated.
+         */
+        matrix get_features();
 
         /**
          * @param train_size_ratio represent the proportion of the training dataset
@@ -55,7 +68,7 @@ class dataset
 
     private:
 
-        std::vec<element> *_elements;
+        std::vector<element> _elements;
 };
 
 

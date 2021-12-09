@@ -5,15 +5,21 @@
 #ifndef CUDANN_NEURAL_NETWORK_H
 #define CUDANN_NEURAL_NETWORK_H
 
+#include "lib/models/model.h"
+#include "lib/models/neural_network/layers/layer.h"
+
+#include <initializer_list>
+
+
 
 /**
  * Model implementation of a neural network.
  */
-class neural_network: public neural_network
+class neural_network: public model
 {
     public:
 
-        neural_network(layer layers, ...);
+        neural_network(std::initializer_list<layer> layers);
 
         virtual void fit(dataset data,
                          loss_function_t loss_function,
@@ -39,9 +45,9 @@ class neural_network: public neural_network
          * @param loss_function
          */
         void _backward_propagation(matrix predictions, matrix labels,
-                                   loss_function_t loss_function)
+                                   loss_function_t loss_function);
 
-        const std::vector<layer> _layers;
+        std::vector<layer> _layers;
 };
 
 

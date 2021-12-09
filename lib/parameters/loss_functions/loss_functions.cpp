@@ -7,96 +7,85 @@
 
 matrix mean_square_error(matrix predictions, matrix labels)
 {
-    matrix error;
+    matrix error = matrix(predictions.get_dimensions());
     // TODO allocate matrix
-    __kernel_mean_square_error(error.get_device_data(),
-                               predictions.get_device_data(),
-                               labels.get_device_data());
+    std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(
+            predictions.get_dimensions().first,
+            predictions.get_dimensions().second);
+
+    loss_functions::__mean_square_error(
+            cuda_dims.first, cuda_dims.second,
+            error.get_device_data(),
+            predictions.get_device_data(),
+            labels.get_device_data());
 
     return error;
 }
 
 matrix mean_absolute_error(matrix predictions, matrix labels)
 {
-    matrix error;
+    matrix error = matrix(predictions.get_dimensions());
     // TODO allocate matrix
-    __kernel_mean_absolute_error(error.get_device_data(),
-                               predictions.get_device_data(),
-                               labels.get_device_data());
+    std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(
+            predictions.get_dimensions().first,
+            predictions.get_dimensions().second);
 
-    return;
+    loss_functions::__mean_absolute_error(
+            cuda_dims.first, cuda_dims.second,
+            error.get_device_data(),
+            predictions.get_device_data(),
+            labels.get_device_data());
+
+    return error;
 }
 
 matrix mean_bias_error(matrix predictions, matrix labels)
 {
-    matrix error;
+    matrix error = matrix(predictions.get_dimensions());
     // TODO allocate matrix
-    __kernel_mean_bias_error(error.get_device_data(),
-                               predictions.get_device_data(),
-                               labels.get_device_data());
+    std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(
+            predictions.get_dimensions().first,
+            predictions.get_dimensions().second);
 
-    return;
+    loss_functions::__mean_bias_error(
+            cuda_dims.first, cuda_dims.second,
+            error.get_device_data(),
+            predictions.get_device_data(),
+            labels.get_device_data());
+
+    return error;
 }
 
 matrix svm_loss(matrix predictions, matrix labels)
 {
-    matrix error;
+    matrix error = matrix(predictions.get_dimensions());
     // TODO allocate matrix
-    __kernel_svm_loss(error.get_device_data(),
-                             predictions.get_device_data(),
-                             labels.get_device_data());
+    std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(
+            predictions.get_dimensions().first,
+            predictions.get_dimensions().second);
 
-    return;
+    loss_functions::__svm_loss(
+            cuda_dims.first, cuda_dims.second,
+            error.get_device_data(),
+            predictions.get_device_data(),
+            labels.get_device_data());
+
+    return error;
 }
 
 matrix cross_entropy_loss(matrix predictions, matrix labels)
 {
-    matrix error;
+    matrix error = matrix(predictions.get_dimensions());
     // TODO allocate matrix
-    __kernel_cross_entropy_loss(error.get_device_data(),
-                      predictions.get_device_data(),
-                      labels.get_device_data());
+    std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(
+            predictions.get_dimensions().first,
+            predictions.get_dimensions().second);
 
-    return;
-}
+    loss_functions::__cross_entropy_loss(
+            cuda_dims.first, cuda_dims.second,
+            error.get_device_data(),
+            predictions.get_device_data(),
+            labels.get_device_data());
 
-
-/**
-* CUDA.
-*/
-
-
-__global__ void __kernel_mean_square_error(float *result,
-                                           float *predictions,
-                                           float *errors)
-{
-    // TODO
-}
-
-__global__ void __kernel_mean_absolute_error(float *result,
-                                             float *predictions,
-                                             float *errors)
-{
-    // TODO
-}
-
-__global__ void __kernel_mean_bias_error(float *result,
-                                         float *predictions,
-                                         float *errors)
-{
-    // TODO
-}
-
-__global__ void __kernel_svm_loss(float *result,
-                                  float *predictions,
-                                  float *errors)
-{
-    // TODO
-}
-
-__global__ void __kernel_cross_entropy_loss(float *result,
-                                            float *predictions,
-                                            float *errors)
-{
-    // TODO
+    return error;
 }

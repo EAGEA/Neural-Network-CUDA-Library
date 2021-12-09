@@ -5,6 +5,9 @@
 #ifndef CUDANN_MODEL_H
 #define CUDANN_MODEL_H
 
+#include "lib/datastructs/dataset/dataset.h"
+#include "lib/parameters/loss_functions/loss_functions.h"
+
 
 /**
  * Model to be trained such that it identifies patterns,
@@ -23,9 +26,9 @@ class model
          * @param batch_size the size of the samples during the training.
          */
         virtual void fit(dataset data,
-                         matrix (*loss_function)(matrix, matrix) = nullptr,
+                         loss_function_t loss_function,
                          size_t epochs = 1,
-                         size_t batch_size = 1) override;
+                         size_t batch_size = 1);
 
         /**
          * @param features

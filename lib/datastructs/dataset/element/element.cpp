@@ -5,10 +5,10 @@
 #include "element.h"
 
 
-element::element(matrix features, matrix labels)
+element::element(const matrix &features, const matrix &labels): 
+    _features(features), 
+    _labels(labels)
 {
-    _features = features;
-    _labels = labels;
 }
 
 const matrix element::get_features() const
@@ -33,15 +33,29 @@ bool element::compare_labels(const matrix &labels) const
 
 bool element::compare(const element &e) const
 {
-    return compare_features(element.get_features()) && compare_labels(element.get_labels());
+    return compare_features(e.get_features()) && compare_labels(e.get_labels());
 }
 
-bool element::operator==(const element &e1, const element &e2)
+element &element::operator=(element &e)
+{
+    if (this == &e)
+    {
+        return *this;
+    }
+
+    // Re-assign for const members.
+    this->~element();
+    new (this) element(e.get_features(), e.get_labels());
+
+    return *this;
+}
+
+bool operator==(const element &e1, const element &e2)
 {
     return e1.compare(e2);
 }
 
-bool element::operator!=(const element &e1, const element &e2)
+bool operator!=(const element &e1, const element &e2)
 {
     return ! e1.compare(e2);
 }

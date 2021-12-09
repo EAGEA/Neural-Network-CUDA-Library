@@ -5,6 +5,10 @@
 #ifndef CUDANN_LAYER_H
 #define CUDANN_LAYER_H
 
+#include "lib/datastructs/matrix/matrix.h" 
+
+#include <cstddef>
+
 
 /**
  * Layer of neurons to be included in a neural network.
@@ -13,14 +17,14 @@ class layer
 {
     public:
 
-        layer(size_t nb_neurons);
+        explicit layer(const size_t nb_neurons);
 
         virtual matrix forward_propagation(matrix features);
         virtual matrix backward_propagation(matrix errors);
 
         const size_t size() const;
 
-    private:
+    protected:
 
         /**
          * Dimension of the layer.

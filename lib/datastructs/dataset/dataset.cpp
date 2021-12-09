@@ -4,16 +4,14 @@
 
 #include "dataset.h"
 
-#include <cstdlib>
-
 
 dataset::dataset()
 {
 }
 
-dataset::dataset(std::vec<element> elements)
+dataset::dataset(std::vector<element> &elements):
+    _elements(elements)
 {
-    _elements = elements;
 }
 
 void dataset::add(matrix features, matrix labels)
@@ -28,20 +26,27 @@ void dataset::add(element elem)
 
 void dataset::remove(element elem)
 {
-    _elements.clear(elemen);
+    // TODO
+    /**
+    _elements.erase(std::remove(_elements.begin(), _elements.end(), elem), 
+            _elements.end());
+            */
 }
 
 void dataset::remove(size_t i)
 {
+    //TODO
+    /*
     _elements.erase(_elements.begin() + i);
+    */
 }
 
-void dataset::get(size_t i)
+element dataset::get(size_t i)
 {
     return _elements.at(i);
 }
 
-std::vec<elements> dataset::get_elements()
+std::vector<element> dataset::get_elements()
 {
     return _elements;
 }
@@ -51,8 +56,19 @@ size_t dataset::size() const
     return _elements.size();
 }
 
-std::pair<dataset, dataset> dataset::train_test_split(float train_size_ratio = 0.8f)
+matrix get_features()
 {
+    matrix features(4, 4);
+
+    // TODO return all the features concatenated.
+    return features;
+}
+
+std::pair<dataset, dataset> dataset::train_test_split(float train_size_ratio /*= 0.8f*/)
+{
+    size_t size_ = size();
+    size_t train_size = size_ * train_size_ratio;
+
     if (train_size < 0 || 1 < train_size)
     {
         // Invalid.
@@ -62,14 +78,12 @@ std::pair<dataset, dataset> dataset::train_test_split(float train_size_ratio = 0
 
     dataset train;
     dataset test;
-    size_t size = size();
     size_t nb_selected = 0;
-    size_t train_size = size * train_size_ratio;
 
-    for (size_t i = 0; (i < size) && (nb_selected < train_size); i ++)
+    for (size_t i = 0; (i < size_) && (nb_selected < train_size); i ++)
     {
-        float probability_to_be_selected = (train_size - nb_selected) / (size - i);
-        float random = ((float) std::rand() / (float) (RAND_MAX)) * (float) (size - i);
+        float probability_to_be_selected = (train_size - nb_selected) / (size_ - i);
+        float random = ((float) std::rand() / (float) (RAND_MAX)) * (float) (size_ - i);
 
         if (random <= probability_to_be_selected)
         {
@@ -87,7 +101,9 @@ std::pair<dataset, dataset> dataset::train_test_split(float train_size_ratio = 0
 
 dataset dataset::get_random_batch(size_t batch_size)
 {
-    if (batch_size < 0 || size < batch_size)
+    size_t size_ = size();
+
+    if (batch_size < 0 || size_ < batch_size)
     {
         // Invalid.
         util::ERROR("dataset::get_random_batch", "Invalid @batch_size");
@@ -95,13 +111,12 @@ dataset dataset::get_random_batch(size_t batch_size)
     }
 
     dataset batch;
-    size_t size = size();
     size_t nb_selected = 0;
 
-    for (size_t i = 0; (i < size) && (nb_selected < batch_size); i ++)
+    for (size_t i = 0; (i < size_) && (nb_selected < batch_size); i ++)
     {
-        float probability_to_be_selected = (batch_size - nb_selected) / (size - i);
-        float random = ((float) std::rand() / (float) (RAND_MAX)) * (float) (size - i);
+        float probability_to_be_selected = (batch_size - nb_selected) / (size_ - i);
+        float random = ((float) std::rand() / (float) (RAND_MAX)) * (float) (size_ - i);
 
         if (random <= probability_to_be_selected)
         {
@@ -113,7 +128,7 @@ dataset dataset::get_random_batch(size_t batch_size)
     return batch;
 }
 
-static dataset dataset::loadMNIST()
+dataset dataset::loadMNIST()
 {
     dataset data;
     // TODO

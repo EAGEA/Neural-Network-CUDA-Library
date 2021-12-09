@@ -5,6 +5,8 @@
 #ifndef CUDANN_ELEMENT_H
 #define CUDANN_ELEMENT_H
 
+#include "lib/datastructs/matrix/matrix.h"
+
 
 /**
  * Element in a dataset.
@@ -13,7 +15,7 @@ class element
 {
     public:
 
-        element(matrix features, matrix labels);
+        element(const matrix &features, const matrix &labels);
 
         const matrix get_features() const;
         const matrix get_labels() const;
@@ -22,14 +24,17 @@ class element
         bool compare_labels(const matrix &labels) const;
         bool compare(const element &e) const;
 
-        bool operator==(const element &e1, const element &e2);
-        bool operator!=(const element &e1, const element &e2);
+        element &operator=(element &e);
 
     private:
 
         const matrix _features;
         const matrix _labels;
 };
+
+
+bool operator==(const element &e1, const element &e2);
+bool operator!=(const element &e1, const element &e2);
 
 
 #endif //CUDANN_ELEMENT_H

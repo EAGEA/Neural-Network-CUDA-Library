@@ -5,24 +5,18 @@
 #include "neural_network.h"
 
 
-neural_network::neural_network(layer layer_, ...)
+neural_network::neural_network(std::initializer_list<layer> layers)
 {
-    va_list va;
-    va_start(va, layer_);
-
-    while (layers)
+    for (auto layer: layers)
     {
-        _layers.push_back(layer_);
-        layer_ = va_arg(va, layer);
+        _layers.push_back(layer);
     }
-
-    va_end(va);
 }
 
 void neural_network::fit(dataset data,
                          loss_function_t loss_function,
-                         size_t epochs = 1,
-                         size_t batch_size = 1)
+                         size_t epochs /*= 1*/,
+                         size_t batch_size /*= 1*/)
 {
     if (loss_function == nullptr)
     {
@@ -33,7 +27,7 @@ void neural_network::fit(dataset data,
 
     for (size_t i = 1; i <= epochs; i ++)
     {
-        for (size_t j = 1; j <= x.size() / batch; j ++)
+        for (size_t j = 1; j <= data.size() / batch_size; j ++)
         {
             // Get a sample of "batch size" (features + labels).
             auto batch = data.get_random_batch(batch_size);
@@ -49,9 +43,9 @@ void neural_network::fit(dataset data,
     }
 }
 
-data neural_network::predict(matrix features)
+matrix neural_network::predict(matrix features)
 {
-    return _forward_propagation(x);
+    return _forward_propagation(features);
 }
 
 matrix neural_network::_forward_propagation(matrix features)
