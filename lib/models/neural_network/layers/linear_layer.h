@@ -7,7 +7,10 @@
 
 #include "lib/models/neural_network/layers/layer.h"
 #include "lib/parameters/activation_functions/activation_functions.h"
+#include "lib/util/util.h"
 #include "/usr/local/cuda/include/vector_types.h"
+
+#include <random>
 
 
 /**
@@ -65,7 +68,7 @@ void __execute_activation_functions(dim3 block_dims, dim3 thread_dims,
                                     activation_function_t activation_function,
                                     float *inputs, float *outputs,
                                     size_t nb_neurons);
-void __backward_propagation(dim3 block_dims, dim3 thread_dims, matrix errors);
+void __backward_propagation(dim3 block_dims, dim3 thread_dims, float *errors);
 
 
 

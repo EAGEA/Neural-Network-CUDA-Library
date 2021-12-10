@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     std::srand((unsigned int) std::time(nullptr));
 
     // Load and split the dataset.
-    std::pair<dataset, dataset> split;// = dataset.load("path to").train_test_split();
+    std::pair<dataset, dataset> split = dataset::load_mult().train_test_split();
     dataset train = split.first;
     dataset test = split.second;
     // Train and predict with a neural network.

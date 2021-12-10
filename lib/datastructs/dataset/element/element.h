@@ -26,10 +26,16 @@ class element
 
         element &operator=(element &e);
 
+        /**
+         * Print the given element.
+         * @e
+         */
+        static void print(const element &e);
+
     private:
 
-        const matrix _features;
-        const matrix _labels;
+        const matrix &_features;
+        const matrix &_labels;
 };
 
 

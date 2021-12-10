@@ -24,7 +24,7 @@ __global__ void __kernel_execute_activation_functions(activation_function_t acti
     }
 }
 
-__device__ void __kernel_update_activation_functions(matrix errors)
+__device__ void __kernel_update_activation_functions(float *errors)
 {
     // Update the weights.
 
@@ -32,7 +32,7 @@ __device__ void __kernel_update_activation_functions(matrix errors)
 
 }
 
-__global__ void __kernel_backward_propagation(matrix errors)
+__global__ void __kernel_backward_propagation(float *errors)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -59,7 +59,7 @@ void __execute_activation_functions(dim3 block_dims, dim3 thread_dims,
             nb_neurons);
 }
 
-void __backward_propagation(dim3 block_dims, dim3 thread_dims, matrix errors)
+void __backward_propagation(dim3 block_dims, dim3 thread_dims, float *errors)
 {
     __kernel_backward_propagation<<<block_dims, thread_dims>>>(errors);
 }

@@ -3,15 +3,6 @@
 //
 
 #include "util.h"
-#include "/usr/local/cuda/include/vector_types.h"
-
-#include <cstdlib>
-#include <cstdio>
-#include <cstdarg>
-#include <cmath>
-#include <iostream>
-#include <string>
-#include <utility>
 
 
 const bool util::_DEBUG = true;
@@ -26,7 +17,7 @@ void util::DEBUG(const std::string location, const char *format, ...)
         return;
     }
 
-    std::cout << "[DEBUG] at " + location + " > ";
+    std::cout << "[DEBUG] at " + location + " >> ";
     util::PRINT(stdout, format);
     std::cout << std::endl;
 }
@@ -38,7 +29,7 @@ void util::ERROR(const std::string location, const char *format, ...)
         return;
     }
 
-    std::cerr << "[ERROR] at " + location + " > ";
+    std::cerr << "[ERROR] at " + location + " >> ";
     util::PRINT(stderr, format);
     std::cerr << std::endl;
 }

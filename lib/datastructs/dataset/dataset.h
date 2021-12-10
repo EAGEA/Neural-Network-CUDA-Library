@@ -7,10 +7,13 @@
 
 #include "lib/datastructs/matrix/matrix.h"
 #include "lib/datastructs/dataset/element/element.h"
+#include "lib/util/util.h"
 
 #include <cstddef>
 #include <vector>
 #include <utility>
+#include <algorithm>
+#include <random>
 
 
 /**
@@ -21,33 +24,34 @@ class dataset
     public:
 
         dataset();
-
-        /**
-         * /!\ Note: copy the "elements", such that the current instance owns
-         * the array, and does not depend on any external array.
-         * @param elements
-         */
         dataset(std::vector<element> &elements);
 
-        void add(matrix features, matrix labels);
-        void add(element elem);
-        void remove(element elem);
-        void remove(size_t i);
-        element get(size_t i);
-        std::vector<element> get_elements();
+        void add(const matrix &features, const matrix &labels);
+        void add(const element &elem);
+
+        void remove(const element &elem);
+        void remove(const size_t i);
+
+        const element &get(const size_t i) const;
+        const std::vector<element> &get_elements() const;
         size_t size() const;
 
         /**
          * @return a matrix that contains all the features concatenated.
          */
-        matrix get_features();
+        matrix get_features() const;
+
+        /**
+         * @return a matrix that contains all the labels concatenated.
+         */
+        matrix get_labels() const;
 
         /**
          * @param train_size_ratio represent the proportion of the training dataset
          * (between 0.f and 1.f).
          * @return a dataset for training, and another to test,
          * using the "selection sampling" algorithm to save memory in case
-         * of big dataset.
+         * of big dataset (cf. Donald E. Knuth).
          */
         std::pair<dataset, dataset> train_test_split(float train_size_ratio = 0.8f);
 
@@ -55,14 +59,27 @@ class dataset
          * @param batch_size
          * @return a random batch of size "batch_size",
          * using the "selection sampling" algorithm to save memory in case
-         * of big dataset.
+         * of big dataset (cf. Donald E. Knuth).
          */
         dataset get_random_batch(size_t batch_size);
 
+
         /**
-         * @return and load the MNIST dataset.
+         * * The multiplication dataset *
+         * for the "MULT_SIZE" elements,
+         * generate "MULT_N" random numbers in [0, "MULT_MAX"[ (the features),
+         * and associate them to the result of the multiplication between them (the label).
          */
-        static dataset loadMNIST();
+        static const size_t MULT_SIZE = 1000;
+        static const size_t MULT_N = 3;
+        static const size_t MULT_MAX = 10;
+        static dataset load_mult();
+
+        /**
+         * Print the given dataset.
+         * @d
+         */
+        static void print(const dataset &d);
 
     private:
 

@@ -3,14 +3,6 @@
 //
 
 #include "dataset.h"
-#include "lib/datastructs/matrix/matrix.h"
-#include "lib/datastructs/dataset/element/element.h"
-#include "lib/util/util.h"
-
-#include <cstddef>
-#include <vector>
-#include <utility>
-#include <algorithm>
 
 
 dataset::dataset()
@@ -22,17 +14,17 @@ dataset::dataset(std::vector<element> &elements):
 {
 }
 
-void dataset::add(matrix features, matrix labels)
+void dataset::add(const matrix &features, const matrix &labels)
 {
     add(element(features, labels));
 }
 
-void dataset::add(element elem)
+void dataset::add(const element &elem)
 {
     _elements.push_back(elem);
 }
 
-void dataset::remove(element elem)
+void dataset::remove(const element &elem)
 {
     // TODO
     /**
@@ -41,7 +33,7 @@ void dataset::remove(element elem)
             */
 }
 
-void dataset::remove(size_t i)
+void dataset::remove(const size_t i)
 {
     //TODO
     /*
@@ -49,12 +41,12 @@ void dataset::remove(size_t i)
     */
 }
 
-element dataset::get(size_t i)
+const element &dataset::get(const size_t i) const
 {
     return _elements.at(i);
 }
 
-std::vector<element> dataset::get_elements()
+const std::vector<element> &dataset::get_elements() const
 {
     return _elements;
 }
@@ -64,7 +56,7 @@ size_t dataset::size() const
     return _elements.size();
 }
 
-matrix dataset::get_features()
+matrix dataset::get_features() const
 {
     matrix features(4, 4);
 
@@ -72,26 +64,45 @@ matrix dataset::get_features()
     return features;
 }
 
+matrix dataset::get_labels() const
+{
+    matrix labels(4, 4);
+
+    // TODO return all the labels concatenated.
+    return labels;
+}
+
 std::pair<dataset, dataset> dataset::train_test_split(float train_size_ratio /*= 0.8f*/)
 {
-    size_t size_ = size();
-    size_t train_size = size_ * train_size_ratio;
-
-    if (train_size < 0 || 1 < train_size)
+    if (train_size_ratio < 0 || 1 < train_size_ratio)
     {
         // Invalid.
         util::ERROR("dataset::train_test_split", "Invalid @training_size_ratio");
         util::ERROR_EXIT();
     }
 
+    size_t size_ = size();
+
+    if (size_ < 2)
+    {
+        // Invalid.
+        util::ERROR("dataset::train_test_split", "Dataset is too small");
+        util::ERROR_EXIT();
+    }
+
     dataset train;
     dataset test;
+    size_t train_size = size_ * train_size_ratio;
     size_t nb_selected = 0;
+    std::default_random_engine generator;
+    std::normal_distribution<float> distribution = std::normal_distribution<float>(0.f, 1.f);
 
-    for (size_t i = 0; (i < size_) && (nb_selected < train_size); i ++)
+    for (size_t i = 0; nb_selected < train_size; i ++)
     {
-        float probability_to_be_selected = (train_size - nb_selected) / (size_ - i);
-        float random = ((float) std::rand() / (float) (RAND_MAX)) * (float) (size_ - i);
+        float probability_to_be_selected = (train_size - nb_selected) 
+                / (size_ - i);
+        float random = ((float) distribution(generator) 
+                / (float) (RAND_MAX)) * (float) (size_ - i);
 
         if (random <= probability_to_be_selected)
         {
@@ -120,11 +131,15 @@ dataset dataset::get_random_batch(size_t batch_size)
 
     dataset batch;
     size_t nb_selected = 0;
+    std::default_random_engine generator;
+    std::normal_distribution<float> distribution = std::normal_distribution<float>(0.f, 1.f);
 
     for (size_t i = 0; (i < size_) && (nb_selected < batch_size); i ++)
     {
-        float probability_to_be_selected = (batch_size - nb_selected) / (size_ - i);
-        float random = ((float) std::rand() / (float) (RAND_MAX)) * (float) (size_ - i);
+        float probability_to_be_selected = (batch_size - nb_selected) 
+                / (size_ - i);
+        float random = ((float) distribution(generator) 
+                / (float) (RAND_MAX)) * (float) (size_ - i);
 
         if (random <= probability_to_be_selected)
         {
@@ -136,44 +151,35 @@ dataset dataset::get_random_batch(size_t batch_size)
     return batch;
 }
 
-dataset dataset::loadMNIST()
+dataset dataset::load_mult()
 {
-    dataset data;
-    // TODO
-    /*
-    uint32_t num_items;
-    uint32_t rows;
-    uint32_t cols;
+    dataset data; 
 
-    // Open files.
-    std::ifstream image_file(MNIST_IMAGE_FILENAME, std::ios::in | std::ios::binary);
-    std::ifstream label_file(MNIST_LABEL_FILENAME, std::ios::in | std::ios::binary);
-    // Read infos.
-    image_file.read(reinterpret_cast<char*>(&num_items), 4);
-    image_file.read(reinterpret_cast<char*>(&rows), 4);
-    image_file.read(reinterpret_cast<char*>(&cols), 4);
-    num_items = util::swap_endian(num_items);
-    rows = util::swap_endian(rows);
-    cols = util::swap_endian(cols);
-
-    char label;
-    char *pixels = new char[rows * cols];
-    // Read pixels and label of each image.
-    for (int i = 0; i < num_items; i ++)
+    for (size_t i = 0; i < MULT_SIZE; i ++)
     {
-        image_file.read(pixels, rows * cols);
-        label_file.read(&label, 1);
-        // TODO /////////
-        // convert it to cv Mat, and show it
-        cv::Mat image_tmp(rows,cols,CV_8UC1,pixels);
-        // resize bigger for showing
-        cv::resize(image_tmp, image_tmp, cv::Size(100, 100));
-        cv::imshow(sLabel, image_tmp);
-        cv::waitKey(0);
-        /////////////////
+        // TODO need to free pointer.
+        auto features = new matrix(1, MULT_N); 
+        auto labels = new matrix({ 1 }, 1, 1);
+
+        for (size_t j = 0; j < MULT_N; j ++)
+        {
+            features->get_host_data()[j] = (int) (std::rand() % MULT_MAX);
+            labels->get_host_data()[0] *= (int) features->get_host_data()[j]; 
+        }
+
+        data.add(*features, *labels);
     }
 
-    delete[] pixels;
-*/
     return data;
+}
+
+void dataset::print(const dataset &d)
+{
+    size_t i = 1;
+
+    for (auto &e: d.get_elements())
+    {
+        std::cout << "*** n°" << i ++ << " ***" << std::endl;
+        element::print(e);
+    }
 }

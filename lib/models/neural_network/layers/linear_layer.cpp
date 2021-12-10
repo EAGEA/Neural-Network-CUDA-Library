@@ -3,12 +3,6 @@
 //
 
 #include "linear_layer.h"
-#include "lib/models/neural_network/layers/layer.h"
-#include "lib/parameters/activation_functions/activation_functions.h"
-#include "lib/util/util.h"
-#include "/usr/local/cuda/include/vector_types.h"
-
-#include <random>
 
 
 linear_layer::linear_layer(const size_t nb_neurons, const size_t nb_features,
@@ -79,7 +73,7 @@ matrix linear_layer::backward_propagation(matrix errors)
     matrix new_errors = matrix(errors.get_dimensions());
     std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(1, 1); // TODO choose dims
 
-    __backward_propagation(cuda_dims.first, cuda_dims.second, new_errors);
+    __backward_propagation(cuda_dims.first, cuda_dims.second, new_errors.get_device_data());
 
     return new_errors;
 }

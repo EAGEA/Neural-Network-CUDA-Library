@@ -4,8 +4,6 @@
 
 #include "activation_functions.h"
 
-#include <cmath>
-
 
 float activation_functions::linear(float input)
 {

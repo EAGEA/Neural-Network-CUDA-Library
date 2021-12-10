@@ -3,9 +3,6 @@
 //
 
 #include "loss_functions.h"
-#include "lib/datastructs/matrix/matrix.h"
-#include "lib/util/util.h"
-#include "/usr/local/cuda/include/vector_types.h"
 
 
 matrix loss_functions::mean_square_error(matrix predictions, matrix labels)

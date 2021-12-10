@@ -3,7 +3,6 @@
 //
 
 #include "matrix.h"
-#include "lib/util/util.h"
 
 
 /**
@@ -62,7 +61,7 @@ void __allocate(const std::pair<size_t, size_t> dimensions, float *&device_data)
 {
     cudaError_t err = cudaMalloc(&device_data, dimensions.first * dimensions.second * sizeof(float));
 
-    if (err == cudaErrorMemoryAllocation)
+    if (err != cudaSuccess)
     {
         // Invalid.
         util::ERROR("matrix::allocate", "memory allocation on device failed");
@@ -99,3 +98,28 @@ void __multiply(const dim3 block_dims, const dim3 thread_dims,
             nb_rows_2, nb_cols_2);
 }
 
+void __copy_host_to_device(float *host_data, float *device_data, size_t size)
+{
+    cudaError_t err = cudaMemcpy(device_data, host_data, size, 
+            cudaMemcpyHostToDevice);
+
+    if (err != cudaSuccess)
+    {
+        // Invalid.
+        util::ERROR("matrix::copy_host_to_device", "copy on device failed");
+        util::ERROR_EXIT();
+    }
+}
+
+void __copy_device_to_host(float *host_data, float *device_data, size_t size)
+{
+    cudaError_t err = cudaMemcpy(host_data, device_data, size,
+            cudaMemcpyHostToHost);
+
+    if (err != cudaSuccess)
+    {
+        // Invalid.
+        util::ERROR("matrix::copy_device_to_host", "copy on host failed");
+        util::ERROR_EXIT();
+    }
+}

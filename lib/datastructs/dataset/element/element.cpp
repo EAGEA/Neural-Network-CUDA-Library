@@ -3,7 +3,6 @@
 //
 
 #include "element.h"
-#include "lib/datastructs/matrix/matrix.h"
 
 
 element::element(const matrix &features, const matrix &labels): 
@@ -46,10 +45,17 @@ element &element::operator=(element &e)
 
     // Re-assign for const members.
     this->~element();
-    // TODO
-//    new (this) element(e.get_features(), e.get_labels());
+    new (this) element(e.get_features(), e.get_labels());
 
     return *this;
+}
+        
+void element::print(const element &e)
+{
+    std::cout << "* features *" << std::endl;
+    matrix::print(e.get_features());
+    std::cout << "* labels *" << std::endl;
+    matrix::print(e.get_labels());
 }
 
 bool operator==(const element &e1, const element &e2)

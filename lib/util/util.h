@@ -5,11 +5,15 @@
 #ifndef CUDANN_UTIL_H
 #define CUDANN_UTIL_H
 
-
 #include "/usr/local/cuda/include/vector_types.h"
 
-#include <utility>
+#include <cstdlib>
+#include <cstdio>
+#include <cstdarg>
+#include <cmath>
+#include <iostream>
 #include <string>
+#include <utility>
 
 
 namespace util

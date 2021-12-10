@@ -3,45 +3,40 @@
 //
 
 #include "matrix.h"
-#include "lib/util/util.h"
-#include "/usr/local/cuda/include/vector_types.h"
 
-#include <cstddef>
-#include <utility>
 
+matrix::matrix(const size_t x, const size_t y):
+    matrix({}, std::pair<size_t, size_t>(x, y))
+{
+}
 
 matrix::matrix(const std::pair<size_t, size_t> dimensions):
+    matrix({}, dimensions)
+{
+}
+
+matrix::matrix(std::initializer_list<float> values, const size_t x, const size_t y):
+    matrix(values, std::pair<size_t, size_t>(x, y))
+{
+}
+
+matrix::matrix(std::initializer_list<float> values, const std::pair<size_t, size_t> dimensions):
     _dimensions(dimensions)
 {
-    _allocated = false;
+    // Allocate memory on GPU.
+    __allocate(_dimensions, _device_data);
+    // Allocate memory on CPU.
+    _host_data = new float[_dimensions.first * _dimensions.second];
+    // Get the values.
+    std::copy(values.begin(), values.end(), _host_data);
 }
 
-matrix::matrix(size_t x, size_t y)
+matrix::~matrix()
 {
-    matrix(std::pair<size_t, size_t>(x, y));
-}
-
-void matrix::allocate()
-{
-    if (! _allocated)
-    {
-        // Allocate memory on GPU.
-        __allocate(_dimensions, _device_data);
-
-        // Allocate memory on CPU.
-        _host_data = new float[_dimensions.first * _dimensions.second];
-
-        _allocated = true;
-    }
-}
-
-void matrix::free()
-{
-    if (_allocated)
-    {
-        __free(_device_data);
-        delete[] _host_data;
-    }
+    // Desallocate on GPU.
+    __free(_device_data);
+    // Desallocate on CPU.
+    delete[] _host_data;
 }
 
 matrix matrix::add(const matrix &m) const
@@ -54,14 +49,20 @@ matrix matrix::add(const matrix &m) const
         util::ERROR_EXIT();
     }
 
+    // Prepare the output.
     matrix output = matrix(_dimensions);
     std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(_dimensions.first,
             _dimensions.second);
-
+    // Prepare data of operands.
+    copy_host_to_device();
+    m.copy_host_to_device();
+    // Do the computation.
     __add(cuda_dims.first, cuda_dims.second,
             output.get_device_data(),
             _device_data, m.get_device_data(),
             _dimensions.first, _dimensions.second);
+    // Retrieve data of output.
+    output.copy_device_to_host();
 
     return output;
 }
@@ -79,15 +80,21 @@ matrix matrix::multiply(const matrix &m) const
     size_t nb_rows = _dimensions.first;
     size_t nb_columns = m.get_dimensions().second;
 
+    // Prepare the output.
     matrix output = matrix(nb_rows, nb_columns);
     std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(nb_rows,
             nb_columns);
-
+    // Prepare data of operands.
+    copy_host_to_device();
+    m.copy_host_to_device();
+    // Do the computation.
     __multiply(cuda_dims.first, cuda_dims.second,
             output.get_device_data(),
             _device_data, m.get_device_data(),
             _dimensions.first, _dimensions.second,
             m.get_dimensions().first, m.get_dimensions().second);
+    // Retrieve data of output.
+    output.copy_device_to_host();
 
     return output;
 }
@@ -95,6 +102,11 @@ matrix matrix::multiply(const matrix &m) const
 const std::pair<size_t, size_t> matrix::get_dimensions() const
 {
     return _dimensions;
+}
+
+size_t matrix::get_length() const
+{
+    return _dimensions.first * _dimensions.second;
 }
 
 const float *matrix::get_host_data() const
@@ -117,29 +129,9 @@ float *matrix::get_device_data()
     return _device_data;
 }
 
-void matrix::set_host_data(const size_t i, float f)
-{
-    _host_data[i] = f;
-}
-
-void matrix::set_host_data(const size_t i, const size_t j, float f)
-{
-    _host_data[i * _dimensions.second + j] = f;
-}
-
-void matrix::set_device_data(const size_t i, float f)
-{
-    _device_data[i] = f;
-}
-
-void matrix::set_device_data(const size_t i, const size_t j, float f)
-{
-    _device_data[i * _dimensions.second + j] = f;
-}
-
 bool matrix::compare_host_data(const matrix &m) const
 {
-    if (m.get_dimensions() == _dimensions)
+    if (m.get_dimensions() != _dimensions)
     {
         return false;
     }
@@ -148,8 +140,8 @@ bool matrix::compare_host_data(const matrix &m) const
     {
         for (size_t j = 0; j < _dimensions.second; j ++)
         {
-            if (m.get_host_data()[i * _dimensions.second + j]
-                != _host_data[i * _dimensions.second + j])
+            if (m[i * _dimensions.second + j] 
+                    != _host_data[i * _dimensions.second + j])
             {
                 return false;
             }
@@ -161,7 +153,7 @@ bool matrix::compare_host_data(const matrix &m) const
 
 bool matrix::compare_device_data(const matrix &m) const
 {
-    if (m.get_dimensions() == _dimensions)
+    if (m.get_dimensions() != _dimensions)
     {
         return false;
     }
@@ -181,6 +173,18 @@ bool matrix::compare_device_data(const matrix &m) const
     return true;
 }
 
+void matrix::copy_host_to_device() const 
+{
+    __copy_host_to_device(_host_data, _device_data,
+            _dimensions.first * _dimensions.second * sizeof(float)); 
+}
+
+void matrix::copy_device_to_host() const
+{
+    __copy_device_to_host(_host_data, _device_data,
+            _dimensions.first * _dimensions.second * sizeof(float)); 
+}
+
 matrix& matrix::operator=(const matrix &m)
 {
     if (this == &m)
@@ -188,13 +192,52 @@ matrix& matrix::operator=(const matrix &m)
         return *this;
     }
 
-    // TODO check if need to call free()
-    
     // Re-assign for const members.
     this->~matrix();
     new (this) matrix(m.get_dimensions());
+    // Copy the values.
+    std::copy(m.get_host_data(), 
+            m.get_host_data() + m.get_length() * sizeof(float),
+            _host_data);
 
     return *this;
+}
+
+float &matrix::operator[](const int i) 
+{
+	return _host_data[i];
+}
+
+const float &matrix::operator[](const int i) const 
+{
+	return _host_data[i];
+}
+
+void matrix::print(const matrix &m)
+{
+    for (size_t j = 0; j < m.get_dimensions().second; j ++)
+    {
+        std::cout << "--" << "\t";
+    }
+
+    std::cout << std::endl;
+
+    for (size_t i = 0; i < m.get_dimensions().first; i ++)
+    {
+        for (size_t j = 0; j < m.get_dimensions().second; j ++)
+        {
+            std::cout << m[i * m.get_dimensions().second + j] << "\t";
+        }
+
+        std::cout << std::endl;
+    }
+
+    for (size_t j = 0; j < m.get_dimensions().second; j ++)
+    {
+        std::cout << "--" << "\t";
+    }
+
+    std::cout << std::endl;
 }
 
 matrix operator+(const matrix &m1, const matrix &m2)
