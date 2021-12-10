@@ -3,11 +3,6 @@
 //
 
 #include "matrix.h"
-#include "lib/util/util.h"
-#include "/usr/local/cuda/include/vector_types.h"
-
-#include <cstddef>
-#include <utility>
 
 
 matrix::matrix(const std::pair<size_t, size_t> dimensions):

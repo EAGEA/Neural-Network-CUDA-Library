@@ -3,15 +3,6 @@
 //
 
 #include "util.h"
-#include "/usr/local/cuda/include/vector_types.h"
-
-#include <cstdlib>
-#include <cstdio>
-#include <cstdarg>
-#include <cmath>
-#include <iostream>
-#include <string>
-#include <utility>
 
 
 const bool util::_DEBUG = true;

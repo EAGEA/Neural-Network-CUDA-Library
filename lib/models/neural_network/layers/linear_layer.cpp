@@ -3,12 +3,6 @@
 //
 
 #include "linear_layer.h"
-#include "lib/models/neural_network/layers/layer.h"
-#include "lib/parameters/activation_functions/activation_functions.h"
-#include "lib/util/util.h"
-#include "/usr/local/cuda/include/vector_types.h"
-
-#include <random>
 
 
 linear_layer::linear_layer(const size_t nb_neurons, const size_t nb_features,

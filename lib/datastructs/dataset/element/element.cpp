@@ -3,7 +3,6 @@
 //
 
 #include "element.h"
-#include "lib/datastructs/matrix/matrix.h"
 
 
 element::element(const matrix &features, const matrix &labels): 

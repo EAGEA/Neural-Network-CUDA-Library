@@ -5,6 +5,7 @@
 #ifndef CUDANN_MATRIX_H
 #define CUDANN_MATRIX_H
 
+#include "lib/util/util.h"
 #include "/usr/local/cuda/include/vector_types.h"
 
 #include <cstddef>

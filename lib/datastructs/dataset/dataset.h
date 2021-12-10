@@ -7,10 +7,12 @@
 
 #include "lib/datastructs/matrix/matrix.h"
 #include "lib/datastructs/dataset/element/element.h"
+#include "lib/util/util.h"
 
 #include <cstddef>
 #include <vector>
 #include <utility>
+#include <algorithm>
 
 
 /**

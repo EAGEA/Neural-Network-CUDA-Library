@@ -7,9 +7,9 @@
 
 #include "lib/models/model.h"
 #include "lib/models/neural_network/layers/layer.h"
+#include "lib/util/util.h"
 
 #include <initializer_list>
-
 
 
 /**

@@ -5,6 +5,8 @@
 #ifndef CUDANN_ACTIVATION_FUNCTIONS_H
 #define CUDANN_ACTIVATION_FUNCTIONS_H
 
+#include <cmath>
+
 
 /**
  * Compute the output of a node.

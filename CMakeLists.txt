@@ -13,7 +13,7 @@ find_package(CUDA)
 
 if (CUDA_FOUND)
     enable_language(CUDA)
-    # Build Library ####################################################
+    # Build Library ####################################################
     add_library(CudaNN
         "lib/datastructs/dataset/dataset.cpp"
         "lib/datastructs/dataset/element/element.cpp"
@@ -28,7 +28,7 @@ if (CUDA_FOUND)
         "lib/parameters/loss_functions/loss_functions.cu"
         "lib/util/util.cpp"
         )
-    # Build tests ######################################################
+    # Build tests ######################################################
     add_executable(CudaNN_test1 tests/main.cpp)
     target_link_libraries(CudaNN_test1 CudaNN) 
 endif ()

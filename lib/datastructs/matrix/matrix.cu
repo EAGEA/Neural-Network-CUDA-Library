@@ -3,7 +3,6 @@
 //
 
 #include "matrix.h"
-#include "lib/util/util.h"
 
 
 /**

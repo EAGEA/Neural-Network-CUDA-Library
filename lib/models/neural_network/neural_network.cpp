@@ -3,11 +3,6 @@
 //
 
 #include "neural_network.h"
-#include "lib/models/model.h"
-#include "lib/models/neural_network/layers/layer.h"
-#include "lib/util/util.h"
-
-#include <initializer_list>
 
 
 neural_network::neural_network(std::initializer_list<layer *> layers):
