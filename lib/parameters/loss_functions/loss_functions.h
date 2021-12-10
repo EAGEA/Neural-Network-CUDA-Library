@@ -6,6 +6,7 @@
 #define CUDANN_LOSS_FUNCTIONS_H
 
 #include "lib/datastructs/matrix/matrix.h"
+#include "/usr/local/cuda/include/vector_types.h"
 
 
 /**

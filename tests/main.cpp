@@ -27,8 +27,8 @@ int main(int argc, char *argv[])
     // Train and predict with a neural network.
     neural_network nn = neural_network(
             {
-                linear_layer(16, 4, &activation_functions::linear),
-                linear_layer(16, 4, &activation_functions::sigmoid)
+                new linear_layer(16, 4, activation_functions::linear),
+                new linear_layer(16, 4, activation_functions::sigmoid)
             }
         );
     nn.fit(train, &loss_functions::mean_square_error);

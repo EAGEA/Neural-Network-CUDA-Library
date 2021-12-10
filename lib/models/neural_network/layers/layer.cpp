@@ -3,6 +3,9 @@
 //
 
 #include "layer.h"
+#include "lib/datastructs/matrix/matrix.h"
+
+#include <cstddef>
 
 
 layer::layer(const size_t nb_neurons): 

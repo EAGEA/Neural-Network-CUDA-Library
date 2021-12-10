@@ -3,6 +3,15 @@
 //
 
 #include "util.h"
+#include "/usr/local/cuda/include/vector_types.h"
+
+#include <cstdlib>
+#include <cstdio>
+#include <cstdarg>
+#include <cmath>
+#include <iostream>
+#include <string>
+#include <utility>
 
 
 const bool util::_DEBUG = true;
@@ -10,7 +19,7 @@ const bool util::_ERROR = true;
 const size_t util::MAX_NB_THREADS = 512;
 
 
-void DEBUG(const std::string location, const char *format, ...)
+void util::DEBUG(const std::string location, const char *format, ...)
 {
     if (! util::_DEBUG)
     {
@@ -22,7 +31,7 @@ void DEBUG(const std::string location, const char *format, ...)
     std::cout << std::endl;
 }
 
-void ERROR(const std::string location, const char *format, ...)
+void util::ERROR(const std::string location, const char *format, ...)
 {
     if (! util::_ERROR)
     {
@@ -34,7 +43,7 @@ void ERROR(const std::string location, const char *format, ...)
     std::cerr << std::endl;
 }
 
-void PRINT(FILE *stream, const char *format, ...)
+void util::PRINT(FILE *stream, const char *format, ...)
 {
     va_list arg;
 
@@ -43,12 +52,12 @@ void PRINT(FILE *stream, const char *format, ...)
     va_end(arg);
 }
 
-void ERROR_EXIT()
+void util::ERROR_EXIT()
 {
     std::exit(EXIT_FAILURE);
 }
 
-std::pair<dim3, dim3> get_cuda_dims(size_t nb_rows, size_t nb_columns)
+std::pair<dim3, dim3> util::get_cuda_dims(size_t nb_rows, size_t nb_columns)
 {
     dim3 blocks_per_grid(1, 1);
     dim3 threads_per_block = dim3(nb_rows, nb_columns);
@@ -64,7 +73,7 @@ std::pair<dim3, dim3> get_cuda_dims(size_t nb_rows, size_t nb_columns)
     return std::pair<dim3, dim3>(blocks_per_grid, threads_per_block);
 }
 
-uint32_t swap_endian(uint32_t val)
+uint32_t util::swap_endian(uint32_t val)
 {
     val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF);
     return (val << 16) | (val >> 16);

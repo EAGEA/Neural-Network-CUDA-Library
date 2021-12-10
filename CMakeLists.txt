@@ -1,24 +1,20 @@
 cmake_minimum_required(VERSION 3.16)
 
-# Set the project name and version ######################
+# Set the project name and version #####################################
 project(CudaNN LANGUAGES CXX)
-#########################################################
-#########################################################
-# Set standards #########################################
+# Set standards ########################################################
 set(CMAKE_CUDA_STANDARD 11)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-#########################################################
-#########################################################
-# Include the whole project #############################
+# Set base repository ##################################################
 include_directories(${PROJECT_SOURCE_DIR})
-#########################################################
-#########################################################
-# CUDA Libraries ########################################
+# Include CUDA Libraries ###############################################
 find_package(CUDA)
 
-
-set(MY_SOURCES
+if (CUDA_FOUND)
+    enable_language(CUDA)
+    # Build Library ####################################################
+    add_library(CudaNN
         "lib/datastructs/dataset/dataset.cpp"
         "lib/datastructs/dataset/element/element.cpp"
         "lib/datastructs/matrix/matrix.cpp"
@@ -31,12 +27,10 @@ set(MY_SOURCES
         "lib/parameters/loss_functions/loss_functions.cpp"
         "lib/parameters/loss_functions/loss_functions.cu"
         "lib/util/util.cpp"
-        "tests/main.cpp"
-    )
-
-if (CUDA_FOUND)
-    enable_language(CUDA)
-    #    include_directories(${CUDA_INCLUDE_DIRS} )
-    add_executable(CudaNN1 ${MY_SOURCES}) 
+        )
+    # Build tests ######################################################
+    add_executable(CudaNN_test1 tests/main.cpp)
+    target_link_libraries(CudaNN_test1 CudaNN) 
 endif ()
-#########################################################
+########################################################################
+########################################################################

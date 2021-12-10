@@ -28,13 +28,13 @@ class model
         virtual void fit(dataset data,
                          loss_function_t loss_function,
                          size_t epochs = 1,
-                         size_t batch_size = 1);
+                         size_t batch_size = 1) = 0;
 
         /**
          * @param features
          * @return the predictions of the model, on the given "features".
          */
-        virtual matrix predict(matrix features);
+        virtual matrix predict(matrix features) = 0;
 };
 
 

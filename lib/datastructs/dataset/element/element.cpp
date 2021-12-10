@@ -3,6 +3,7 @@
 //
 
 #include "element.h"
+#include "lib/datastructs/matrix/matrix.h"
 
 
 element::element(const matrix &features, const matrix &labels): 
@@ -11,12 +12,12 @@ element::element(const matrix &features, const matrix &labels):
 {
 }
 
-const matrix element::get_features() const
+const matrix &element::get_features() const
 {
     return _features;
 }
 
-const matrix element::get_labels() const
+const matrix &element::get_labels() const
 {
     return _labels;
 }
@@ -45,7 +46,8 @@ element &element::operator=(element &e)
 
     // Re-assign for const members.
     this->~element();
-    new (this) element(e.get_features(), e.get_labels());
+    // TODO
+//    new (this) element(e.get_features(), e.get_labels());
 
     return *this;
 }

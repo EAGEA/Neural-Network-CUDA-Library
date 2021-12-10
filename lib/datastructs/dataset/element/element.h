@@ -17,8 +17,8 @@ class element
 
         element(const matrix &features, const matrix &labels);
 
-        const matrix get_features() const;
-        const matrix get_labels() const;
+        const matrix &get_features() const;
+        const matrix &get_labels() const;
 
         bool compare_features(const matrix &features) const;
         bool compare_labels(const matrix &labels) const;

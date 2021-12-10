@@ -7,8 +7,7 @@
 
 #include "lib/models/neural_network/layers/layer.h"
 #include "lib/parameters/activation_functions/activation_functions.h"
-
-#include <random>
+#include "/usr/local/cuda/include/vector_types.h"
 
 
 /**
@@ -26,8 +25,8 @@ class linear_layer: public layer
         linear_layer(const size_t nb_neurons, const size_t nb_features,
                      activation_function_t activation_function);
 
-        virtual matrix forward_propagation(matrix features) override;
-        virtual matrix backward_propagation(matrix errors) override;
+        matrix forward_propagation(matrix features) override;
+        matrix backward_propagation(matrix errors) override;
 
     private:
 

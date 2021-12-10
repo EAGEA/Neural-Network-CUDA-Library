@@ -19,7 +19,8 @@ class neural_network: public model
 {
     public:
 
-        neural_network(std::initializer_list<layer> layers);
+        explicit neural_network(std::initializer_list<layer *> layers);
+        ~neural_network();
 
         virtual void fit(dataset data,
                          loss_function_t loss_function,
@@ -47,7 +48,7 @@ class neural_network: public model
         void _backward_propagation(matrix predictions, matrix labels,
                                    loss_function_t loss_function);
 
-        std::vector<layer> _layers;
+        std::vector<layer *> _layers;
 };
 
 

@@ -3,13 +3,23 @@
 //
 
 #include "neural_network.h"
+#include "lib/models/model.h"
+#include "lib/models/neural_network/layers/layer.h"
+#include "lib/util/util.h"
+
+#include <initializer_list>
 
 
-neural_network::neural_network(std::initializer_list<layer> layers)
+neural_network::neural_network(std::initializer_list<layer *> layers):
+    _layers(layers)
 {
-    for (auto layer: layers)
+}
+
+neural_network::~neural_network()
+{
+    for (auto l: _layers)
     {
-        _layers.push_back(layer);
+        delete l;
     }
 }
 
@@ -54,7 +64,7 @@ matrix neural_network::_forward_propagation(matrix features)
 
     for (auto layer_: _layers)
     {
-        predictions = layer_.forward_propagation(predictions);
+        predictions = layer_->forward_propagation(predictions);
     }
 
     return predictions;
@@ -68,6 +78,6 @@ void neural_network::_backward_propagation(matrix predictions, matrix labels,
     for (size_t i = _layers.size() - 1; i >= 0; i --)
     {
         auto layer_ = _layers.at(i);
-        errors = layer_.backward_propagation(errors);
+        errors = layer_->backward_propagation(errors);
     }
 }

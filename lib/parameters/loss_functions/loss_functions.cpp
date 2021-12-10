@@ -3,9 +3,12 @@
 //
 
 #include "loss_functions.h"
+#include "lib/datastructs/matrix/matrix.h"
+#include "lib/util/util.h"
+#include "/usr/local/cuda/include/vector_types.h"
 
 
-matrix mean_square_error(matrix predictions, matrix labels)
+matrix loss_functions::mean_square_error(matrix predictions, matrix labels)
 {
     matrix error = matrix(predictions.get_dimensions());
     // TODO allocate matrix
@@ -22,7 +25,7 @@ matrix mean_square_error(matrix predictions, matrix labels)
     return error;
 }
 
-matrix mean_absolute_error(matrix predictions, matrix labels)
+matrix loss_functions::mean_absolute_error(matrix predictions, matrix labels)
 {
     matrix error = matrix(predictions.get_dimensions());
     // TODO allocate matrix
@@ -39,7 +42,7 @@ matrix mean_absolute_error(matrix predictions, matrix labels)
     return error;
 }
 
-matrix mean_bias_error(matrix predictions, matrix labels)
+matrix loss_functions::mean_bias_error(matrix predictions, matrix labels)
 {
     matrix error = matrix(predictions.get_dimensions());
     // TODO allocate matrix
@@ -56,7 +59,7 @@ matrix mean_bias_error(matrix predictions, matrix labels)
     return error;
 }
 
-matrix svm_loss(matrix predictions, matrix labels)
+matrix loss_functions::svm_loss(matrix predictions, matrix labels)
 {
     matrix error = matrix(predictions.get_dimensions());
     // TODO allocate matrix
@@ -73,7 +76,7 @@ matrix svm_loss(matrix predictions, matrix labels)
     return error;
 }
 
-matrix cross_entropy_loss(matrix predictions, matrix labels)
+matrix loss_functions::cross_entropy_loss(matrix predictions, matrix labels)
 {
     matrix error = matrix(predictions.get_dimensions());
     // TODO allocate matrix

@@ -3,6 +3,14 @@
 //
 
 #include "dataset.h"
+#include "lib/datastructs/matrix/matrix.h"
+#include "lib/datastructs/dataset/element/element.h"
+#include "lib/util/util.h"
+
+#include <cstddef>
+#include <vector>
+#include <utility>
+#include <algorithm>
 
 
 dataset::dataset()
@@ -56,7 +64,7 @@ size_t dataset::size() const
     return _elements.size();
 }
 
-matrix get_features()
+matrix dataset::get_features()
 {
     matrix features(4, 4);
 

@@ -4,23 +4,25 @@
 
 #include "activation_functions.h"
 
+#include <cmath>
 
-float linear(float input, float a = 1.f, float b = 1.f)
+
+float activation_functions::linear(float input)
 {
-    return a * input + b;
+    return input;
 }
 
-float binary_step(float input, float threshold = 0.f)
+float activation_functions::binary_step(float input)
 {
-    return input < threshold ? 0.f : 1.f;
+    return input < 0.f ? 0.f : 1.f;
 }
 
-float sigmoid(float input)
+float activation_functions::sigmoid(float input)
 {
     return 1.f / 1.f + exp(-input);
 }
 
-float relu(float input)
+float activation_functions::relu(float input)
 {
-    return std::max(0.f, input);
+    return fmax(0.f, input);
 }

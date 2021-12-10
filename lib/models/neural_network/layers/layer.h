@@ -19,8 +19,8 @@ class layer
 
         explicit layer(const size_t nb_neurons);
 
-        virtual matrix forward_propagation(matrix features);
-        virtual matrix backward_propagation(matrix errors);
+        virtual matrix forward_propagation(matrix features) = 0;
+        virtual matrix backward_propagation(matrix errors) = 0;
 
         const size_t size() const;
 

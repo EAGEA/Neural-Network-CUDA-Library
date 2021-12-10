@@ -6,14 +6,10 @@
 #define CUDANN_UTIL_H
 
 
-#include <cstdlib>
-#include <cstdio>
-#include <cstdarg>
-#include <cmath>
-#include <iostream>
-#include <string>
+#include "/usr/local/cuda/include/vector_types.h"
 
-#include "/usr/local/cuda/include/vector_types.h" 
+#include <utility>
+#include <string>
 
 
 namespace util
