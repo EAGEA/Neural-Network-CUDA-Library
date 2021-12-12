@@ -67,12 +67,12 @@ namespace cudaNN
 
 
             /**
-             * * The multiplication dataset *
+             * > The "multiplication" dataset: 
              * for the "MULT_SIZE" elements,
              * generate "MULT_N" random numbers in [0, "MULT_MAX"[ (the features),
              * and associate them to the result of the multiplication between them (the label).
              */
-            static const size_t MULT_SIZE = 2;
+            static const size_t MULT_SIZE = 100;
             static const size_t MULT_NB_FEATURES = 3;
             static const size_t MULT_NB_LABELS = 1;
             static const size_t MULT_MAX = 10;

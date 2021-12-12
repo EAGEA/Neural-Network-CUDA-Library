@@ -79,6 +79,7 @@ void activation_functions_cuda::linear(dim3 block_dims, dim3 thread_dims,
     __kernel_linear<<<block_dims, thread_dims>>>(
             results, inputs,
             nb_rows, nb_cols);
+    cudaDeviceSynchronize();
 }
 
 void activation_functions_cuda::binary_step(dim3 block_dims, dim3 thread_dims,
@@ -88,6 +89,7 @@ void activation_functions_cuda::binary_step(dim3 block_dims, dim3 thread_dims,
     __kernel_binary_step<<<block_dims, thread_dims>>>(
             results, inputs,
             nb_rows, nb_cols);
+    cudaDeviceSynchronize();
 }
 
 void activation_functions_cuda::sigmoid(dim3 block_dims, dim3 thread_dims,
@@ -97,6 +99,7 @@ void activation_functions_cuda::sigmoid(dim3 block_dims, dim3 thread_dims,
     __kernel_sigmoid<<<block_dims, thread_dims>>>(
             results, inputs,
             nb_rows, nb_cols);
+    cudaDeviceSynchronize();
 }
 
 void activation_functions_cuda::relu(dim3 block_dims, dim3 thread_dims,
@@ -106,4 +109,5 @@ void activation_functions_cuda::relu(dim3 block_dims, dim3 thread_dims,
     __kernel_relu<<<block_dims, thread_dims>>>(
             results, inputs,
             nb_rows, nb_cols);
+    cudaDeviceSynchronize();
 }

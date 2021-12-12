@@ -9,6 +9,7 @@
 #include "/usr/local/cuda/include/vector_types.h"
 
 #include <cstddef>
+#include <string>
 #include <utility>
 #include <initializer_list>
 
@@ -25,14 +26,22 @@ namespace cudaNN
     {
         public:
 
-            explicit matrix(std::pair<size_t, size_t> dimensions);
             matrix(const size_t x, const size_t y);
-            matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions);
+            matrix(const size_t x, const size_t y, std::string id);
+            explicit matrix(std::pair<size_t, size_t> dimensions);
+            matrix(std::pair<size_t, size_t> dimensions, std::string id);
             matrix(std::initializer_list<float> values, const size_t x, const size_t y);
+            matrix(std::initializer_list<float> values, const size_t x, const size_t y,
+                   std::string id);
+            matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions); 
+            matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions, 
+                   std::string id);
             ~matrix();
 
             matrix add(const matrix &m) const;
             matrix multiply(const matrix &m) const;
+
+            void set_id(const std::string id);
 
             /**
              * @return the number of rows, and columns of the matrix.
@@ -49,6 +58,8 @@ namespace cudaNN
             float *get_host_data();
             float *get_device_data();
 
+            const std::string get_id() const;
+
             bool compare_host_data(const matrix &m) const;
             bool compare_device_data(const matrix &m) const;
 
@@ -56,7 +67,7 @@ namespace cudaNN
             void copy_device_to_host() const;
 
             /**
-             * Operators.
+             * Self operators.
              * Working only on host memory.
              */
             matrix &operator=(const matrix &m);
@@ -69,12 +80,16 @@ namespace cudaNN
              */
             static void print(const matrix &m);
 
+            static const std::string DEFAULT_ID; 
+
         private:
 
             std::pair<size_t, size_t> _dimensions;
 
             float *_host_data;
             float *_device_data;
+
+            std::string _id;
     };
 
 
@@ -97,8 +112,10 @@ namespace cudaNN
      */
     namespace matrix_cuda
     {
-        void allocate(const std::pair<size_t, size_t> dimensions, float **device_data);
-        void free(float *&device_data);
+        void allocate(const std::string id, 
+                      const std::pair<size_t, size_t> dimensions, 
+                      float **device_data);
+        void free(const std::string id, float *&device_data);
         void add(const dim3 block_dims, const dim3 thread_dims,
                  float *output,
                  const float *data1, const float *data2,
@@ -108,8 +125,10 @@ namespace cudaNN
                       const float *data1, const float *data2,
                       const size_t nb_rows_1, const size_t nb_cols_1,
                       const size_t nb_rows_2, const size_t nb_cols_2);
-        void copy_host_to_device(float *host_data, float *device_data, size_t size);
-        void copy_device_to_host(float *host_data, float *device_data, size_t size);
+        void copy_host_to_device(const std::string id,
+                                 float *host_data, float *device_data, size_t size);
+        void copy_device_to_host(const std::string id,
+                                 float *host_data, float *device_data, size_t size);
     }
 }
 

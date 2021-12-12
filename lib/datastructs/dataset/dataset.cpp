@@ -61,7 +61,7 @@ size_t dataset::size() const
 
 matrix dataset::get_features() const
 {
-    matrix features(4, 4);
+    matrix features(4, 4, "dataset::features");
 
     // TODO return all the features concatenated.
     return features;
@@ -69,7 +69,7 @@ matrix dataset::get_features() const
 
 matrix dataset::get_labels() const
 {
-    matrix labels(4, 4);
+    matrix labels(4, 4, "dataset::labels");
 
     // TODO return all the labels concatenated.
     return labels;
@@ -160,9 +160,11 @@ dataset dataset::load_mult()
 
     for (size_t i = 0; i < MULT_SIZE; i ++)
     {
-        // TODO need to free pointer.
-        auto features = new matrix(1, MULT_NB_FEATURES);
-        auto labels = new matrix({ 1 }, 1, MULT_NB_LABELS);
+        // TODO need to free pointers.
+        auto features = new matrix(1, MULT_NB_FEATURES, 
+                                   std::string("dataset::mult::features::") + std::to_string(i));
+        auto labels = new matrix({ 1 }, 1, MULT_NB_LABELS, 
+                                 std::string("dataset::mult::labels::") + std::to_string(i));
 
         for (size_t j = 0; j < MULT_NB_FEATURES; j ++)
         {
@@ -182,7 +184,7 @@ void dataset::print(const dataset &d)
 
     for (auto &e: d.get_elements())
     {
-        std::cout << "*** n°" << i ++ << " ***" << std::endl;
+        std::cout << ">>> n°" << (i ++) << " <<<" << std::endl; 
         element::print(e);
     }
 }

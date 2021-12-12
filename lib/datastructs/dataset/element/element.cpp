@@ -45,6 +45,7 @@ element &element::operator=(element &e)
     {
         return *this;
     }
+    // TODO !!
 
     // Re-assign for const members.
     this->~element();
@@ -55,9 +56,9 @@ element &element::operator=(element &e)
 
 void element::print(const element &e)
 {
-    std::cout << "* features *" << std::endl;
+    std::cout << "> features <" << std::endl;
     matrix::print(e.get_features());
-    std::cout << "* labels *" << std::endl;
+    std::cout << "> labels <" << std::endl;
     matrix::print(e.get_labels());
 }
 

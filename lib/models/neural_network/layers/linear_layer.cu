@@ -39,4 +39,5 @@ __global__ void __kernel_backward_propagation(float *errors)
 void linear_layer_cuda::backward_propagation(dim3 block_dims, dim3 thread_dims, float *errors)
 {
     __kernel_backward_propagation<<<block_dims, thread_dims>>>(errors);
+    cudaDeviceSynchronize();
 }

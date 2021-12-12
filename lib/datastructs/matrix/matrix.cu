@@ -60,21 +60,32 @@ __global__ void __kernel_multiply(float *output,
  */
 
 
-void matrix_cuda::allocate(const std::pair<size_t, size_t> dimensions, float **device_data)
+void matrix_cuda::allocate(const std::string id, 
+                           const std::pair<size_t, size_t> dimensions, 
+                           float **device_data)
 {
     cudaError_t err = cudaMalloc(device_data, dimensions.first * dimensions.second * sizeof(float));
 
     if (err != cudaSuccess)
     {
         // Invalid.
-        util::ERROR("matrix::allocate", "memory allocation on device failed");
+        util::ERROR("matrix::allocate", 
+                    "matrix::_id=" + id + " - memory allocation on device failed");
         util::ERROR_EXIT();
     }
 }
 
-void matrix_cuda::free(float *&device_data)
+void matrix_cuda::free(const std::string id, float *&device_data)
 {
-    cudaFree(device_data);
+    cudaError_t err = cudaFree(device_data);
+
+    if (err != cudaSuccess)
+    {
+        // Invalid.
+        util::ERROR("matrix::free", 
+                    "matrix::_id=" + id + " - memory desallocation on device failed");
+        util::ERROR_EXIT();
+    }
 }
 
 void matrix_cuda::add(const dim3 block_dims, const dim3 thread_dims,
@@ -86,6 +97,7 @@ void matrix_cuda::add(const dim3 block_dims, const dim3 thread_dims,
             output,
             data1, data2,
             nb_rows, nb_cols);
+    cudaDeviceSynchronize();
 }
 
 void matrix_cuda::multiply(const dim3 block_dims, const dim3 thread_dims,
@@ -99,9 +111,11 @@ void matrix_cuda::multiply(const dim3 block_dims, const dim3 thread_dims,
             data1, data2,
             nb_rows_1, nb_cols_1,
             nb_rows_2, nb_cols_2);
+    cudaDeviceSynchronize();
 }
 
-void matrix_cuda::copy_host_to_device(float *host_data, float *device_data, size_t size)
+void matrix_cuda::copy_host_to_device(const std::string id, 
+                                      float *host_data, float *device_data, size_t size)
 {
     cudaError_t err = cudaMemcpy(device_data, host_data, size,
                                  cudaMemcpyHostToDevice);
@@ -109,12 +123,14 @@ void matrix_cuda::copy_host_to_device(float *host_data, float *device_data, size
     if (err != cudaSuccess)
     {
         // Invalid.
-        util::ERROR("matrix::copy_host_to_device", "copy on device failed");
+        util::ERROR("matrix::copy_host_to_device", 
+                    "matrix::_id=" + id + " - copy on device failed");
         util::ERROR_EXIT();
     }
 }
 
-void matrix_cuda::copy_device_to_host(float *host_data, float *device_data, size_t size)
+void matrix_cuda::copy_device_to_host(const std::string id, 
+                                      float *host_data, float *device_data, size_t size)
 {
     cudaError_t err = cudaMemcpy(host_data, device_data, size,
                                  cudaMemcpyHostToHost);
@@ -122,7 +138,8 @@ void matrix_cuda::copy_device_to_host(float *host_data, float *device_data, size
     if (err != cudaSuccess)
     {
         // Invalid.
-        util::ERROR("matrix::copy_device_to_host", "copy on host failed");
+        util::ERROR("matrix::copy_device_to_host", 
+                    "matrix::_id=" + id + " - copy on host failed");
         util::ERROR_EXIT();
     }
 }

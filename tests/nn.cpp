@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
     std::pair<dataset, dataset> split = dataset::load_mult().train_test_split();
     dataset train = split.first;
     dataset test = split.second;
+
     // Train and predict with a neural network.
     neural_network nn = neural_network(
             {

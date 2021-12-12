@@ -30,11 +30,21 @@ void neural_network::fit(dataset data,
         util::ERROR_EXIT();
     }
 
+
     for (size_t i = 1; i <= epochs; i ++)
     {
+        size_t nb_batches = data.size() / batch_size;
+
+        util::DEBUG("neural_network::fit", 
+                    "Starting epoch " + std::to_string(i) 
+                    + " with " + std::to_string(nb_batches) + " batches");
+
         // For each epoch, execute the training on batches:
-        for (size_t j = 1; j <= data.size() / batch_size; j ++)
+        for (size_t j = 1; j <= nb_batches; j ++)
         {
+            util::DEBUG("neural_network::fit", 
+                        "Starting batch " + std::to_string(j)); 
+
             // Get a sample of "batch size" (features + labels).
             auto batch = data.get_random_batch(batch_size);
             // Train with it:

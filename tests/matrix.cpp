@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     size_t y = 10;
 
     // Simple matrix (mult table).
-    matrix m1 = matrix(x, y);
+    matrix m1 = matrix(x, y, "1");
 
     for (size_t i = 0; i < x; i ++)
     {
@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
 
     // Copy.
     matrix m2 = m1;
+    m2.set_id("2");
     matrix::print(m2);
 
     // Cmp.
@@ -42,11 +43,13 @@ int main(int argc, char *argv[])
     // Add.
     matrix::print(m1 + m2);
     m1 = m1 + m2;
+    m1.set_id("3");
     matrix::print(m1);
 
     // Mult.
     matrix::print(m1 * m2);
     m1 = m1 * m2;
+    m1.set_id("4");
     matrix::print(m1);
 
     // Cmp.
@@ -54,7 +57,7 @@ int main(int argc, char *argv[])
               << (m1 != m2 ? "true" : "false") 
               << std::endl;
 
-    matrix::print(matrix({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, 3));
+    matrix::print(matrix({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, 3, "5"));
 
     return EXIT_SUCCESS;
 }

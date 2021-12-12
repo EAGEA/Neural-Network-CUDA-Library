@@ -63,6 +63,7 @@ void loss_functions_cuda::mean_square_error(dim3 block_dims, dim3 thread_dims,
             results,
             predictions,
             errors);
+    cudaDeviceSynchronize();
 }
 
 void loss_functions_cuda::mean_absolute_error(dim3 block_dims, dim3 thread_dims,
@@ -74,6 +75,7 @@ void loss_functions_cuda::mean_absolute_error(dim3 block_dims, dim3 thread_dims,
             results,
             predictions,
             errors);
+    cudaDeviceSynchronize();
 }
 
 void loss_functions_cuda::mean_bias_error(dim3 block_dims, dim3 thread_dims,
@@ -85,6 +87,7 @@ void loss_functions_cuda::mean_bias_error(dim3 block_dims, dim3 thread_dims,
             results,
             predictions,
             errors);
+    cudaDeviceSynchronize();
 }
 
 void loss_functions_cuda::svm_loss(dim3 block_dims, dim3 thread_dims,
@@ -96,6 +99,7 @@ void loss_functions_cuda::svm_loss(dim3 block_dims, dim3 thread_dims,
             results,
             predictions,
             errors);
+    cudaDeviceSynchronize();
 }
 
 void loss_functions_cuda::cross_entropy_loss(dim3 block_dims, dim3 thread_dims,
@@ -107,4 +111,5 @@ void loss_functions_cuda::cross_entropy_loss(dim3 block_dims, dim3 thread_dims,
             results,
             predictions,
             errors);
+    cudaDeviceSynchronize();
 }

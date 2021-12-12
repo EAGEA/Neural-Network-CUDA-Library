@@ -57,11 +57,10 @@ matrix linear_layer::forward_propagation(const matrix &inputs)
 
 matrix linear_layer::backward_propagation(const matrix &errors)
 {
-    // TODO
-    auto new_errors = matrix(errors.get_dimensions());
+    //TODO
+    auto new_errors = matrix(errors.get_dimensions(), "layer backprop errors");
     auto cuda_dims = util::get_cuda_dims(1, 1); // TODO choose dims
 
-    std::cout << "OKKK" << std::endl;
     linear_layer_cuda::backward_propagation(cuda_dims.first, cuda_dims.second, new_errors.get_device_data());
 
     return new_errors;
