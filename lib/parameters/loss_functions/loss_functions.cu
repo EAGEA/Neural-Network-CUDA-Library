@@ -5,6 +5,9 @@
 #include "loss_functions.h"
 
 
+using namespace cudaNN;
+
+
 /**
  * Kernel functions.
  */
@@ -51,10 +54,10 @@ __global__ void __kernel_cross_entropy_loss(float *results,
  */
 
 
-void __loss_functions::__mean_square_error(dim3 block_dims, dim3 thread_dims,
-                                           float *results,
-                                           float *predictions,
-                                           float *errors)
+void loss_functions_cuda::mean_square_error(dim3 block_dims, dim3 thread_dims,
+                                            float *results,
+                                            float *predictions,
+                                            float *errors)
 {
     __kernel_mean_square_error<<<block_dims, thread_dims>>>(
             results,
@@ -62,10 +65,10 @@ void __loss_functions::__mean_square_error(dim3 block_dims, dim3 thread_dims,
             errors);
 }
 
-void __loss_functions::__mean_absolute_error(dim3 block_dims, dim3 thread_dims,
-                                             float *results,
-                                             float *predictions,
-                                             float *errors)
+void loss_functions_cuda::mean_absolute_error(dim3 block_dims, dim3 thread_dims,
+                                              float *results,
+                                              float *predictions,
+                                              float *errors)
 {
     __kernel_mean_absolute_error<<<block_dims, thread_dims>>>(
             results,
@@ -73,10 +76,10 @@ void __loss_functions::__mean_absolute_error(dim3 block_dims, dim3 thread_dims,
             errors);
 }
 
-void __loss_functions::__mean_bias_error(dim3 block_dims, dim3 thread_dims,
-                                         float *results,
-                                         float *predictions,
-                                         float *errors)
+void loss_functions_cuda::mean_bias_error(dim3 block_dims, dim3 thread_dims,
+                                          float *results,
+                                          float *predictions,
+                                          float *errors)
 {
     __kernel_mean_bias_error<<<block_dims, thread_dims>>>(
             results,
@@ -84,10 +87,10 @@ void __loss_functions::__mean_bias_error(dim3 block_dims, dim3 thread_dims,
             errors);
 }
 
-void __loss_functions::__svm_loss(dim3 block_dims, dim3 thread_dims,
-                                  float *results,
-                                  float *predictions,
-                                  float *errors)
+void loss_functions_cuda::svm_loss(dim3 block_dims, dim3 thread_dims,
+                                   float *results,
+                                   float *predictions,
+                                   float *errors)
 {
     __kernel_svm_loss<<<block_dims, thread_dims>>>(
             results,
@@ -95,10 +98,10 @@ void __loss_functions::__svm_loss(dim3 block_dims, dim3 thread_dims,
             errors);
 }
 
-void __loss_functions::__cross_entropy_loss(dim3 block_dims, dim3 thread_dims,
-                                            float *results,
-                                            float *predictions,
-                                            float *errors)
+void loss_functions_cuda::cross_entropy_loss(dim3 block_dims, dim3 thread_dims,
+                                             float *results,
+                                             float *predictions,
+                                             float *errors)
 {
     __kernel_cross_entropy_loss<<<block_dims, thread_dims>>>(
             results,

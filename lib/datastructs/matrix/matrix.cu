@@ -5,12 +5,15 @@
 #include "matrix.h"
 
 
+using namespace cudaNN;
+
+
 /**
  * Kernel functions.
  */
 
 
-__global__ void __kernel_add(float *output, 
+__global__ void __kernel_add(float *output,
                              const float *data1, const float *data2,
                              const size_t nb_rows, const size_t nb_cols)
 {
@@ -29,7 +32,7 @@ __global__ void __kernel_add(float *output,
     }
 }
 
-__global__ void __kernel_multiply(float *output, 
+__global__ void __kernel_multiply(float *output,
                                   const float *data1, const float *data2,
                                   const size_t nb_rows_1, const size_t nb_cols_1,
                                   const size_t nb_rows_2, const size_t nb_cols_2)
@@ -57,7 +60,7 @@ __global__ void __kernel_multiply(float *output,
  */
 
 
-void __allocate(const std::pair<size_t, size_t> dimensions, float **device_data)
+void matrix_cuda::allocate(const std::pair<size_t, size_t> dimensions, float **device_data)
 {
     cudaError_t err = cudaMalloc(device_data, dimensions.first * dimensions.second * sizeof(float));
 
@@ -69,15 +72,15 @@ void __allocate(const std::pair<size_t, size_t> dimensions, float **device_data)
     }
 }
 
-void __free(float *&device_data)
+void matrix_cuda::free(float *&device_data)
 {
     cudaFree(device_data);
 }
 
-void __add(const dim3 block_dims, const dim3 thread_dims,
-           float *output, 
-           const float *data1, const float *data2,
-           const size_t nb_rows, const size_t nb_cols)
+void matrix_cuda::add(const dim3 block_dims, const dim3 thread_dims,
+                      float *output,
+                      const float *data1, const float *data2,
+                      const size_t nb_rows, const size_t nb_cols)
 {
     __kernel_add<<<block_dims, thread_dims>>>(
             output,
@@ -85,23 +88,23 @@ void __add(const dim3 block_dims, const dim3 thread_dims,
             nb_rows, nb_cols);
 }
 
-void __multiply(const dim3 block_dims, const dim3 thread_dims,
-                float *output, 
-                const float *data1, const float *data2,
-                const size_t nb_rows_1, const size_t nb_cols_1,
-                const size_t nb_rows_2, const size_t nb_cols_2)
+void matrix_cuda::multiply(const dim3 block_dims, const dim3 thread_dims,
+                           float *output,
+                           const float *data1, const float *data2,
+                           const size_t nb_rows_1, const size_t nb_cols_1,
+                           const size_t nb_rows_2, const size_t nb_cols_2)
 {
     __kernel_multiply<<<block_dims, thread_dims>>>(
-            output, 
-            data1, data2, 
-            nb_rows_1, nb_cols_1, 
+            output,
+            data1, data2,
+            nb_rows_1, nb_cols_1,
             nb_rows_2, nb_cols_2);
 }
 
-void __copy_host_to_device(float *host_data, float *device_data, size_t size)
+void matrix_cuda::copy_host_to_device(float *host_data, float *device_data, size_t size)
 {
-    cudaError_t err = cudaMemcpy(device_data, host_data, size, 
-            cudaMemcpyHostToDevice);
+    cudaError_t err = cudaMemcpy(device_data, host_data, size,
+                                 cudaMemcpyHostToDevice);
 
     if (err != cudaSuccess)
     {
@@ -111,10 +114,10 @@ void __copy_host_to_device(float *host_data, float *device_data, size_t size)
     }
 }
 
-void __copy_device_to_host(float *host_data, float *device_data, size_t size)
+void matrix_cuda::copy_device_to_host(float *host_data, float *device_data, size_t size)
 {
     cudaError_t err = cudaMemcpy(host_data, device_data, size,
-            cudaMemcpyHostToHost);
+                                 cudaMemcpyHostToHost);
 
     if (err != cudaSuccess)
     {

@@ -10,51 +10,54 @@
 #include "/usr/local/cuda/include/vector_types.h"
 
 
-/**
- * Compute and return the error between two matrices;
- * "predictions" and "labels" (the ground truth).
- */
-
-typedef matrix (*loss_function_t)(matrix, matrix);
-
-
-namespace loss_functions
+namespace cudaNN
 {
-    // For regression.
-    matrix mean_square_error(matrix predictions, matrix labels);
-    matrix mean_absolute_error(matrix predictions, matrix labels);
-    matrix mean_bias_error(matrix predictions, matrix labels);
-    // For classification.
-    matrix svm_loss(matrix predictions, matrix labels);
-    matrix cross_entropy_loss(matrix predictions, matrix labels);
-}
+    /**
+     * Compute and return the error between two matrices;
+     * "predictions" and "labels" (the ground truth).
+     */
+
+    typedef matrix (*loss_function_t)(matrix, matrix);
 
 
-/**
- * CUDA function wrappers for call on host.
- */
-namespace __loss_functions
-{
-    void __mean_square_error(dim3 block_dims, dim3 thread_dims,
-                             float *results,
-                             float *predictions,
-                             float *errors);
-    void __mean_absolute_error(dim3 block_dims, dim3 thread_dims,
+    namespace loss_functions
+    {
+        // For regression.
+        matrix mean_square_error(matrix predictions, matrix labels);
+        matrix mean_absolute_error(matrix predictions, matrix labels);
+        matrix mean_bias_error(matrix predictions, matrix labels);
+        // For classification.
+        matrix svm_loss(matrix predictions, matrix labels);
+        matrix cross_entropy_loss(matrix predictions, matrix labels);
+    }
+
+
+    /**
+     * CUDA function wrappers for call on host.
+     */
+    namespace loss_functions_cuda
+    {
+        void mean_square_error(dim3 block_dims, dim3 thread_dims,
                                float *results,
                                float *predictions,
                                float *errors);
-    void __mean_bias_error(dim3 block_dims, dim3 thread_dims,
-                           float *results,
-                           float *predictions,
-                           float *errors);
-    void __svm_loss(dim3 block_dims, dim3 thread_dims,
-                    float *results,
-                    float *predictions,
-                    float *errors);
-    void __cross_entropy_loss(dim3 block_dims, dim3 thread_dims,
-                              float *results,
-                              float *predictions,
-                              float *errors);
+        void mean_absolute_error(dim3 block_dims, dim3 thread_dims,
+                                 float *results,
+                                 float *predictions,
+                                 float *errors);
+        void mean_bias_error(dim3 block_dims, dim3 thread_dims,
+                             float *results,
+                             float *predictions,
+                             float *errors);
+        void svm_loss(dim3 block_dims, dim3 thread_dims,
+                      float *results,
+                      float *predictions,
+                      float *errors);
+        void cross_entropy_loss(dim3 block_dims, dim3 thread_dims,
+                                float *results,
+                                float *predictions,
+                                float *errors);
+    }
 }
 
 

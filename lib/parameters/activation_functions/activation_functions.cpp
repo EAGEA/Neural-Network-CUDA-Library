@@ -5,6 +5,9 @@
 #include "activation_functions.h"
 
 
+using namespace cudaNN;
+
+
 matrix activation_functions::linear(matrix inputs)
 {
     auto outputs = matrix(inputs.get_dimensions());
@@ -14,7 +17,7 @@ matrix activation_functions::linear(matrix inputs)
     // Prepare data of operand.
     inputs.copy_host_to_device();
     // Do the computations.
-    __activation_functions::__linear(
+    activation_functions_cuda::linear(
             cuda_dims.first, cuda_dims.second,
             outputs.get_device_data(),
             inputs.get_device_data(),
@@ -35,7 +38,7 @@ matrix activation_functions::binary_step(matrix inputs)
     // Prepare data of operand.
     inputs.copy_host_to_device();
     // Do the computations.
-    __activation_functions::__binary_step(
+    activation_functions_cuda::binary_step(
             cuda_dims.first, cuda_dims.second,
             outputs.get_device_data(),
             inputs.get_device_data(),
@@ -56,7 +59,7 @@ matrix activation_functions::sigmoid(matrix inputs)
     // Prepare data of operand.
     inputs.copy_host_to_device();
     // Do the computations.
-    __activation_functions::__sigmoid(
+    activation_functions_cuda::sigmoid(
             cuda_dims.first, cuda_dims.second,
             outputs.get_device_data(),
             inputs.get_device_data(),
@@ -77,7 +80,7 @@ matrix activation_functions::relu(matrix inputs)
     // Prepare data of operand.
     inputs.copy_host_to_device();
     // Do the computations.
-    __activation_functions::__relu(
+    activation_functions_cuda::relu(
             cuda_dims.first, cuda_dims.second,
             outputs.get_device_data(),
             inputs.get_device_data(),

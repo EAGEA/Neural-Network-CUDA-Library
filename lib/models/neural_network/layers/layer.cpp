@@ -5,8 +5,11 @@
 #include "layer.h"
 
 
-layer::layer(const size_t nb_neurons): 
-    _size(nb_neurons)
+using namespace cudaNN;
+
+
+layer::layer(const size_t nb_neurons):
+        _size(nb_neurons)
 {
 }
 

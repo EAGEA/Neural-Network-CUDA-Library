@@ -5,32 +5,35 @@
 #ifndef CUDANN_LAYER_H
 #define CUDANN_LAYER_H
 
-#include "lib/datastructs/matrix/matrix.h" 
+#include "lib/datastructs/matrix/matrix.h"
 
 #include <cstddef>
 
 
-/**
- * Layer of neurons to be included in a neural network.
- */
-class layer
+namespace cudaNN
 {
-    public:
+    /**
+     * Layer of neurons to be included in a neural network.
+     */
+    class layer
+    {
+        public:
 
-        explicit layer(const size_t nb_neurons);
+            explicit layer(const size_t nb_neurons);
 
-        virtual matrix forward_propagation(const matrix &inputs) = 0;
-        virtual matrix backward_propagation(const matrix &errors) = 0;
+            virtual matrix forward_propagation(const matrix &inputs) = 0;
+            virtual matrix backward_propagation(const matrix &errors) = 0;
 
-        const size_t size() const;
+            const size_t size() const;
 
-    protected:
+        protected:
 
-        /**
-         * Dimension of the layer.
-         */
-        const size_t _size;
-};
+            /**
+             * Dimension of the layer.
+             */
+            const size_t _size;
+    };
+}
 
 
 #endif //CUDANN_LAYER_H

@@ -8,39 +8,45 @@
 #include "lib/datastructs/matrix/matrix.h"
 
 
-/**
- * Element in a dataset.
- */
-class element
+namespace cudaNN
 {
-    public:
+    /**
+     * Element in a dataset.
+     */
+    class element
+    {
+        public:
 
-        element(const matrix &features, const matrix &labels);
+            element(const matrix &features, const matrix &labels);
 
-        const matrix &get_features() const;
-        const matrix &get_labels() const;
+            const matrix &get_features() const;
+            const matrix &get_labels() const;
 
-        bool compare_features(const matrix &features) const;
-        bool compare_labels(const matrix &labels) const;
-        bool compare(const element &e) const;
+            bool compare_features(const matrix &features) const;
+            bool compare_labels(const matrix &labels) const;
+            bool compare(const element &e) const;
 
-        element &operator=(element &e);
+            element &operator=(element &e);
 
-        /**
-         * Print the given element.
-         * @e
-         */
-        static void print(const element &e);
+            /**
+             * Print the given element.
+             * @e
+             */
+            static void print(const element &e);
 
-    private:
+        private:
 
-        const matrix &_features;
-        const matrix &_labels;
-};
+            const matrix &_features;
+            const matrix &_labels;
+    };
 
 
-bool operator==(const element &e1, const element &e2);
-bool operator!=(const element &e1, const element &e2);
+    namespace element_operators
+    {
+        bool operator==(const element &e1, const element &e2);
+        bool operator!=(const element &e1, const element &e2);
+    }
+}
 
 
 #endif //CUDANN_ELEMENT_H

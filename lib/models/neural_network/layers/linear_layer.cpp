@@ -5,12 +5,16 @@
 #include "linear_layer.h"
 
 
+using namespace cudaNN;
+using namespace cudaNN::matrix_operators;
+
+
 linear_layer::linear_layer(const size_t input_size, const size_t nb_neurons,
-                           const activation_function_t activation_function): 
-    layer(nb_neurons), 
-    _biases(1, nb_neurons), 
-    _weights(input_size, nb_neurons),
-    _activation_function(activation_function)
+                           const activation_function_t activation_function):
+        layer(nb_neurons),
+        _biases(1, nb_neurons),
+        _weights(input_size, nb_neurons),
+        _activation_function(activation_function)
 {
     _init_biases();
     _init_weights();
@@ -57,7 +61,8 @@ matrix linear_layer::backward_propagation(const matrix &errors)
     auto new_errors = matrix(errors.get_dimensions());
     auto cuda_dims = util::get_cuda_dims(1, 1); // TODO choose dims
 
-    __backward_propagation(cuda_dims.first, cuda_dims.second, new_errors.get_device_data());
+    std::cout << "OKKK" << std::endl;
+    linear_layer_cuda::backward_propagation(cuda_dims.first, cuda_dims.second, new_errors.get_device_data());
 
     return new_errors;
 }

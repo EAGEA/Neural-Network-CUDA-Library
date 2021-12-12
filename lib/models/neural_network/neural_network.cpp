@@ -5,8 +5,11 @@
 #include "neural_network.h"
 
 
+using namespace cudaNN;
+
+
 neural_network::neural_network(std::initializer_list<layer *> layers):
-    _layers(layers)
+        _layers(layers)
 {
 }
 

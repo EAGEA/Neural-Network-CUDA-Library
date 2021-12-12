@@ -30,7 +30,7 @@ if (CUDA_FOUND)
         "lib/util/util.cpp"
         )
     # Build tests ######################################################
-    add_executable(nn_test tests/main.cpp)
+    add_executable(nn_test tests/nn.cpp)
     target_link_libraries(nn_test CudaNN) 
     ###
     add_executable(matrix_test tests/matrix.cpp)

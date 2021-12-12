@@ -13,61 +13,64 @@
 #include <random>
 
 
-/**
- * Layer of neurons using a linear activation function.
- */
-class linear_layer: public layer
+namespace cudaNN
 {
-    public:
+    /**
+     * Layer of neurons using a linear activation function.
+     */
+    class linear_layer: public layer
+    {
+        public:
 
-        /**
-         * @param input_size the size (number of columns) of the input. 
-         * @param nb_neurons the total number of neurons in this layer.
-         * @param activation_function the function that compute the output of a neuron. 
-         */
-        linear_layer(const size_t input_size, const size_t nb_neurons,
-                     activation_function_t activation_function);
+            /**
+             * @param input_size the size (number of columns) of the input. 
+             * @param nb_neurons the total number of neurons in this layer.
+             * @param activation_function the function that compute the output of a neuron. 
+             */
+            linear_layer(const size_t input_size, const size_t nb_neurons,
+                         activation_function_t activation_function);
 
-        matrix forward_propagation(const matrix &inputs) override;
-        matrix backward_propagation(const matrix &errors) override;
+            matrix forward_propagation(const matrix &inputs) override;
+            matrix backward_propagation(const matrix &errors) override;
 
-    private:
+        private:
 
-        /**
-         * Initialize the "_biases" of the layer at 0
-         * (most appropriate method in literature).
-         */
-        void _init_biases();
+            /**
+             * Initialize the "_biases" of the layer at 0
+             * (most appropriate method in literature).
+             */
+            void _init_biases();
 
-        /**
-         * Initialize the "_weights" of the layer using the normal distribution
-         * (most appropriate method in literature).
-         */
-        void _init_weights();
+            /**
+             * Initialize the "_weights" of the layer using the normal distribution
+             * (most appropriate method in literature).
+             */
+            void _init_weights();
 
-        /**
-         * Parameters of the activation functions.
-         * The parameters of the neuron n°i in the layer are
-         * at the column n°i in the matrices.
-         * "_weights" has the same number of row as the number of features,
-         * and the same number of columns as the number of neurons.
-         * "_biases" has the same number of columns as the number of neurons,
-         * and has only one row.
-         */
-        matrix _biases;
-        matrix _weights;
+            /**
+             * Parameters of the activation functions.
+             * The parameters of the neuron n°i in the layer are
+             * at the column n°i in the matrices.
+             * "_weights" has the same number of row as the number of features,
+             * and the same number of columns as the number of neurons.
+             * "_biases" has the same number of columns as the number of neurons,
+             * and has only one row.
+             */
+            matrix _biases;
+            matrix _weights;
 
-        const activation_function_t _activation_function;
-};
-
-
-/**
- * CUDA function wrappers for call on host.
- */
+            const activation_function_t _activation_function;
+    };
 
 
-void __backward_propagation(dim3 block_dims, dim3 thread_dims, float *errors);
-
+    /**
+     * CUDA function wrappers for call on host.
+     */
+    namespace linear_layer_cuda
+    {
+        void backward_propagation(dim3 block_dims, dim3 thread_dims, float *errors);
+    }
+}
 
 
 #endif //CUDANN_LINEAR_LAYER_H

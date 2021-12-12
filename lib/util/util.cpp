@@ -5,6 +5,9 @@
 #include "util.h"
 
 
+using namespace cudaNN;
+
+
 const bool util::_DEBUG = true;
 const bool util::_ERROR = true;
 const size_t util::MAX_NB_THREADS = 512;

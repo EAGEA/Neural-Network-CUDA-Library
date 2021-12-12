@@ -5,6 +5,9 @@
 #include "loss_functions.h"
 
 
+using namespace cudaNN;
+
+
 matrix loss_functions::mean_square_error(matrix predictions, matrix labels)
 {
     auto error = matrix(predictions.get_dimensions());
@@ -15,7 +18,7 @@ matrix loss_functions::mean_square_error(matrix predictions, matrix labels)
     predictions.copy_host_to_device();
     labels.copy_host_to_device();
     // Do the computations.
-    __loss_functions::__mean_square_error(
+    loss_functions_cuda::mean_square_error(
             cuda_dims.first, cuda_dims.second,
             error.get_device_data(),
             predictions.get_device_data(),
@@ -36,7 +39,7 @@ matrix loss_functions::mean_absolute_error(matrix predictions, matrix labels)
     predictions.copy_host_to_device();
     labels.copy_host_to_device();
     // Do the computations.
-    __loss_functions::__mean_absolute_error(
+    loss_functions_cuda::mean_absolute_error(
             cuda_dims.first, cuda_dims.second,
             error.get_device_data(),
             predictions.get_device_data(),
@@ -57,7 +60,7 @@ matrix loss_functions::mean_bias_error(matrix predictions, matrix labels)
     predictions.copy_host_to_device();
     labels.copy_host_to_device();
     // Do the computations.
-    __loss_functions::__mean_bias_error(
+    loss_functions_cuda::mean_bias_error(
             cuda_dims.first, cuda_dims.second,
             error.get_device_data(),
             predictions.get_device_data(),
@@ -78,7 +81,7 @@ matrix loss_functions::svm_loss(matrix predictions, matrix labels)
     predictions.copy_host_to_device();
     labels.copy_host_to_device();
     // Do the computations.
-    __loss_functions::__svm_loss(
+    loss_functions_cuda::svm_loss(
             cuda_dims.first, cuda_dims.second,
             error.get_device_data(),
             predictions.get_device_data(),
@@ -99,7 +102,7 @@ matrix loss_functions::cross_entropy_loss(matrix predictions, matrix labels)
     predictions.copy_host_to_device();
     labels.copy_host_to_device();
     // Do the computations.
-    __loss_functions::__cross_entropy_loss(
+    loss_functions_cuda::cross_entropy_loss(
             cuda_dims.first, cuda_dims.second,
             error.get_device_data(),
             predictions.get_device_data(),

@@ -5,9 +5,12 @@
 #include "element.h"
 
 
-element::element(const matrix &features, const matrix &labels): 
-    _features(features), 
-    _labels(labels)
+using namespace cudaNN;
+
+
+element::element(const matrix &features, const matrix &labels):
+        _features(features),
+        _labels(labels)
 {
 }
 
@@ -49,7 +52,7 @@ element &element::operator=(element &e)
 
     return *this;
 }
-        
+
 void element::print(const element &e)
 {
     std::cout << "* features *" << std::endl;

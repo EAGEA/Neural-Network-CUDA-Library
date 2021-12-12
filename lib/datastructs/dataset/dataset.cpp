@@ -5,12 +5,15 @@
 #include "dataset.h"
 
 
+using namespace cudaNN;
+
+
 dataset::dataset()
 {
 }
 
 dataset::dataset(std::vector<element> &elements):
-    _elements(elements)
+        _elements(elements)
 {
 }
 
@@ -99,10 +102,10 @@ std::pair<dataset, dataset> dataset::train_test_split(float train_size_ratio /*=
 
     for (size_t i = 0; nb_selected < train_size; i ++)
     {
-        float probability_to_be_selected = (train_size - nb_selected) 
-                / (size_ - i);
-        float random = ((float) distribution(generator) 
-                / (float) (RAND_MAX)) * (float) (size_ - i);
+        float probability_to_be_selected = (train_size - nb_selected)
+                                           / (size_ - i);
+        float random = ((float) distribution(generator)
+                        / (float) (RAND_MAX)) * (float) (size_ - i);
 
         if (random <= probability_to_be_selected)
         {
@@ -136,10 +139,10 @@ dataset dataset::get_random_batch(size_t batch_size)
 
     for (size_t i = 0; (i < size_) && (nb_selected < batch_size); i ++)
     {
-        float probability_to_be_selected = (batch_size - nb_selected) 
-                / (size_ - i);
-        float random = ((float) distribution(generator) 
-                / (float) (RAND_MAX)) * (float) (size_ - i);
+        float probability_to_be_selected = (batch_size - nb_selected)
+                                           / (size_ - i);
+        float random = ((float) distribution(generator)
+                        / (float) (RAND_MAX)) * (float) (size_ - i);
 
         if (random <= probability_to_be_selected)
         {
@@ -153,18 +156,18 @@ dataset dataset::get_random_batch(size_t batch_size)
 
 dataset dataset::load_mult()
 {
-    dataset data; 
+    dataset data;
 
     for (size_t i = 0; i < MULT_SIZE; i ++)
     {
         // TODO need to free pointer.
-        auto features = new matrix(1, MULT_NB_FEATURES); 
+        auto features = new matrix(1, MULT_NB_FEATURES);
         auto labels = new matrix({ 1 }, 1, MULT_NB_LABELS);
 
         for (size_t j = 0; j < MULT_NB_FEATURES; j ++)
         {
             features->get_host_data()[j] = (int) (std::rand() % MULT_MAX);
-            labels->get_host_data()[0] *= (int) features->get_host_data()[j]; 
+            labels->get_host_data()[0] *= (int) features->get_host_data()[j];
         }
 
         data.add(*features, *labels);
