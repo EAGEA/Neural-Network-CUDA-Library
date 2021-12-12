@@ -75,34 +75,40 @@ class matrix
         float *_device_data;
 };
 
+
 /**
  * Operators.
  * Boolean operators are working only on host memory.
  * Aggregation operators are working only on device memory.
  */
+namespace matrix_operators
+{
+    bool operator==(const matrix &m1, const matrix &m2);
+    bool operator!=(const matrix &m1, const matrix &m2);
+    matrix operator+(const matrix &m1, const matrix& m2);
+    matrix operator*(const matrix &m1, const matrix& m2);
+}
 
-bool operator==(const matrix &m1, const matrix &m2);
-bool operator!=(const matrix &m1, const matrix &m2);
-matrix operator+(const matrix &m1, const matrix& m2);
-matrix operator*(const matrix &m1, const matrix& m2);
 
 /**
  * CUDA function wrappers for call on host.
  */
-
-void __allocate(const std::pair<size_t, size_t> dimensions, float **device_data);
-void __free(float *&device_data);
-void __add(const dim3 block_dims, const dim3 thread_dims,
-           float *output, 
-           const float *data1, const float *data2,
-           const size_t nb_rows, const size_t nb_cols);
-void __multiply(const dim3 block_dims, const dim3 thread_dims,
-                float *output, 
-                const float *data1, const float *data2,
-                const size_t nb_rows_1, const size_t nb_cols_1,
-                const size_t nb_rows_2, const size_t nb_cols_2);
-void __copy_host_to_device(float *host_data, float *device_data, size_t size);
-void __copy_device_to_host(float *host_data, float *device_data, size_t size);
+namespace __matrix
+{
+    void __allocate(const std::pair<size_t, size_t> dimensions, float **device_data);
+    void __free(float *&device_data);
+    void __add(const dim3 block_dims, const dim3 thread_dims,
+               float *output,
+               const float *data1, const float *data2,
+               const size_t nb_rows, const size_t nb_cols);
+    void __multiply(const dim3 block_dims, const dim3 thread_dims,
+                    float *output,
+                    const float *data1, const float *data2,
+                    const size_t nb_rows_1, const size_t nb_cols_1,
+                    const size_t nb_rows_2, const size_t nb_cols_2);
+    void __copy_host_to_device(float *host_data, float *device_data, size_t size);
+    void __copy_device_to_host(float *host_data, float *device_data, size_t size);
+}
 
 
 #endif //CUDANN_MATRIX_H

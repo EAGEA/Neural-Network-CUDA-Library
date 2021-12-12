@@ -24,7 +24,7 @@ matrix::matrix(std::initializer_list<float> values, std::pair<size_t, size_t> di
 {
     _dimensions = dimensions;
     // Allocate memory on GPU.
-    __allocate(_dimensions, &_device_data);
+    __matrix::__allocate(_dimensions, &_device_data);
     // Allocate memory on CPU.
     _host_data = new float[_dimensions.first * _dimensions.second];
     // Get the values.
@@ -34,7 +34,7 @@ matrix::matrix(std::initializer_list<float> values, std::pair<size_t, size_t> di
 matrix::~matrix()
 {
     // Desallocate on GPU.
-    __free(_device_data);
+    __matrix::__free(_device_data);
     // Desallocate on CPU.
     delete[] _host_data;
 }
@@ -195,8 +195,8 @@ matrix &matrix::operator=(const matrix &m)
     delete[] _host_data;
     _host_data = new float[_dimensions.first * _dimensions.second];
     // Reallocate device memory.
-    __free(_device_data);
-    __allocate(_dimensions, &_device_data);
+    __matrix::__free(_device_data);
+    __matrix::__allocate(_dimensions, &_device_data);
     // Copy the values of host.
     std::copy(m.get_host_data(), 
             m.get_host_data() + m.get_length() * sizeof(float),
@@ -244,22 +244,22 @@ void matrix::print(const matrix &m)
     std::cout << std::endl;
 }
 
-matrix operator+(const matrix &m1, const matrix &m2)
+matrix matrix_operators::operator+(const matrix &m1, const matrix &m2)
 {
     return m1.add(m2);
 }
 
-matrix operator*(const matrix &m1, const matrix &m2)
+matrix matrix_operators::operator*(const matrix &m1, const matrix &m2)
 {
     return m1.multiply(m2);
 }
 
-bool operator==(const matrix &m1, const matrix &m2)
+bool matrix_operators::operator==(const matrix &m1, const matrix &m2)
 {
     return m1.compare_host_data(m2);
 }
 
-bool operator!=(const matrix &m1, const matrix &m2)
+bool matrix_operators::operator!=(const matrix &m1, const matrix &m2)
 {
     return ! m1.compare_host_data(m2);
 }

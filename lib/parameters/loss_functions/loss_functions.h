@@ -17,6 +17,7 @@
 
 typedef matrix (*loss_function_t)(matrix, matrix);
 
+
 namespace loss_functions
 {
     // For regression.
@@ -28,9 +29,12 @@ namespace loss_functions
     matrix cross_entropy_loss(matrix predictions, matrix labels);
 }
 
+
+/**
+ * CUDA function wrappers for call on host.
+ */
 namespace __loss_functions
 {
-    // CUDA function wrappers for call on host.
     void __mean_square_error(dim3 block_dims, dim3 thread_dims,
                              float *results,
                              float *predictions,

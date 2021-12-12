@@ -23,6 +23,7 @@
 
 typedef matrix (*activation_function_t)(matrix);
 
+
 namespace activation_functions
 {
     matrix linear(matrix inputs);
@@ -31,9 +32,12 @@ namespace activation_functions
     matrix relu(matrix inputs);
 }
 
+
+/**
+ * CUDA function wrappers for call on host.
+ */
 namespace __activation_functions
 {
-    // CUDA function wrappers for call on host.
     void __linear(dim3 block_dims, dim3 thread_dims,
                   float *results, float *inputs,
                   size_t nb_rows, size_t nb_cols);
