@@ -70,8 +70,9 @@ class dataset
          * generate "MULT_N" random numbers in [0, "MULT_MAX"[ (the features),
          * and associate them to the result of the multiplication between them (the label).
          */
-        static const size_t MULT_SIZE = 1000;
-        static const size_t MULT_N = 3;
+        static const size_t MULT_SIZE = 2;
+        static const size_t MULT_NB_FEATURES = 3;
+        static const size_t MULT_NB_LABELS = 1;
         static const size_t MULT_MAX = 10;
         static dataset load_mult();
 

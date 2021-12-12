@@ -5,22 +5,86 @@
 #include "activation_functions.h"
 
 
-float activation_functions::linear(float input)
+matrix activation_functions::linear(matrix inputs)
 {
-    return input;
+    auto outputs = matrix(inputs.get_dimensions());
+    auto cuda_dims = util::get_cuda_dims(
+            inputs.get_dimensions().first,
+            inputs.get_dimensions().second);
+    // Prepare data of operand.
+    inputs.copy_host_to_device();
+    // Do the computations.
+    __activation_functions::__linear(
+            cuda_dims.first, cuda_dims.second,
+            outputs.get_device_data(),
+            inputs.get_device_data(),
+            inputs.get_dimensions().first,
+            inputs.get_dimensions().second);
+    // Retrieve data of output.
+    outputs.copy_device_to_host();
+
+    return outputs;
 }
 
-float activation_functions::binary_step(float input)
+matrix activation_functions::binary_step(matrix inputs)
 {
-    return input < 0.f ? 0.f : 1.f;
+    auto outputs = matrix(inputs.get_dimensions());
+    auto cuda_dims = util::get_cuda_dims(
+            inputs.get_dimensions().first,
+            inputs.get_dimensions().second);
+    // Prepare data of operand.
+    inputs.copy_host_to_device();
+    // Do the computations.
+    __activation_functions::__binary_step(
+            cuda_dims.first, cuda_dims.second,
+            outputs.get_device_data(),
+            inputs.get_device_data(),
+            inputs.get_dimensions().first,
+            inputs.get_dimensions().second);
+    // Retrieve data of output.
+    outputs.copy_device_to_host();
+
+    return outputs;
 }
 
-float activation_functions::sigmoid(float input)
+matrix activation_functions::sigmoid(matrix inputs)
 {
-    return 1.f / 1.f + exp(-input);
+    auto outputs = matrix(inputs.get_dimensions());
+    auto cuda_dims = util::get_cuda_dims(
+            inputs.get_dimensions().first,
+            inputs.get_dimensions().second);
+    // Prepare data of operand.
+    inputs.copy_host_to_device();
+    // Do the computations.
+    __activation_functions::__sigmoid(
+            cuda_dims.first, cuda_dims.second,
+            outputs.get_device_data(),
+            inputs.get_device_data(),
+            inputs.get_dimensions().first,
+            inputs.get_dimensions().second);
+    // Retrieve data of output.
+    outputs.copy_device_to_host();
+
+    return outputs;
 }
 
-float activation_functions::relu(float input)
+matrix activation_functions::relu(matrix inputs)
 {
-    return fmax(0.f, input);
+    auto outputs = matrix(inputs.get_dimensions());
+    auto cuda_dims = util::get_cuda_dims(
+            inputs.get_dimensions().first,
+            inputs.get_dimensions().second);
+    // Prepare data of operand.
+    inputs.copy_host_to_device();
+    // Do the computations.
+    __activation_functions::__relu(
+            cuda_dims.first, cuda_dims.second,
+            outputs.get_device_data(),
+            inputs.get_device_data(),
+            inputs.get_dimensions().first,
+            inputs.get_dimensions().second);
+    // Retrieve data of output.
+    outputs.copy_device_to_host();
+
+    return outputs;
 }

@@ -24,6 +24,7 @@ if (CUDA_FOUND)
         "lib/models/neural_network/layers/linear_layer.cpp"
         "lib/models/neural_network/layers/linear_layer.cu"
         "lib/parameters/activation_functions/activation_functions.cpp"
+        "lib/parameters/activation_functions/activation_functions.cu"
         "lib/parameters/loss_functions/loss_functions.cpp"
         "lib/parameters/loss_functions/loss_functions.cu"
         "lib/util/util.cpp"

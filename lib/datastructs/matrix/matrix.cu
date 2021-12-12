@@ -53,13 +53,13 @@ __global__ void __kernel_multiply(float *output,
 
 
 /**
- * Wrappers.
+ * Wrappers for call on host.
  */
 
 
-void __allocate(const std::pair<size_t, size_t> dimensions, float *&device_data)
+void __allocate(const std::pair<size_t, size_t> dimensions, float **device_data)
 {
-    cudaError_t err = cudaMalloc(&device_data, dimensions.first * dimensions.second * sizeof(float));
+    cudaError_t err = cudaMalloc(device_data, dimensions.first * dimensions.second * sizeof(float));
 
     if (err != cudaSuccess)
     {

@@ -29,6 +29,7 @@ void neural_network::fit(dataset data,
 
     for (size_t i = 1; i <= epochs; i ++)
     {
+        // For each epoch, execute the training on batches:
         for (size_t j = 1; j <= data.size() / batch_size; j ++)
         {
             // Get a sample of "batch size" (features + labels).

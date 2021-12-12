@@ -51,12 +51,12 @@ void util::ERROR_EXIT()
 std::pair<dim3, dim3> util::get_cuda_dims(size_t nb_rows, size_t nb_columns)
 {
     dim3 blocks_per_grid(1, 1);
-    dim3 threads_per_block = dim3(nb_rows, nb_columns);
+    dim3 threads_per_block = dim3(nb_columns, nb_rows);
 
     if (nb_rows * nb_columns > util::MAX_NB_THREADS)
     {
-        blocks_per_grid.x = ceil((float) nb_rows / (float) util::MAX_NB_THREADS);
-        blocks_per_grid.y = ceil((float) nb_columns / (float) util::MAX_NB_THREADS);
+        blocks_per_grid.x = ceil((float) nb_columns / (float) util::MAX_NB_THREADS);
+        blocks_per_grid.y = ceil((float) nb_rows / (float) util::MAX_NB_THREADS);
         threads_per_block.x = util::MAX_NB_THREADS;
         threads_per_block.y = util::MAX_NB_THREADS;
     }

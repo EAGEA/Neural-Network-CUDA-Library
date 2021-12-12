@@ -10,7 +10,7 @@ matrix::matrix(const size_t x, const size_t y):
 {
 }
 
-matrix::matrix(const std::pair<size_t, size_t> dimensions):
+matrix::matrix(std::pair<size_t, size_t> dimensions):
     matrix({}, dimensions)
 {
 }
@@ -20,11 +20,11 @@ matrix::matrix(std::initializer_list<float> values, const size_t x, const size_t
 {
 }
 
-matrix::matrix(std::initializer_list<float> values, const std::pair<size_t, size_t> dimensions):
-    _dimensions(dimensions)
+matrix::matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions)
 {
+    _dimensions = dimensions;
     // Allocate memory on GPU.
-    __allocate(_dimensions, _device_data);
+    __allocate(_dimensions, &_device_data);
     // Allocate memory on CPU.
     _host_data = new float[_dimensions.first * _dimensions.second];
     // Get the values.
@@ -45,14 +45,13 @@ matrix matrix::add(const matrix &m) const
     {
         // Invalid.
         util::ERROR("matrix::add", "Invalid @m size; not the same number"
-                " of rows or/and columns");
+                    " of rows or/and columns");
         util::ERROR_EXIT();
     }
 
     // Prepare the output.
-    matrix output = matrix(_dimensions);
-    std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(_dimensions.first,
-            _dimensions.second);
+    auto output = matrix(_dimensions);
+    auto cuda_dims = util::get_cuda_dims(_dimensions.first, _dimensions.second);
     // Prepare data of operands.
     copy_host_to_device();
     m.copy_host_to_device();
@@ -72,18 +71,16 @@ matrix matrix::multiply(const matrix &m) const
     if (_dimensions.second != m.get_dimensions().first)
     {
         // Invalid.
-        util::ERROR("matrix::multiply", "Invalid @m size; not the same number"
-                                              " of rows as the number of columns");
+        util::ERROR("matrix::multiply", "Invalid @m size; not the same number "
+                                        "of rows as the number of columns");
         util::ERROR_EXIT();
     }
 
-    size_t nb_rows = _dimensions.first;
-    size_t nb_columns = m.get_dimensions().second;
-
     // Prepare the output.
-    matrix output = matrix(nb_rows, nb_columns);
-    std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(nb_rows,
-            nb_columns);
+    auto nb_rows = _dimensions.first;
+    auto nb_columns = m.get_dimensions().second;
+    auto output = matrix(nb_rows, nb_columns);
+    auto cuda_dims = util::get_cuda_dims(nb_rows, nb_columns);
     // Prepare data of operands.
     copy_host_to_device();
     m.copy_host_to_device();
@@ -185,17 +182,22 @@ void matrix::copy_device_to_host() const
             _dimensions.first * _dimensions.second * sizeof(float)); 
 }
 
-matrix& matrix::operator=(const matrix &m)
+matrix &matrix::operator=(const matrix &m)
 {
     if (this == &m)
     {
         return *this;
     }
 
-    // Re-assign for const members.
-    this->~matrix();
-    new (this) matrix(m.get_dimensions());
-    // Copy the values.
+    _dimensions.first = m.get_dimensions().first;
+    _dimensions.second = m.get_dimensions().second;
+    // Reallocate host memory.
+    delete[] _host_data;
+    _host_data = new float[_dimensions.first * _dimensions.second];
+    // Reallocate device memory.
+    __free(_device_data);
+    __allocate(_dimensions, &_device_data);
+    // Copy the values of host.
     std::copy(m.get_host_data(), 
             m.get_host_data() + m.get_length() * sizeof(float),
             _host_data);
@@ -224,12 +226,14 @@ void matrix::print(const matrix &m)
 
     for (size_t i = 0; i < m.get_dimensions().first; i ++)
     {
+        std::cout << "|";
+
         for (size_t j = 0; j < m.get_dimensions().second; j ++)
         {
             std::cout << m[i * m.get_dimensions().second + j] << "\t";
         }
 
-        std::cout << std::endl;
+        std::cout << "|" << std::endl;
     }
 
     for (size_t j = 0; j < m.get_dimensions().second; j ++)

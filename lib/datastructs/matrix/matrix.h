@@ -23,9 +23,9 @@ class matrix
 {
     public:
 
-        explicit matrix(const std::pair<size_t, size_t> dimensions);
+        explicit matrix(std::pair<size_t, size_t> dimensions);
         matrix(const size_t x, const size_t y);
-        matrix(std::initializer_list<float> values, const std::pair<size_t, size_t> dimensions);
+        matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions);
         matrix(std::initializer_list<float> values, const size_t x, const size_t y);
         ~matrix();
 
@@ -57,7 +57,7 @@ class matrix
          * Operators.
          * Working only on host memory.
          */
-        matrix& operator=(const matrix &m);
+        matrix &operator=(const matrix &m);
         float &operator[](const int i); 
         const float &operator[](const int i) const;
         
@@ -69,10 +69,10 @@ class matrix
 
     private:
 
-        const std::pair<size_t, size_t> _dimensions;
+        std::pair<size_t, size_t> _dimensions;
 
-        float *_device_data;
         float *_host_data;
+        float *_device_data;
 };
 
 /**
@@ -87,10 +87,10 @@ matrix operator+(const matrix &m1, const matrix& m2);
 matrix operator*(const matrix &m1, const matrix& m2);
 
 /**
- * CUDA function wrappers.
+ * CUDA function wrappers for call on host.
  */
 
-void __allocate(const std::pair<size_t, size_t> dimensions, float *&device_data);
+void __allocate(const std::pair<size_t, size_t> dimensions, float **device_data);
 void __free(float *&device_data);
 void __add(const dim3 block_dims, const dim3 thread_dims,
            float *output, 

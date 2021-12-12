@@ -158,10 +158,10 @@ dataset dataset::load_mult()
     for (size_t i = 0; i < MULT_SIZE; i ++)
     {
         // TODO need to free pointer.
-        auto features = new matrix(1, MULT_N); 
-        auto labels = new matrix({ 1 }, 1, 1);
+        auto features = new matrix(1, MULT_NB_FEATURES); 
+        auto labels = new matrix({ 1 }, 1, MULT_NB_LABELS);
 
-        for (size_t j = 0; j < MULT_N; j ++)
+        for (size_t j = 0; j < MULT_NB_FEATURES; j ++)
         {
             features->get_host_data()[j] = (int) (std::rand() % MULT_MAX);
             labels->get_host_data()[0] *= (int) features->get_host_data()[j]; 

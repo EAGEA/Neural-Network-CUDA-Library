@@ -7,85 +7,105 @@
 
 matrix loss_functions::mean_square_error(matrix predictions, matrix labels)
 {
-    matrix error = matrix(predictions.get_dimensions());
-    // TODO allocate matrix
-    std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(
+    auto error = matrix(predictions.get_dimensions());
+    auto cuda_dims = util::get_cuda_dims(
             predictions.get_dimensions().first,
             predictions.get_dimensions().second);
-
-    loss_functions::__mean_square_error(
+    // Prepare data of operands.
+    predictions.copy_host_to_device();
+    labels.copy_host_to_device();
+    // Do the computations.
+    __loss_functions::__mean_square_error(
             cuda_dims.first, cuda_dims.second,
             error.get_device_data(),
             predictions.get_device_data(),
             labels.get_device_data());
+    // Retrieve data of output.
+    error.copy_device_to_host();
 
     return error;
 }
 
 matrix loss_functions::mean_absolute_error(matrix predictions, matrix labels)
 {
-    matrix error = matrix(predictions.get_dimensions());
-    // TODO allocate matrix
-    std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(
+    auto error = matrix(predictions.get_dimensions());
+    auto cuda_dims = util::get_cuda_dims(
             predictions.get_dimensions().first,
             predictions.get_dimensions().second);
-
-    loss_functions::__mean_absolute_error(
+    // Prepare data of operands.
+    predictions.copy_host_to_device();
+    labels.copy_host_to_device();
+    // Do the computations.
+    __loss_functions::__mean_absolute_error(
             cuda_dims.first, cuda_dims.second,
             error.get_device_data(),
             predictions.get_device_data(),
             labels.get_device_data());
+    // Retrieve data of output.
+    error.copy_device_to_host();
 
     return error;
 }
 
 matrix loss_functions::mean_bias_error(matrix predictions, matrix labels)
 {
-    matrix error = matrix(predictions.get_dimensions());
-    // TODO allocate matrix
-    std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(
+    auto error = matrix(predictions.get_dimensions());
+    auto cuda_dims = util::get_cuda_dims(
             predictions.get_dimensions().first,
             predictions.get_dimensions().second);
-
-    loss_functions::__mean_bias_error(
+    // Prepare data of operands.
+    predictions.copy_host_to_device();
+    labels.copy_host_to_device();
+    // Do the computations.
+    __loss_functions::__mean_bias_error(
             cuda_dims.first, cuda_dims.second,
             error.get_device_data(),
             predictions.get_device_data(),
             labels.get_device_data());
+    // Retrieve data of output.
+    error.copy_device_to_host();
 
     return error;
 }
 
 matrix loss_functions::svm_loss(matrix predictions, matrix labels)
 {
-    matrix error = matrix(predictions.get_dimensions());
-    // TODO allocate matrix
-    std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(
+    auto error = matrix(predictions.get_dimensions());
+    auto cuda_dims = util::get_cuda_dims(
             predictions.get_dimensions().first,
             predictions.get_dimensions().second);
-
-    loss_functions::__svm_loss(
+    // Prepare data of operands.
+    predictions.copy_host_to_device();
+    labels.copy_host_to_device();
+    // Do the computations.
+    __loss_functions::__svm_loss(
             cuda_dims.first, cuda_dims.second,
             error.get_device_data(),
             predictions.get_device_data(),
             labels.get_device_data());
+    // Retrieve data of output.
+    error.copy_device_to_host();
 
     return error;
 }
 
 matrix loss_functions::cross_entropy_loss(matrix predictions, matrix labels)
 {
-    matrix error = matrix(predictions.get_dimensions());
-    // TODO allocate matrix
-    std::pair<dim3, dim3> cuda_dims = util::get_cuda_dims(
+    auto error = matrix(predictions.get_dimensions());
+    auto cuda_dims = util::get_cuda_dims(
             predictions.get_dimensions().first,
             predictions.get_dimensions().second);
-
-    loss_functions::__cross_entropy_loss(
+    // Prepare data of operands.
+    predictions.copy_host_to_device();
+    labels.copy_host_to_device();
+    // Do the computations.
+    __loss_functions::__cross_entropy_loss(
             cuda_dims.first, cuda_dims.second,
             error.get_device_data(),
             predictions.get_device_data(),
             labels.get_device_data());
+    // Retrieve data of output.
+    error.copy_device_to_host();
 
     return error;
 }

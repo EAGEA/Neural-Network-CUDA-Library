@@ -21,15 +21,15 @@ class linear_layer: public layer
     public:
 
         /**
+         * @param input_size the size (number of columns) of the input. 
          * @param nb_neurons the total number of neurons in this layer.
-         * @param nb_features the number of features of each entry of the dataset.
          * @param activation_function the function that compute the output of a neuron. 
          */
-        linear_layer(const size_t nb_neurons, const size_t nb_features,
+        linear_layer(const size_t input_size, const size_t nb_neurons,
                      activation_function_t activation_function);
 
-        matrix forward_propagation(matrix features) override;
-        matrix backward_propagation(matrix errors) override;
+        matrix forward_propagation(const matrix &inputs) override;
+        matrix backward_propagation(const matrix &errors) override;
 
     private:
 
@@ -60,14 +60,12 @@ class linear_layer: public layer
         const activation_function_t _activation_function;
 };
 
+
 /**
- * CUDA function wrappers.
+ * CUDA function wrappers for call on host.
  */
 
-void __execute_activation_functions(dim3 block_dims, dim3 thread_dims,
-                                    activation_function_t activation_function,
-                                    float *inputs, float *outputs,
-                                    size_t nb_neurons);
+
 void __backward_propagation(dim3 block_dims, dim3 thread_dims, float *errors);
 
 

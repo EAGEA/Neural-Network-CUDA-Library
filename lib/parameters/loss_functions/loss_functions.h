@@ -11,7 +11,7 @@
 
 
 /**
- * Compute the error between two matrices;
+ * Compute and return the error between two matrices;
  * "predictions" and "labels" (the ground truth).
  */
 
@@ -26,29 +26,29 @@ namespace loss_functions
     // For classification.
     matrix svm_loss(matrix predictions, matrix labels);
     matrix cross_entropy_loss(matrix predictions, matrix labels);
-    
-    /**
-     * CUDA function wrappers.
-     */
+}
 
+namespace __loss_functions
+{
+    // CUDA function wrappers for call on host.
     void __mean_square_error(dim3 block_dims, dim3 thread_dims,
-                             float *result,
+                             float *results,
                              float *predictions,
                              float *errors);
     void __mean_absolute_error(dim3 block_dims, dim3 thread_dims,
-                               float *result,
+                               float *results,
                                float *predictions,
                                float *errors);
     void __mean_bias_error(dim3 block_dims, dim3 thread_dims,
-                           float *result,
+                           float *results,
                            float *predictions,
                            float *errors);
     void __svm_loss(dim3 block_dims, dim3 thread_dims,
-                    float *result,
+                    float *results,
                     float *predictions,
                     float *errors);
     void __cross_entropy_loss(dim3 block_dims, dim3 thread_dims,
-                              float *result,
+                              float *results,
                               float *predictions,
                               float *errors);
 }
