@@ -24,9 +24,8 @@ namespace cudaNN
         extern const bool _ERROR;
         extern const size_t MAX_NB_THREADS;
 
-        void DEBUG(const std::string location, const char *format, ...);
-        void ERROR(const std::string location, const char *format, ...);
-        void PRINT(FILE *stream, const char *format, ...);
+        void DEBUG(const std::string location, const std::string message); 
+        void ERROR(const std::string location, const std::string message); 
         void ERROR_EXIT();
 
         /**

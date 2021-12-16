@@ -14,11 +14,12 @@ using namespace cudaNN::matrix_operators;
  */
 int main(int argc, char *argv[])
 {
+
     size_t x = 10; 
-    size_t y = 10;
+    size_t y = 10; 
 
     // Simple matrix (mult table).
-    matrix m1 = matrix(x, y);
+    auto m1 = matrix(x, y, "1");
 
     for (size_t i = 0; i < x; i ++)
     {
@@ -30,8 +31,9 @@ int main(int argc, char *argv[])
 
     matrix::print(m1);
 
-    // Copy.
-    matrix m2 = m1;
+    // Copy constructor.
+    auto m2 = m1; 
+    m2.set_id("2");
     matrix::print(m2);
 
     // Cmp.
@@ -39,12 +41,12 @@ int main(int argc, char *argv[])
               << (m1 == m2 ? "true" : "false") 
               << std::endl;
 
-    // Add.
+    // Add + assign operator.
     matrix::print(m1 + m2);
     m1 = m1 + m2;
     matrix::print(m1);
 
-    // Mult.
+    // Mult + assign operator.
     matrix::print(m1 * m2);
     m1 = m1 * m2;
     matrix::print(m1);
@@ -54,7 +56,7 @@ int main(int argc, char *argv[])
               << (m1 != m2 ? "true" : "false") 
               << std::endl;
 
-    matrix::print(matrix({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, 3));
+    matrix::print(matrix({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, 3, "5"));
 
     return EXIT_SUCCESS;
 }

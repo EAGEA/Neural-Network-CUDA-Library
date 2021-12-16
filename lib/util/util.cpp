@@ -13,37 +13,24 @@ const bool util::_ERROR = true;
 const size_t util::MAX_NB_THREADS = 512;
 
 
-void util::DEBUG(const std::string location, const char *format, ...)
+void util::DEBUG(const std::string location, const std::string message) 
 {
     if (! util::_DEBUG)
     {
         return;
     }
 
-    std::cout << "[DEBUG] at " + location + " >> ";
-    util::PRINT(stdout, format);
-    std::cout << std::endl;
+    std::cout << "[DEBUG] at " + location + " >> " + message << std::endl;
 }
 
-void util::ERROR(const std::string location, const char *format, ...)
+void util::ERROR(const std::string location, const std::string message) 
 {
     if (! util::_ERROR)
     {
         return;
     }
 
-    std::cerr << "[ERROR] at " + location + " >> ";
-    util::PRINT(stderr, format);
-    std::cerr << std::endl;
-}
-
-void util::PRINT(FILE *stream, const char *format, ...)
-{
-    va_list arg;
-
-    va_start(arg, format);
-    vfprintf(stream, format, arg);
-    va_end(arg);
+    std::cerr << "[DEBUG] at " + location + " >> " + message << std::endl;
 }
 
 void util::ERROR_EXIT()

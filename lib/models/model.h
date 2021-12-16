@@ -27,16 +27,16 @@ namespace cudaNN
              * @param epochs the number of iterations of the training process.
              * @param batch_size the size of the samples during the training.
              */
-            virtual void fit(dataset data,
-                             loss_function_t loss_function,
-                             size_t epochs = 1,
-                             size_t batch_size = 1) = 0;
+            virtual void fit(dataset &data,
+                             const loss_function_t loss_function,
+                             const size_t epochs = 1,
+                             const size_t batch_size = 1) = 0;
 
             /**
              * @param features
              * @return the predictions of the model, on the given "features".
              */
-            virtual matrix predict(matrix features) = 0;
+            virtual matrix predict(const matrix &features) const = 0;
     };
 }
 

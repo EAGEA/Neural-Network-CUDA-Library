@@ -26,12 +26,12 @@ namespace cudaNN
             explicit neural_network(std::initializer_list<layer *> layers);
             ~neural_network();
 
-            virtual void fit(dataset data,
-                             loss_function_t loss_function,
-                             size_t epochs = 1,
-                             size_t batch_size = 1) override;
+            virtual void fit(dataset &data,
+                             const loss_function_t loss_function,
+                             const size_t epochs = 1,
+                             const size_t batch_size = 1) override;
 
-            virtual matrix predict(matrix features) override;
+            virtual matrix predict(const matrix &features) const override;
 
         private:
 
@@ -40,7 +40,7 @@ namespace cudaNN
              * @param features
              * @return
              */
-            matrix _forward_propagation(matrix features);
+            matrix _forward_propagation(const matrix &features) const;
 
             /**
              * Backpropagation; calculate and store the gradients of intermediate
@@ -49,8 +49,9 @@ namespace cudaNN
              * @param labels
              * @param loss_function
              */
-            void _backward_propagation(matrix predictions, matrix labels,
-                                       loss_function_t loss_function);
+            void _backward_propagation(const matrix &predictions, 
+                                       const matrix &labels,
+                                       const loss_function_t loss_function);
 
             std::vector<layer *> _layers;
     };

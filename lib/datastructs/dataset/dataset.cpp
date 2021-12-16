@@ -19,15 +19,26 @@ dataset::dataset(std::vector<element> &elements):
 
 void dataset::add(const matrix &features, const matrix &labels)
 {
-    add(element(features, labels));
+    // TODO pointer ?
+    _elements.push_back(element(features, labels));
 }
 
-void dataset::add(const element &elem)
+void dataset::add(element &elem)
 {
     _elements.push_back(elem);
 }
 
-void dataset::remove(const element &elem)
+void dataset::set(const size_t index, element &elem)
+{
+    /*
+    std::copy(_elements.begin() + index * sizeof(element), 
+            _elements.begin() + (index + 1) * sizeof(element), 
+            elem);
+            */
+    _elements[index] = elem;
+}
+
+void dataset::remove(element &elem)
 {
     // TODO
     /**
@@ -44,12 +55,12 @@ void dataset::remove(const size_t i)
     */
 }
 
-const element &dataset::get(const size_t i) const
+element &dataset::get(const size_t i)
 {
-    return _elements.at(i);
+    return _elements[i];
 }
 
-const std::vector<element> &dataset::get_elements() const
+std::vector<element> &dataset::get_elements()
 {
     return _elements;
 }
@@ -59,23 +70,24 @@ size_t dataset::size() const
     return _elements.size();
 }
 
-matrix dataset::get_features() const
+const matrix &dataset::get_features() const
 {
-    matrix features(4, 4);
+    matrix features(4, 4, "dataset::features");
 
     // TODO return all the features concatenated.
     return features;
 }
 
-matrix dataset::get_labels() const
+const matrix &dataset::get_labels() const
 {
-    matrix labels(4, 4);
+    matrix labels(4, 4, "dataset::labels");
 
     // TODO return all the labels concatenated.
     return labels;
 }
 
-std::pair<dataset, dataset> dataset::train_test_split(float train_size_ratio /*= 0.8f*/)
+#include <array>
+std::pair<dataset, dataset> dataset::train_test_split(const float train_size_ratio /*= 0.8f*/)
 {
     if (train_size_ratio < 0 || 1 < train_size_ratio)
     {
@@ -96,36 +108,32 @@ std::pair<dataset, dataset> dataset::train_test_split(float train_size_ratio /*=
     dataset train;
     dataset test;
     size_t train_size = size_ * train_size_ratio;
-    size_t nb_selected = 0;
-    std::default_random_engine generator;
-    std::normal_distribution<float> distribution = std::normal_distribution<float>(0.f, 1.f);
 
-    for (size_t i = 0; nb_selected < train_size; i ++)
+    // Fill array with [0, "MULT_SIZE"] sequence, and shuffle it.
+    std::array<size_t, dataset::MULT_SIZE> numbers;
+    std::iota(numbers.begin(), numbers.end(), 0);
+    std::random_device generator;
+    std::mt19937 distribution = std::mt19937(generator());
+    std::shuffle(numbers.begin(), numbers.end(), distribution);
+    // Select the "train_size" first indexes for the training set.
+    for (size_t i = 0; i < size_; i ++)
     {
-        float probability_to_be_selected = (train_size - nb_selected)
-                                           / (size_ - i);
-        float random = ((float) distribution(generator)
-                        / (float) (RAND_MAX)) * (float) (size_ - i);
-
-        if (random <= probability_to_be_selected)
+        if (i < train_size)
         {
-            train.add(get(i));
-            nb_selected ++;
+            train.add(get(numbers[i]));
         }
         else
         {
-            test.add(get(i));
+            test.add(get(numbers[i]));
         }
     }
 
     return std::pair<dataset, dataset>(train, test);
 }
 
-dataset dataset::get_random_batch(size_t batch_size)
+dataset dataset::get_random_batch(const size_t batch_size)
 {
-    size_t size_ = size();
-
-    if (batch_size < 0 || size_ < batch_size)
+    if (batch_size < 0 || size() < batch_size)
     {
         // Invalid.
         util::ERROR("dataset::get_random_batch", "Invalid @batch_size");
@@ -133,36 +141,33 @@ dataset dataset::get_random_batch(size_t batch_size)
     }
 
     dataset batch;
-    size_t nb_selected = 0;
-    std::default_random_engine generator;
-    std::normal_distribution<float> distribution = std::normal_distribution<float>(0.f, 1.f);
 
-    for (size_t i = 0; (i < size_) && (nb_selected < batch_size); i ++)
+    // Fill array with [0, "MULT_SIZE"] sequence, and shuffle it.
+    std::array<size_t, dataset::MULT_SIZE> numbers;
+    std::iota(numbers.begin(), numbers.end(), 0);
+    std::random_device generator;
+    std::mt19937 distribution = std::mt19937(generator());
+    std::shuffle(numbers.begin(), numbers.end(), distribution);
+    // Select the "batch_size" first numbers as indexes.
+    for (size_t i = 0; i < batch_size; i ++)
     {
-        float probability_to_be_selected = (batch_size - nb_selected)
-                                           / (size_ - i);
-        float random = ((float) distribution(generator)
-                        / (float) (RAND_MAX)) * (float) (size_ - i);
-
-        if (random <= probability_to_be_selected)
-        {
-            batch.add(get(i));
-            nb_selected ++;
-        }
+        batch.add(get(numbers[i]));
     }
 
     return batch;
 }
 
-dataset dataset::load_mult()
+dataset *dataset::load_mult()
 {
-    dataset data;
+    auto data = new dataset();
 
     for (size_t i = 0; i < MULT_SIZE; i ++)
     {
-        // TODO need to free pointer.
-        auto features = new matrix(1, MULT_NB_FEATURES);
-        auto labels = new matrix({ 1 }, 1, MULT_NB_LABELS);
+        // TODO need to free pointers (element be pointer).
+        auto features = new matrix(1, MULT_NB_FEATURES, 
+                                   std::string("dataset::mult::features::") + std::to_string(i));
+        auto labels = new matrix({ 1 }, 1, MULT_NB_LABELS, 
+                                 std::string("dataset::mult::labels::") + std::to_string(i));
 
         for (size_t j = 0; j < MULT_NB_FEATURES; j ++)
         {
@@ -170,19 +175,19 @@ dataset dataset::load_mult()
             labels->get_host_data()[0] *= (int) features->get_host_data()[j];
         }
 
-        data.add(*features, *labels);
+        data->add(*features, *labels);
     }
 
     return data;
 }
 
-void dataset::print(const dataset &d)
+void dataset::print(dataset &d)
 {
     size_t i = 1;
 
     for (auto &e: d.get_elements())
     {
-        std::cout << "*** n°" << i ++ << " ***" << std::endl;
+        std::cout << ">>> n°" << (i ++) << " <<<" << std::endl; 
         element::print(e);
     }
 }

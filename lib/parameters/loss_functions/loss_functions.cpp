@@ -10,7 +10,8 @@ using namespace cudaNN;
 
 matrix loss_functions::mean_square_error(matrix predictions, matrix labels)
 {
-    auto error = matrix(predictions.get_dimensions());
+    auto error = matrix(predictions.get_dimensions(),
+                        "loss_functions::mean_square_error");
     auto cuda_dims = util::get_cuda_dims(
             predictions.get_dimensions().first,
             predictions.get_dimensions().second);
@@ -31,7 +32,8 @@ matrix loss_functions::mean_square_error(matrix predictions, matrix labels)
 
 matrix loss_functions::mean_absolute_error(matrix predictions, matrix labels)
 {
-    auto error = matrix(predictions.get_dimensions());
+    auto error = matrix(predictions.get_dimensions(),
+                        "loss_functions::mean_absolute_error");
     auto cuda_dims = util::get_cuda_dims(
             predictions.get_dimensions().first,
             predictions.get_dimensions().second);
@@ -52,7 +54,8 @@ matrix loss_functions::mean_absolute_error(matrix predictions, matrix labels)
 
 matrix loss_functions::mean_bias_error(matrix predictions, matrix labels)
 {
-    auto error = matrix(predictions.get_dimensions());
+    auto error = matrix(predictions.get_dimensions(),
+                        "loss_functions::mean_bias_error");
     auto cuda_dims = util::get_cuda_dims(
             predictions.get_dimensions().first,
             predictions.get_dimensions().second);
@@ -73,7 +76,8 @@ matrix loss_functions::mean_bias_error(matrix predictions, matrix labels)
 
 matrix loss_functions::svm_loss(matrix predictions, matrix labels)
 {
-    auto error = matrix(predictions.get_dimensions());
+    auto error = matrix(predictions.get_dimensions(),
+                        "loss_functions::svm_loss");
     auto cuda_dims = util::get_cuda_dims(
             predictions.get_dimensions().first,
             predictions.get_dimensions().second);
@@ -94,7 +98,8 @@ matrix loss_functions::svm_loss(matrix predictions, matrix labels)
 
 matrix loss_functions::cross_entropy_loss(matrix predictions, matrix labels)
 {
-    auto error = matrix(predictions.get_dimensions());
+    auto error = matrix(predictions.get_dimensions(),
+                        "loss_functions::cross_entropy_loss");
     auto cuda_dims = util::get_cuda_dims(
             predictions.get_dimensions().first,
             predictions.get_dimensions().second);
