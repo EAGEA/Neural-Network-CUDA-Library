@@ -10,9 +10,7 @@ using namespace cudaNN;
 
 matrix activation_functions::linear(matrix inputs)
 {
-    auto outputs = matrix(inputs.get_dimensions(), 
-                          "activation_functions::linear(" 
-                          + inputs.get_id() + ")");
+    auto outputs = matrix(inputs.get_dimensions());
     auto cuda_dims = util::get_cuda_dims(
             inputs.get_dimensions().first,
             inputs.get_dimensions().second);
@@ -33,9 +31,7 @@ matrix activation_functions::linear(matrix inputs)
 
 matrix activation_functions::binary_step(matrix inputs)
 {
-    auto outputs = matrix(inputs.get_dimensions(), 
-                          "activation_functions::binary_step("
-                          + inputs.get_id() + ")");
+    auto outputs = matrix(inputs.get_dimensions());
     auto cuda_dims = util::get_cuda_dims(
             inputs.get_dimensions().first,
             inputs.get_dimensions().second);
@@ -56,9 +52,7 @@ matrix activation_functions::binary_step(matrix inputs)
 
 matrix activation_functions::sigmoid(matrix inputs)
 {
-    auto outputs = matrix(inputs.get_dimensions(), 
-                          "activation_functions::sigmoid("
-                          + inputs.get_id() + ")");
+    auto outputs = matrix(inputs.get_dimensions());
     auto cuda_dims = util::get_cuda_dims(
             inputs.get_dimensions().first,
             inputs.get_dimensions().second);
@@ -79,9 +73,7 @@ matrix activation_functions::sigmoid(matrix inputs)
 
 matrix activation_functions::relu(matrix inputs)
 {
-    auto outputs = matrix(inputs.get_dimensions(), 
-                          "activation_functions::relu("
-                          + inputs.get_id() + ")");
+    auto outputs = matrix(inputs.get_dimensions());
     auto cuda_dims = util::get_cuda_dims(
             inputs.get_dimensions().first,
             inputs.get_dimensions().second);
