@@ -5,8 +5,7 @@
 #ifndef CUDANN_UTIL_H
 #define CUDANN_UTIL_H
 
-#include "/usr/local/cuda/include/vector_types.h"
-
+#include <cuda_runtime_api.h> // To keep .cpp/.h extensions.
 #include <cstdlib>
 #include <cstdio>
 #include <cstdarg>
@@ -14,6 +13,9 @@
 #include <iostream>
 #include <string>
 #include <utility>
+
+#define TERM_RESET   "\033[0m"
+#define TERM_RED     "\033[31m"
 
 
 namespace cudaNN
@@ -24,8 +26,9 @@ namespace cudaNN
         extern const bool _ERROR;
         extern const size_t MAX_NB_THREADS;
 
-        void DEBUG(const std::string location, const std::string message); 
-        void ERROR(const std::string location, const std::string message); 
+        void DEBUG(const std::string &location, const std::string &message);
+        void ERROR(const std::string &location, const std::string &message);
+        void ERROR(const std::string &location, const std::string &message, cudaError_t err);
         void ERROR_EXIT();
 
         /**

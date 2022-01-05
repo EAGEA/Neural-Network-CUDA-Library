@@ -13,7 +13,7 @@ const bool util::_ERROR = true;
 const size_t util::MAX_NB_THREADS = 512;
 
 
-void util::DEBUG(const std::string location, const std::string message) 
+void util::DEBUG(const std::string &location, const std::string &message)
 {
     if (! util::_DEBUG)
     {
@@ -23,14 +23,32 @@ void util::DEBUG(const std::string location, const std::string message)
     std::cout << "[DEBUG] at " + location + " >> " + message << std::endl;
 }
 
-void util::ERROR(const std::string location, const std::string message) 
+void util::ERROR(const std::string &location, const std::string &message)
 {
     if (! util::_ERROR)
     {
         return;
     }
 
-    std::cerr << "[DEBUG] at " + location + " >> " + message << std::endl;
+    std::cerr << TERM_RED
+              << "[ERROR] at " + location + " >> " + message
+              << TERM_RESET
+              << std::endl;
+}
+
+void util::ERROR(const std::string &location, const std::string &message, cudaError_t err)
+{
+    if (! util::_ERROR)
+    {
+        return;
+    }
+
+    std::cerr << TERM_RED
+              << "[ERROR] at " + location + " >> " + message + ": "
+                 + std::string(cudaGetErrorName(err)) + " "
+                 + std::string(cudaGetErrorString(err))
+              << TERM_RESET
+              << std::endl;
 }
 
 void util::ERROR_EXIT()

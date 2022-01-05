@@ -8,7 +8,6 @@
 #include "lib/models/neural_network/layers/layer.h"
 #include "lib/parameters/activation_functions/activation_functions.h"
 #include "lib/util/util.h"
-#include "/usr/local/cuda/include/vector_types.h"
 
 #include <random>
 
@@ -30,7 +29,7 @@ namespace cudaNN
             layer(const size_t input_size, const size_t nb_neurons,
                   activation_function_t activation_function);
 
-            matrix forward_propagation(const matrix &inputs);
+            matrix forward_propagation(matrix &inputs) const;
             matrix &backward_propagation(const matrix &errors);
 
             const size_t size() const;

@@ -7,7 +7,6 @@
 
 #include "lib/datastructs/matrix/matrix.h"
 #include "lib/util/util.h"
-#include "/usr/local/cuda/include/vector_types.h"
 
 
 namespace cudaNN

@@ -39,7 +39,7 @@ void layer::_init_weights()
     }
 }
 
-matrix layer::forward_propagation(const matrix &inputs)
+matrix layer::forward_propagation(matrix &inputs) const
 {
     if (inputs.get_dimensions().second != _weights.get_dimensions().first)
     {

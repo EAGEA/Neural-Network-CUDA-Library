@@ -1,5 +1,7 @@
 # Project exclude paths
 /cmake-build-debug/
+/cmake-build-debug-ensimagpc/
+/cmake-build-release-ensimagpc/
 /build/
 /.idea/
 *.swp
