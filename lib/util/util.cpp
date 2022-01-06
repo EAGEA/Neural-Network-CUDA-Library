@@ -8,11 +8,11 @@
 using namespace cudaNN;
 
 
-void util::GPU_ASSERT(cudaError_t code, const char *file, int line, bool abort/* = true*/)
+void util::GPU_ASSERT(cudaError_t code, const char *file, int line, bool abort /*= true*/)
 {
     if (code != cudaSuccess)
     {
-        util::ERROR(std::string(file), std::to_string(line), code);
+        util::ERROR(std::string(file), "at line " + std::to_string(line), code);
 
         if (abort)
         {

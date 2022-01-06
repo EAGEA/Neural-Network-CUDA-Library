@@ -68,7 +68,7 @@ namespace cudaNN
             bool compare_data(const matrix &m) const;
 
             /**
-             * Self operators.
+             * @Self_operators.
              */
             matrix &operator+=(const matrix &m);
             matrix &operator*=(const matrix &m);
@@ -78,7 +78,7 @@ namespace cudaNN
 
             /**
              * Print the given matrix (host memory).
-             * @m - the matrix concerned.
+             * @param m - the matrix concerned.
              */
             static void print(const matrix &m);
 
@@ -93,7 +93,7 @@ namespace cudaNN
 
 
     /**
-     * Operators:
+     * @Operators
      * Boolean operators are working only on host memory.
      * Arithmetic operators are working with device memory
      * and copy the results to the host (i.e. the matrix).

@@ -24,10 +24,14 @@ int main(int argc, char *argv[])
     std::srand((unsigned int) std::time(nullptr));
 
     // Load and split the dataset.
-    std::pair<dataset, dataset> split = dataset::load_mult()->train_test_split();
+    auto mult = dataset::load_mult();
+    auto split = mult->train_test_split();
     auto train = split.first;
     auto test = split.second;
 
+    //dataset::print(*test);
+    matrix::print(test->get_features());
+    /*
     // Train and predict with a neural network.
     neural_network nn = neural_network(
             {
@@ -40,6 +44,9 @@ int main(int argc, char *argv[])
     nn.fit(train, &loss_functions::mean_square_error);
     auto predictions = nn.predict(test.get_features());
 
+*/
+
+    delete mult;
 
     return EXIT_SUCCESS;
 }

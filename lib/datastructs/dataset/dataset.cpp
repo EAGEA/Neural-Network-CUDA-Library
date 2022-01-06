@@ -8,69 +8,49 @@
 using namespace cudaNN;
 
 
-dataset::dataset()
+dataset::dataset() = default;
+
+dataset::dataset(std::vector<entry *> &entries):
+        _entries(entries)
 {
 }
 
-dataset::dataset(std::vector<element> &elements):
-        _elements(elements)
+dataset::~dataset()
 {
+    util::DEBUG("dataset::~dataset", "---");
+
+    for (auto e: _entries)
+    {
+        delete e;
+    }
 }
 
-void dataset::add(const matrix &features, const matrix &labels)
+void dataset::add(const matrix *features, const matrix *labels)
 {
-    // TODO pointer ?
-    _elements.push_back(element(features, labels));
+    _entries.push_back(new entry(features, labels));
 }
 
-void dataset::add(element &elem)
+void dataset::add(entry *e)
 {
-    _elements.push_back(elem);
+    _entries.push_back(elem);
 }
 
-void dataset::set(const size_t index, element &elem)
+entry &dataset::get(const size_t i)
 {
-    /*
-    std::copy(_elements.begin() + index * sizeof(element), 
-            _elements.begin() + (index + 1) * sizeof(element), 
-            elem);
-            */
-    _elements[index] = elem;
+    return *_entries[i];
 }
 
-void dataset::remove(element &elem)
+std::vector<entry *> &dataset::get_entries()
 {
-    // TODO
-    /**
-    _elements.erase(std::remove(_elements.begin(), _elements.end(), elem), 
-            _elements.end());
-            */
-}
-
-void dataset::remove(const size_t i)
-{
-    //TODO
-    /*
-    _elements.erase(_elements.begin() + i);
-    */
-}
-
-element &dataset::get(const size_t i)
-{
-    return _elements[i];
-}
-
-std::vector<element> &dataset::get_elements()
-{
-    return _elements;
+    return _entries;
 }
 
 size_t dataset::size() const
 {
-    return _elements.size();
+    return _entries.size();
 }
 
-const matrix &dataset::get_features() const
+matrix dataset::get_features() const
 {
     matrix features(4, 4, "dataset::features");
 
@@ -78,7 +58,7 @@ const matrix &dataset::get_features() const
     return features;
 }
 
-const matrix &dataset::get_labels() const
+matrix dataset::get_labels() const
 {
     matrix labels(4, 4, "dataset::labels");
 
@@ -86,8 +66,7 @@ const matrix &dataset::get_labels() const
     return labels;
 }
 
-#include <array>
-std::pair<dataset, dataset> dataset::train_test_split(const float train_size_ratio /*= 0.8f*/)
+std::pair<dataset *, dataset *> dataset::train_test_split(const float train_size_ratio /*= 0.8f*/)
 {
     if (train_size_ratio < 0 || 1 < train_size_ratio)
     {
@@ -105,12 +84,12 @@ std::pair<dataset, dataset> dataset::train_test_split(const float train_size_rat
         util::ERROR_EXIT();
     }
 
-    dataset train;
-    dataset test;
+    auto train = new dataset();
+    auto test = new dataset;
     size_t train_size = size_ * train_size_ratio;
 
     // Fill array with [0, "MULT_SIZE"] sequence, and shuffle it.
-    std::array<size_t, dataset::MULT_SIZE> numbers;
+    std::array<size_t, dataset::MULT_SIZE> numbers {};
     std::iota(numbers.begin(), numbers.end(), 0);
     std::random_device generator;
     std::mt19937 distribution = std::mt19937(generator());
@@ -120,15 +99,15 @@ std::pair<dataset, dataset> dataset::train_test_split(const float train_size_rat
     {
         if (i < train_size)
         {
-            train.add(get(numbers[i]));
+            train->add(&get(numbers[i]));
         }
         else
         {
-            test.add(get(numbers[i]));
+            test->add(&get(numbers[i]));
         }
     }
 
-    return std::pair<dataset, dataset>(train, test);
+    return { train, test };
 }
 
 dataset dataset::get_random_batch(const size_t batch_size)
@@ -143,7 +122,7 @@ dataset dataset::get_random_batch(const size_t batch_size)
     dataset batch;
 
     // Fill array with [0, "MULT_SIZE"] sequence, and shuffle it.
-    std::array<size_t, dataset::MULT_SIZE> numbers;
+    std::array<size_t, dataset::MULT_SIZE> numbers {};
     std::iota(numbers.begin(), numbers.end(), 0);
     std::random_device generator;
     std::mt19937 distribution = std::mt19937(generator());
@@ -151,7 +130,7 @@ dataset dataset::get_random_batch(const size_t batch_size)
     // Select the "batch_size" first numbers as indexes.
     for (size_t i = 0; i < batch_size; i ++)
     {
-        batch.add(get(numbers[i]));
+        batch.add(&get(numbers[i]));
     }
 
     return batch;
@@ -159,15 +138,17 @@ dataset dataset::get_random_batch(const size_t batch_size)
 
 dataset *dataset::load_mult()
 {
+    util::DEBUG("dataset::load_mult", "loading the mult dataset");
+
     auto data = new dataset();
 
     for (size_t i = 0; i < MULT_SIZE; i ++)
     {
-        // TODO need to free pointers (element be pointer).
-        auto features = new matrix(1, MULT_NB_FEATURES, 
-                                   std::string("dataset::mult::features::") + std::to_string(i));
-        auto labels = new matrix({ 1 }, 1, MULT_NB_LABELS, 
-                                 std::string("dataset::mult::labels::") + std::to_string(i));
+        // TODO need to free pointers (entry be pointer).
+        auto features = new matrix(1, MULT_NB_FEATURES,
+                               "dataset::mult::features::" + std::to_string(i));
+        auto labels = new matrix({ 1 }, 1, MULT_NB_LABELS,
+                             "dataset::mult::labels::" + std::to_string(i));
 
         for (size_t j = 0; j < MULT_NB_FEATURES; j ++)
         {
@@ -175,7 +156,7 @@ dataset *dataset::load_mult()
             labels->get_data()[0] *= (int) features->get_data()[j];
         }
 
-        data->add(*features, *labels);
+        data->add(features, labels);
     }
 
     return data;
@@ -185,9 +166,9 @@ void dataset::print(dataset &d)
 {
     size_t i = 1;
 
-    for (auto &e: d.get_elements())
+    for (auto e: d.get_entries())
     {
         std::cout << ">>> n°" << (i ++) << " <<<" << std::endl; 
-        element::print(e);
+        entry::print(*e);
     }
 }

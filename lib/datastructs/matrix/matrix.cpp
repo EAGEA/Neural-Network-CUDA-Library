@@ -83,30 +83,23 @@ matrix::matrix(const float *values, std::pair<size_t, size_t> dimensions, std::s
 
 matrix::~matrix()
 {
+    util::DEBUG("matrix::~matrix", "--- " + _id);
     free();
 }
 
 void matrix::allocate(const std::pair<size_t, size_t> &dimensions)
 {
-    if (_data == nullptr)
-    {
-        _dimensions.first = dimensions.first;
-        _dimensions.second = dimensions.second;
-        // Allocate the memory with the given dimensions.
-        _data = new float[get_length() * sizeof(float)](); // TODO remove * sizeof(float)......
-        util::DEBUG("matrix::allocate", _id);
-    }
+    _dimensions.first = dimensions.first;
+    _dimensions.second = dimensions.second;
+    // Allocate the memory with the given dimensions.
+    _data = new float[get_length() * sizeof(float)](); // TODO remove * sizeof(float)......
 }
 
 void matrix::free()
 {
-    if (_data != nullptr)
-    {
-        // If existing, free previous memory.
-        delete[] _data;
-        _data = nullptr;
-        util::DEBUG("matrix::free", _id);
-    }
+    // If existing, free previous memory.
+    delete[] _data;
+    _data = nullptr;
 }
 
 void matrix::set_id(const std::string &id)
