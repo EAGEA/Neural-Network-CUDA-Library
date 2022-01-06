@@ -6,6 +6,7 @@
 
 
 using namespace cudaNN;
+using namespace matrix_operators;
 
 
 element::element(const matrix &features, const matrix &labels):
@@ -26,12 +27,12 @@ const matrix &element::get_labels() const
 
 bool element::compare_features(const matrix &features) const
 {
-    return _features.compare_host_data(features);
+    return _features == features;
 }
 
 bool element::compare_labels(const matrix &labels) const
 {
-    return _labels.compare_host_data(labels);
+    return _labels == labels;
 }
 
 bool element::compare(const element &e) const

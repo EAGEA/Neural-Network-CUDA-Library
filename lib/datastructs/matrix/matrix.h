@@ -13,6 +13,8 @@
 #include <utility>
 #include <initializer_list>
 
+#define DEFAULT_ID "NaN"
+
 
 namespace cudaNN
 {
@@ -29,12 +31,12 @@ namespace cudaNN
             matrix() = default;
             matrix(const matrix &m);
             matrix(const matrix &m, std::string id);
-            matrix(const size_t x, const size_t y);
-            matrix(const size_t x, const size_t y, std::string id);
+            matrix(size_t x, size_t y);
+            matrix(size_t x, size_t y, std::string id);
             explicit matrix(std::pair<size_t, size_t> dimensions);
             matrix(std::pair<size_t, size_t> dimensions, std::string id);
-            matrix(std::initializer_list<float> values, const size_t x, const size_t y);
-            matrix(std::initializer_list<float> values, const size_t x, const size_t y,
+            matrix(std::initializer_list<float> values, size_t x, size_t y);
+            matrix(std::initializer_list<float> values, size_t x, size_t y,
                    std::string id);
             matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions); 
             matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions, 
@@ -45,9 +47,6 @@ namespace cudaNN
 
             void allocate(const std::pair<size_t, size_t> &dimensions);
             void free();
-
-            matrix add(const matrix &m) const;
-            matrix multiply(const matrix &m) const; 
 
             void set_id(const std::string &id);
 
@@ -61,25 +60,18 @@ namespace cudaNN
              */
             size_t get_length() const;
 
-            float *get_host_data() const;
-            float *get_device_data() const;
-            float *get_host_data();
-            float *get_device_data();
+            float *get_data() const;
+            float *get_data();
 
             const std::string &get_id() const;
 
-            bool compare_host_data(const matrix &m) const;
-
-            void copy_host_to_device() const;
-            void copy_device_to_host() const;
+            bool compare_data(const matrix &m) const;
 
             /**
              * Self operators.
-             * Working only on host memory.
              */
             matrix &operator+=(const matrix &m);
             matrix &operator*=(const matrix &m);
-            matrix &operator*(const matrix &m);
             matrix &operator=(const matrix &m);
             float &operator[](const int &i);
             const float &operator[](const int &i) const;
@@ -90,14 +82,11 @@ namespace cudaNN
              */
             static void print(const matrix &m);
 
-            static const std::string DEFAULT_ID;
-
         private:
 
             std::pair<size_t, size_t> _dimensions;
 
-            float *_host_data = nullptr;
-            float *_device_data = nullptr;
+            float *_data = nullptr;
 
             std::string _id;
     };
@@ -107,10 +96,11 @@ namespace cudaNN
      * Operators:
      * Boolean operators are working only on host memory.
      * Arithmetic operators are working with device memory
-     * and copy the results to the host.
+     * and copy the results to the host (i.e. the matrix).
      */
     namespace matrix_operators
     {
+        matrix operator*(const matrix &m1, const matrix &m2);
         matrix operator+(const matrix &m1, const matrix &m2);
         bool operator==(const matrix &m1, const matrix &m2);
         bool operator!=(const matrix &m1, const matrix &m2);
@@ -122,22 +112,14 @@ namespace cudaNN
      */
     namespace matrix_cuda
     {
-        void allocate(const std::string &id,
-                      const size_t length,
-                      float **device_data);
-        void free(const std::string &id, float *device_data);
-        void copy_host_to_device(const std::string &id,
-                                 float *host_data, float *device_data, size_t size);
-        void copy_device_to_host(const std::string &id,
-                                 float *host_data, float *device_data, size_t size);
         void add(const dim3 &block_dims, const dim3 &thread_dims,
                  float *data1, float *data2,
-                 const size_t nb_rows, const size_t nb_cols);
+                 size_t nb_rows, size_t nb_cols);
         void multiply(const dim3 &block_dims, const dim3 &thread_dims,
-                      float *output,
-                      const float *data1, const float *data2,
-                      const size_t &nb_rows_1, const size_t &nb_cols_1,
-                      const size_t &nb_rows_2, const size_t &nb_cols_2);
+                      float *host_output,
+                      const float *host_data1, const float *host_data2,
+                      size_t nb_rows_1, size_t nb_cols_1,
+                      size_t nb_rows_2, size_t nb_cols_2);
     }
 }
 

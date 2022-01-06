@@ -171,8 +171,8 @@ dataset *dataset::load_mult()
 
         for (size_t j = 0; j < MULT_NB_FEATURES; j ++)
         {
-            features->get_host_data()[j] = (int) (std::rand() % MULT_MAX);
-            labels->get_host_data()[0] *= (int) features->get_host_data()[j];
+            features->get_data()[j] = (int) (std::rand() % MULT_MAX);
+            labels->get_data()[0] *= (int) features->get_data()[j];
         }
 
         data->add(*features, *labels);

@@ -14,7 +14,7 @@ using namespace cudaNN;
 
 
 __global__ void __kernel_add(float *data1, float *data2,
-                             const size_t nb_rows, const size_t nb_cols)
+                             size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -28,8 +28,8 @@ __global__ void __kernel_add(float *data1, float *data2,
 
 __global__ void __kernel_multiply(float *output,
                                   const float *data1, const float *data2,
-                                  const size_t &nb_rows_1, const size_t &nb_cols_1,
-                                  const size_t &nb_rows_2, const size_t &nb_cols_2)
+                                  size_t nb_rows_1, size_t nb_cols_1,
+                                  size_t nb_rows_2, size_t nb_cols_2)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -54,102 +54,82 @@ __global__ void __kernel_multiply(float *output,
  */
 
 
-void matrix_cuda::allocate(const std::string &id,
-                           const size_t length,
-                           float **device_data)
-{
-    cudaError_t err = cudaMalloc(device_data, length * sizeof(float));
-
-    if (err != cudaSuccess)
-    {
-        // Invalid.
-        util::ERROR("matrix_cuda::allocate",
-                    "matrix::_id = " + id + " >> memory allocation on device failed", err);
-        util::ERROR_EXIT();
-    }
-}
-
-void matrix_cuda::free(const std::string &id, float *device_data)
-{
-    cudaError_t err = cudaFree(device_data);
-
-    if (err != cudaSuccess)
-    {
-        // Invalid.
-        util::ERROR("matrix_cuda::free",
-                    "matrix::_id = " + id + " >> memory deallocation on device failed", err);
-        util::ERROR_EXIT();
-    }
-}
-
-void matrix_cuda::copy_host_to_device(const std::string &id,
-                                      float *host_data, float *device_data, size_t size)
-{
-    cudaError_t err = cudaMemcpy(device_data, host_data, size * sizeof(float),
-                                 cudaMemcpyHostToDevice);
-
-    if (err != cudaSuccess)
-    {
-        // Invalid.
-        util::ERROR("matrix_cuda::copy_host_to_device",
-                    "matrix::_id = " + id + " >> copy on device failed", err);
-        util::ERROR_EXIT();
-    }
-}
-
-void matrix_cuda::copy_device_to_host(const std::string &id,
-                                      float *host_data, float *device_data, size_t size)
-{
-    cudaError_t err = cudaMemcpy(host_data, device_data, size * sizeof(float),
-                                 cudaMemcpyDeviceToHost);
-
-    if (err != cudaSuccess)
-    {
-        // Invalid.
-        util::ERROR("matrix_cuda::copy_device_to_host",
-                    "matrix::_id = " + id + " >> copy on host failed", err);
-        util::ERROR_EXIT();
-    }
-}
-
 void matrix_cuda::add(const dim3 &block_dims, const dim3 &thread_dims,
-                      float *data1, float *data2,
+                      float *host_data1, float *host_data2,
                       const size_t nb_rows, const size_t nb_cols)
 {
+    size_t length = nb_rows * nb_cols;
+
+    float *device_data1;
+    float *device_data2;
+
+    // Allocate memory on device.
+    CUDA_CHECK(cudaMalloc(&device_data1, length * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&device_data2, length * sizeof(float)));
+    // Copy to this device memory.
+    CUDA_CHECK(cudaMemcpy(device_data1, host_data1,
+                          length * sizeof(float),
+                          cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(device_data2, host_data2,
+                          length * sizeof(float),
+                          cudaMemcpyHostToDevice));
+    // Do computations with CUDA threads.
     __kernel_add<<<block_dims, thread_dims>>>(
-            data1, data2,
+            device_data1, device_data2,
             nb_rows, nb_cols);
-
-    cudaError_t err = cudaDeviceSynchronize();
-
-    if (err != cudaSuccess)
-    {
-        // Invalid.
-        util::ERROR("matrix_cuda::add",
-                    "device synchronize failed", err);
-        util::ERROR_EXIT();
-    }
+    // Wait for all threads.
+    CUDA_CHECK(cudaDeviceSynchronize());
+    // Copy back the memory to host.
+    CUDA_CHECK(cudaMemcpy(host_data1, device_data1,
+                          length * sizeof(float),
+                          cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaMemcpy(host_data2, device_data2,
+                          length * sizeof(float),
+                          cudaMemcpyDeviceToHost));
+    // Free device memory.
+    CUDA_CHECK(cudaFree(device_data1));
+    CUDA_CHECK(cudaFree(device_data2));
 }
 
 void matrix_cuda::multiply(const dim3 &block_dims, const dim3 &thread_dims,
-                           float *output,
-                           const float *data1, const float *data2,
-                           const size_t &nb_rows_1, const size_t &nb_cols_1,
-                           const size_t &nb_rows_2, const size_t &nb_cols_2)
+                           float *host_output,
+                           const float *host_data1, const float *host_data2,
+                           size_t nb_rows_1, size_t nb_cols_1,
+                           size_t nb_rows_2, size_t nb_cols_2)
 {
+    size_t length = nb_rows_1 * nb_cols_2;
+    size_t length_1 = nb_rows_1 * nb_cols_1;
+    size_t length_2 = nb_rows_2 * nb_cols_2;
+
+    float *device_output;
+    float *device_data1;
+    float *device_data2;
+
+    // Allocate memory on device.
+    CUDA_CHECK(cudaMalloc(&device_output, length * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&device_data1, length_1 * sizeof(float)));
+    CUDA_CHECK(cudaMalloc(&device_data2, length_2 * sizeof(float)));
+    // Copy to this device memory.
+    CUDA_CHECK(cudaMemcpy(device_data1, host_data1,
+                          length_1 * sizeof(float),
+                          cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(device_data2, host_data2,
+                          length_2 * sizeof(float),
+                          cudaMemcpyHostToDevice));
+    // Do computations with CUDA threads.
     __kernel_multiply<<<block_dims, thread_dims>>>(
-            output,
-            data1, data2,
+            device_output,
+            device_data1, device_data2,
             nb_rows_1, nb_cols_1,
             nb_rows_2, nb_cols_2);
-
-    cudaError_t err = cudaDeviceSynchronize();
-
-    if (err != cudaSuccess)
-    {
-        // Invalid.
-        util::ERROR("matrix_cuda::multiply",
-                    "device synchronize failed", err);
-        util::ERROR_EXIT();
-    }
+    // Wait for all threads.
+    CUDA_CHECK(cudaDeviceSynchronize());
+    // Copy back the memory to host.
+    CUDA_CHECK(cudaMemcpy(host_output, device_output,
+                          length * sizeof(float),
+                          cudaMemcpyDeviceToHost));
+    // Free device memory.
+    CUDA_CHECK(cudaFree(device_output));
+    CUDA_CHECK(cudaFree(device_data1));
+    CUDA_CHECK(cudaFree(device_data2));
 }

@@ -14,17 +14,22 @@
 #include <string>
 #include <utility>
 
-#define TERM_RESET   "\033[0m"
-#define TERM_RED     "\033[31m"
+#define TERM_RESET "\033[0m"
+#define TERM_RED   "\033[31m"
+
+#define _DEBUG true
+#define _ERROR true
+
+#define MAX_NB_THREADS 512
+
+#define CUDA_CHECK(ans) { util::GPU_ASSERT((ans), __FILE__, __LINE__); }
 
 
 namespace cudaNN
 {
     namespace util
     {
-        extern const bool _DEBUG;
-        extern const bool _ERROR;
-        extern const size_t MAX_NB_THREADS;
+        void GPU_ASSERT(cudaError_t code, const char *file, int line, bool abort = true);
 
         void DEBUG(const std::string &location, const std::string &message);
         void ERROR(const std::string &location, const std::string &message);

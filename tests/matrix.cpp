@@ -9,17 +9,20 @@ using namespace cudaNN;
 using namespace cudaNN::matrix_operators;
 
 
+#define x 5
+#define y 5
+
+
 /**
- * Basic operations on matrices; operators + CUDA tests.
+ * Examples of basic operations on matrices with basic operators
+ * and constructors.
+ * Includes CUDA tests.
  */
 int main(int argc, char *argv[])
 {
-    size_t x = 10;
-    size_t y = 10;
-
-    // Simple matrix (multiplication table).
+    // ----------- //
+    std::cout << "> [] operator" << std::endl;
     auto m1 = matrix(x, y, "1");
-
     for (size_t i = 0; i < x; i ++)
     {
         for (size_t j= 0; j < y; j ++)
@@ -27,41 +30,46 @@ int main(int argc, char *argv[])
             m1[i * y + j] = i * j;
         }
     }
-
-//    matrix::print(m1);
-
-    // Copy constructor.
+    matrix::print(m1);
+    // ----------- //
+    std::cout << "> Copy constructor" << std::endl;
     auto m2 = m1;
-//    matrix::print(m2);
-    // Assign operator.
-
+    matrix::print(m2);
+    // ----------- //
+    std::cout << "> = operator" << std::endl;
     m2 = matrix(m1, "2");
-//    matrix::print(m2);
-
-/*
-    // Comparison.
+    m2.set_id("2");
+    matrix::print(m2);
+    // ----------- //
+    std::cout << "> == operator" << std::endl;
     std::cout << "m1 is equal to m2: "
               << (m1 == m2 ? "true" : "false")
               << std::endl;
-
-    // Add + assign operator.
+    // ----------- //
+    std::cout << "> += operator" << std::endl;
     m1 += m2;
     matrix::print(m1);
+    // ----------- //
+    std::cout << "> + & = operators" << std::endl;
     m1 = m1 + m2;
     matrix::print(m1);
-
-    /*
-    // Mult + assign operator.
-    matrix::print(m1 * m2);
+    // ----------- //
+    std::cout << "> *= operator" << std::endl;
+    m2 *= m2;
+    matrix::print(m2);
+    // ----------- //
+    std::cout << "> * & = operators" << std::endl;
     m1 = m1 * m2;
     matrix::print(m1);
-
-    // Cmp.
+    // ----------- //
+    std::cout << "> != operator" << std::endl;
     std::cout << "m1 is not equal to m2: "
               << (m1 != m2 ? "true" : "false")
               << std::endl;
+    // ----------- //
+    std::cout << "> init list constructor" << std::endl;
+    matrix::print(matrix({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, 3, "3"));
+    // ----------- //
 
-    matrix::print(matrix({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, 3, "5"));
-*/
     return EXIT_SUCCESS;
 }
