@@ -28,12 +28,13 @@ namespace cudaNN
 
             matrix() = default;
             matrix(const matrix &m);
-            matrix(const size_t &x, const size_t &y);
-            matrix(const size_t &x, const size_t &y, std::string id);
+            matrix(const matrix &m, std::string id);
+            matrix(const size_t x, const size_t y);
+            matrix(const size_t x, const size_t y, std::string id);
             explicit matrix(std::pair<size_t, size_t> dimensions);
             matrix(std::pair<size_t, size_t> dimensions, std::string id);
-            matrix(std::initializer_list<float> values, const size_t &x, const size_t &y);
-            matrix(std::initializer_list<float> values, const size_t &x, const size_t &y,
+            matrix(std::initializer_list<float> values, const size_t x, const size_t y);
+            matrix(std::initializer_list<float> values, const size_t x, const size_t y,
                    std::string id);
             matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions); 
             matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions, 
@@ -77,7 +78,6 @@ namespace cudaNN
              * Working only on host memory.
              */
             matrix &operator+=(const matrix &m);
-            matrix &operator+(const matrix &m);
             matrix &operator*=(const matrix &m);
             matrix &operator*(const matrix &m);
             matrix &operator=(const matrix &m);
@@ -111,6 +111,7 @@ namespace cudaNN
      */
     namespace matrix_operators
     {
+        matrix operator+(const matrix &m1, const matrix &m2);
         bool operator==(const matrix &m1, const matrix &m2);
         bool operator!=(const matrix &m1, const matrix &m2);
     }
@@ -122,17 +123,16 @@ namespace cudaNN
     namespace matrix_cuda
     {
         void allocate(const std::string &id,
-                      const size_t &length,
+                      const size_t length,
                       float **device_data);
-        void free(const std::string &id, float *&device_data);
+        void free(const std::string &id, float *device_data);
         void copy_host_to_device(const std::string &id,
                                  float *host_data, float *device_data, size_t size);
         void copy_device_to_host(const std::string &id,
                                  float *host_data, float *device_data, size_t size);
         void add(const dim3 &block_dims, const dim3 &thread_dims,
-                 float *output,
                  float *data1, float *data2,
-                 const size_t &nb_rows, const size_t &nb_cols);
+                 const size_t nb_rows, const size_t nb_cols);
         void multiply(const dim3 &block_dims, const dim3 &thread_dims,
                       float *output,
                       const float *data1, const float *data2,

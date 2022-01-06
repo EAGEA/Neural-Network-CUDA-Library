@@ -4,8 +4,6 @@
 
 #include "matrix.h"
 
-#include <utility>
-
 
 using namespace cudaNN;
 
@@ -16,18 +14,26 @@ using namespace cudaNN;
 const std::string matrix::DEFAULT_ID = "NaN";
 
 
-matrix::matrix(const matrix &m)
+matrix::matrix(const matrix &m):
+        matrix(m, std::move(m.get_id() + " copy"))
 {
-    _id = m.get_id() + " copy";
-    *this = m;
 }
 
-matrix::matrix(const size_t &x, const size_t &y):
+matrix::matrix(const matrix &m, std::string id)
+{
+    _id = id;
+    allocate(m.get_dimensions());
+    std::copy(m.get_host_data(),
+              m.get_host_data() + get_length() * sizeof(float),
+              _host_data);
+}
+
+matrix::matrix(const size_t x, const size_t y):
         matrix({}, std::pair<size_t, size_t>(x, y), DEFAULT_ID)
 {
 }
 
-matrix::matrix(const size_t &x, const size_t &y, std::string id):
+matrix::matrix(const size_t x, const size_t y, std::string id):
         matrix({}, std::pair<size_t, size_t>(x, y), std::move(id))
 {
 }
@@ -42,12 +48,12 @@ matrix::matrix(std::pair<size_t, size_t> dimensions, std::string id):
 {
 }
 
-matrix::matrix(std::initializer_list<float> values, const size_t &x, const size_t &y):
+matrix::matrix(std::initializer_list<float> values, const size_t x, const size_t y):
         matrix(values, std::pair<size_t, size_t>(x, y), DEFAULT_ID)
 {
 }
 
-matrix::matrix(std::initializer_list<float> values, const size_t &x, const size_t &y,
+matrix::matrix(std::initializer_list<float> values, const size_t x, const size_t y,
                std::string id):
         matrix(values, std::pair<size_t, size_t>(x, y), std::move(id))
 {
@@ -62,9 +68,7 @@ matrix::matrix(std::initializer_list<float> values, std::pair<size_t, size_t> di
                std::string id)
 {
     _id = std::move(id);
-
     allocate(dimensions);
-    // Get the values.
     std::copy(values.begin(), values.end(), _host_data);
 }
 
@@ -79,7 +83,7 @@ matrix::matrix(const float *values, std::pair<size_t, size_t> dimensions, std::s
 
     allocate(dimensions);
     // Get the values.
-    std::copy(values, values + get_length() * sizeof(float),_host_data);
+    std::copy(values, values + get_length() * sizeof(float), _host_data);
 }
 
 matrix::~matrix()
@@ -96,15 +100,16 @@ void matrix::allocate(const std::pair<size_t, size_t> &dimensions)
     if (_host_data == nullptr)
     {
         _host_data = new float[get_length()];
+        util::DEBUG("matrix::allocate", "_host_data >> " + _id);
     }
 
     if (_device_data == nullptr)
     {
         matrix_cuda::allocate(_id, get_length(),
                               &_device_data);
+        util::DEBUG("matrix::allocate", "_device_data=" + std::to_string(
+                reinterpret_cast<long long int>(_device_data)) + " >> " + _id);
     }
-
-    util::DEBUG("matrix::allocate", "+++ " + _id);
 }
 
 void matrix::free()
@@ -114,15 +119,15 @@ void matrix::free()
     {
         delete[] _host_data;
         _host_data = nullptr;
+        util::DEBUG("matrix::free", "_host_data >> " + _id);
     }
 
     if (_device_data != nullptr)
     {
         matrix_cuda::free(_id, _device_data);
         _device_data = nullptr;
+        util::DEBUG("matrix::free", "_device_data >> " + _id);
     }
-
-    util::DEBUG("matrix::free", "--- " + _id);
 }
 
 
@@ -264,12 +269,10 @@ void matrix::copy_device_to_host() const
                                      get_length());
 }
 
-matrix &matrix::operator+(const matrix &m)
+matrix matrix_operators::operator+(const matrix &m1, const matrix &m2)
 {
-    matrix res;
-    res = *this;
-    res += m;
-    return res;
+    matrix m = matrix(m1, "add(" + m1.get_id() + ", " + m2.get_id() + ")");
+    return (m += m2);
 }
 
 matrix &matrix::operator+=(const matrix &m)
@@ -284,22 +287,12 @@ matrix &matrix::operator+=(const matrix &m)
         util::ERROR_EXIT();
     }
 
-    /*
-    for (size_t i = 0; i < get_length(); i ++)
-    {
-        _host_data[i] += m.get_host_data()[i];
-    }
-    */
-
-   // float *d = nullptr;
-    //matrix_cuda::allocate("", get_length() * sizeof (float), &d);
-
+    // Prepare data on gpu.
     copy_host_to_device();
     m.copy_host_to_device();
     // Do the computation.
     auto cuda_dims = util::get_cuda_dims(_dimensions.first, _dimensions.second);
     matrix_cuda::add(cuda_dims.first, cuda_dims.second,
-                     _device_data,
                      _device_data, m.get_device_data(),
                      _dimensions.first, _dimensions.second);
     // Retrieve data of output.

@@ -13,9 +13,8 @@ using namespace cudaNN;
  */
 
 
-__global__ void __kernel_add(float *output,
-                             float *data1, float *data2,
-                             const size_t &nb_rows, const size_t &nb_cols)
+__global__ void __kernel_add(float *data1, float *data2,
+                             const size_t nb_rows, const size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -23,12 +22,7 @@ __global__ void __kernel_add(float *output,
     // Check if thread index is in the output dimensions.
     if (row < nb_rows && col < nb_cols)
     {
-        float sum = 0.f;
-
-        sum += data1[row * nb_cols + col];
-        sum += data2[row * nb_cols + col];
-
-        output[row * nb_cols + col] += sum;
+        data1[row * nb_cols + col] += data2[row * nb_cols + col];
     }
 }
 
@@ -61,7 +55,7 @@ __global__ void __kernel_multiply(float *output,
 
 
 void matrix_cuda::allocate(const std::string &id,
-                           const size_t &length,
+                           const size_t length,
                            float **device_data)
 {
     cudaError_t err = cudaMalloc(device_data, length * sizeof(float));
@@ -75,7 +69,7 @@ void matrix_cuda::allocate(const std::string &id,
     }
 }
 
-void matrix_cuda::free(const std::string &id, float *&device_data)
+void matrix_cuda::free(const std::string &id, float *device_data)
 {
     cudaError_t err = cudaFree(device_data);
 
@@ -119,12 +113,10 @@ void matrix_cuda::copy_device_to_host(const std::string &id,
 }
 
 void matrix_cuda::add(const dim3 &block_dims, const dim3 &thread_dims,
-                      float *output,
                       float *data1, float *data2,
-                      const size_t &nb_rows, const size_t &nb_cols)
+                      const size_t nb_rows, const size_t nb_cols)
 {
     __kernel_add<<<block_dims, thread_dims>>>(
-            output,
             data1, data2,
             nb_rows, nb_cols);
 
