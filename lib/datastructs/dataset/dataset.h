@@ -6,7 +6,7 @@
 #define CUDANN_DATASET_H
 
 #include "lib/datastructs/matrix/matrix.h"
-#include "lib/datastructs/dataset/element/entry.h"
+#include "lib/datastructs/dataset/entry/entry.h"
 #include "lib/util/util.h"
 
 #include <cstddef>
@@ -27,41 +27,28 @@ namespace cudaNN
         public:
 
             dataset();
-            explicit dataset(std::vector<entry *> &entries);
+            explicit dataset(std::vector<entry> &entries);
             ~dataset();
 
-            void add(const matrix *features, const matrix *labels);
-            void add(entry *e);
+            void add(matrix features, matrix labels);
+            void add(entry e);
 
             entry &get(size_t i);
-            std::vector<entry *> &get_entries();
+            std::vector<entry> &get_entries();
 
             size_t size() const;
 
             /**
-             * @return - a matrix that contains all the features concatenated.
-             */
-            matrix get_features() const;
-
-            /**
-             * @return - a matrix that contains all the labels concatenated.
-             */
-            matrix get_labels() const;
-
-            /**
-             * @warning - the split contains pointers from the full dataset, so you
-             * have to free/delete either the full dataset or the split, but not both
-             * otherwise you will try to delete null pointers.
              * @param train_size_ratio - represent the proportion of the training dataset
              * (between 0.f and 1.f).
              * @return - a partition of the dataset. The first part is for training,
              * and the other for testing.
              */
-            std::pair<dataset *, dataset *> train_test_split(float train_size_ratio = 0.8f);
+            std::pair<dataset, dataset> train_test_split(float train_size_ratio = 0.8f);
 
             /**
              * @param batch_size - the size of the batch.
-             * @return - a random batch of size "batch_size".
+             * @return - a random batch of the current dataset.
              */
             dataset get_random_batch(size_t batch_size);
 
@@ -76,7 +63,7 @@ namespace cudaNN
             static const size_t MULT_NB_FEATURES = 3;
             static const size_t MULT_NB_LABELS = 1;
             static const size_t MULT_MAX = 10;
-            static dataset *load_mult();
+            static dataset load_mult();
 
             /**
              * Print the given dataset.
@@ -86,7 +73,7 @@ namespace cudaNN
 
         private:
 
-            std::vector<entry *> _entries;
+            std::vector<entry> _entries;
     };
 }
 

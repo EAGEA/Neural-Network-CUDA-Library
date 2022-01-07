@@ -30,7 +30,7 @@ void layer::_init_biases()
 
 void layer::_init_weights()
 {
-    std::default_random_engine generator;
+    std::random_device generator;
     std::normal_distribution<float> distribution = std::normal_distribution<float>(0.f, 1.f);
 
     for (int i = 0; i < _weights.get_length(); i ++)
@@ -44,18 +44,24 @@ matrix layer::forward_propagation(matrix &inputs) const
     if (inputs.get_dimensions().second != _weights.get_dimensions().first)
     {
         // Invalid.
-        util::ERROR("layer::forward_propagation", "Invalid @inputs size");
+        util::ERROR("layer::forward_propagation",
+                    "Invalid @inputs size ("
+                    + std::to_string(inputs.get_dimensions().second)
+                    + " instead of "
+                    + std::to_string(_weights.get_dimensions().first)
+                    + ")");
         util::ERROR_EXIT();
     }
 
     // Compute the output of each neuron.
-    return _activation_function(inputs * _weights + _biases);
+    auto sum = inputs * _weights + _biases;
+    return _activation_function(sum);
 }
 
-matrix &layer::backward_propagation(const matrix &errors)
+matrix layer::backward_propagation(const matrix &errors)
 {
     //TODO
-    auto new_errors = matrix(errors.get_dimensions(), "layer backprop errors");
+    auto new_errors = matrix(errors.get_dimensions(), "layer::backward_propagation::errors");
     auto cuda_dims = util::get_cuda_dims(1, 1); // TODO choose dims
 
     /*
@@ -64,7 +70,7 @@ matrix &layer::backward_propagation(const matrix &errors)
     return new_errors;
 }
 
-const size_t layer::size() const
+size_t layer::size() const
 {
     return _size;
 }

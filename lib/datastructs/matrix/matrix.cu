@@ -13,7 +13,7 @@ using namespace cudaNN;
  */
 
 
-__global__ void __kernel_add(float *data1, float *data2,
+__global__ void __kernel_add(float *data1, const float *data2,
                              size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -26,7 +26,7 @@ __global__ void __kernel_add(float *data1, float *data2,
     }
 }
 
-__global__ void __kernel_multiply(float *output,
+__global__ void __kernel_multiply(float *result,
                                   const float *data1, const float *data2,
                                   size_t nb_rows_1, size_t nb_cols_1,
                                   size_t nb_rows_2, size_t nb_cols_2)
@@ -44,7 +44,7 @@ __global__ void __kernel_multiply(float *output,
             sum += data1[row * nb_cols_1 + i] * data2[i * nb_cols_2 + col];
         }
 
-        output[row * nb_cols_2 + col] = sum;
+        result[row * nb_cols_2 + col] = sum;
     }
 }
 
@@ -54,82 +54,68 @@ __global__ void __kernel_multiply(float *output,
  */
 
 
-void matrix_cuda::add(const dim3 &block_dims, const dim3 &thread_dims,
-                      float *host_data1, float *host_data2,
-                      const size_t nb_rows, const size_t nb_cols)
+void matrix_cuda::start_operation(const matrix &m, float **device_data)
 {
-    size_t length = nb_rows * nb_cols;
+    // Allocate memory on device.
+    CUDA_CHECK(cudaMalloc(device_data, m.get_length() * sizeof(float)));
+    // Copy the matrix to this memory.
+    CUDA_CHECK(cudaMemcpy(*device_data, m.get_data(),
+                          m.get_length() * sizeof(float),
+                          cudaMemcpyHostToDevice));
+}
 
+void matrix_cuda::end_operation(const matrix &m, float **device_data)
+{
+    // Retrieve data from the device to the host (matrix).
+    CUDA_CHECK(cudaMemcpy(m.get_data(), *device_data,
+                          m.get_length() * sizeof(float),
+                          cudaMemcpyDeviceToHost));
+    // Free device memory.
+    CUDA_CHECK(cudaFree(*device_data));
+}
+
+void matrix_cuda::add(const dim3 &block_dims, const dim3 &thread_dims,
+                      const matrix &m1, const matrix &m2)
+{
     float *device_data1;
     float *device_data2;
 
-    // Allocate memory on device.
-    CUDA_CHECK(cudaMalloc(&device_data1, length * sizeof(float)));
-    CUDA_CHECK(cudaMalloc(&device_data2, length * sizeof(float)));
-    // Copy to this device memory.
-    CUDA_CHECK(cudaMemcpy(device_data1, host_data1,
-                          length * sizeof(float),
-                          cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(device_data2, host_data2,
-                          length * sizeof(float),
-                          cudaMemcpyHostToDevice));
+    // Prepare data on device.
+    start_operation(m1, &device_data1);
+    start_operation(m2, &device_data2);
     // Do computations with CUDA threads.
     __kernel_add<<<block_dims, thread_dims>>>(
             device_data1, device_data2,
-            nb_rows, nb_cols);
+            m1.get_dimensions().first, m1.get_dimensions().second);
     // Wait for all threads.
     CUDA_CHECK(cudaDeviceSynchronize());
-    // Copy back the memory to host.
-    CUDA_CHECK(cudaMemcpy(host_data1, device_data1,
-                          length * sizeof(float),
-                          cudaMemcpyDeviceToHost));
-    CUDA_CHECK(cudaMemcpy(host_data2, device_data2,
-                          length * sizeof(float),
-                          cudaMemcpyDeviceToHost));
-    // Free device memory.
-    CUDA_CHECK(cudaFree(device_data1));
-    CUDA_CHECK(cudaFree(device_data2));
+    // Retrieve/free data from device.
+    end_operation(m1, &device_data1);
+    end_operation(m2, &device_data2);
 }
 
 void matrix_cuda::multiply(const dim3 &block_dims, const dim3 &thread_dims,
-                           float *host_output,
-                           const float *host_data1, const float *host_data2,
-                           size_t nb_rows_1, size_t nb_cols_1,
-                           size_t nb_rows_2, size_t nb_cols_2)
+                           const matrix &m,
+                           const matrix &m1, const matrix &m2)
 {
-    size_t length = nb_rows_1 * nb_cols_2;
-    size_t length_1 = nb_rows_1 * nb_cols_1;
-    size_t length_2 = nb_rows_2 * nb_cols_2;
-
-    float *device_output;
+    float *device_result;
     float *device_data1;
     float *device_data2;
 
-    // Allocate memory on device.
-    CUDA_CHECK(cudaMalloc(&device_output, length * sizeof(float)));
-    CUDA_CHECK(cudaMalloc(&device_data1, length_1 * sizeof(float)));
-    CUDA_CHECK(cudaMalloc(&device_data2, length_2 * sizeof(float)));
-    // Copy to this device memory.
-    CUDA_CHECK(cudaMemcpy(device_data1, host_data1,
-                          length_1 * sizeof(float),
-                          cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(device_data2, host_data2,
-                          length_2 * sizeof(float),
-                          cudaMemcpyHostToDevice));
+    // Prepare data on device.
+    start_operation(m, &device_result);
+    start_operation(m1, &device_data1);
+    start_operation(m2, &device_data2);
     // Do computations with CUDA threads.
     __kernel_multiply<<<block_dims, thread_dims>>>(
-            device_output,
+            device_result,
             device_data1, device_data2,
-            nb_rows_1, nb_cols_1,
-            nb_rows_2, nb_cols_2);
+            m1.get_dimensions().first, m1.get_dimensions().second,
+            m2.get_dimensions().first, m2.get_dimensions().second);
     // Wait for all threads.
     CUDA_CHECK(cudaDeviceSynchronize());
-    // Copy back the memory to host.
-    CUDA_CHECK(cudaMemcpy(host_output, device_output,
-                          length * sizeof(float),
-                          cudaMemcpyDeviceToHost));
-    // Free device memory.
-    CUDA_CHECK(cudaFree(device_output));
-    CUDA_CHECK(cudaFree(device_data1));
-    CUDA_CHECK(cudaFree(device_data2));
+    // Retrieve/free data from device.
+    end_operation(m, &device_result);
+    end_operation(m1, &device_data1);
+    end_operation(m2, &device_data2);
 }

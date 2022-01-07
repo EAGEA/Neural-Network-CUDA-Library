@@ -9,7 +9,7 @@ using namespace cudaNN;
 using namespace matrix_operators;
 
 
-entry::entry(const matrix *features, const matrix *labels):
+entry::entry(const matrix features, const matrix labels):
         _features(features),
         _labels(labels)
 {
@@ -17,29 +17,27 @@ entry::entry(const matrix *features, const matrix *labels):
 
 entry::~entry()
 {
-    util::DEBUG("entry::entry "---");
-    delete _features;
-    delete _labels;
+    util::DEBUG("entry::entry", "---");
 }
 
 const matrix &entry::get_features() const
 {
-    return *_features;
+    return _features;
 }
 
 const matrix &entry::get_labels() const
 {
-    return *_labels;
+    return _labels;
 }
 
 bool entry::compare_features(const matrix &features) const
 {
-    return *_features == features;
+    return _features == features;
 }
 
 bool entry::compare_labels(const matrix &labels) const
 {
-    return *_labels == labels;
+    return _labels == labels;
 }
 
 bool entry::compare(const entry &e) const

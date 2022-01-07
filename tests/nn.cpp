@@ -16,37 +16,39 @@ using namespace cudaNN;
 
 
 /**
- * TODO DEFINE TEST
+ * Load a basic dataset. Define a simple neural network.
+ * Train it with a part of the dataset, and predict with
+ * another part.
  */
 int main(int argc, char *argv[])
 {
-    // /!\ Init random generator.
+    // Init random generator.
     std::srand((unsigned int) std::time(nullptr));
 
     // Load and split the dataset.
     auto mult = dataset::load_mult();
-    auto split = mult->train_test_split();
+    auto split = mult.train_test_split();
     auto train = split.first;
     auto test = split.second;
-
-    //dataset::print(*test);
-    matrix::print(test->get_features());
-    /*
-    // Train and predict with a neural network.
+    // Define a basic neural network.
     neural_network nn = neural_network(
             {
-                new layer(dataset::MULT_NB_FEATURES, 16, 
-                          activation_functions::linear),
-                new layer(16, dataset::MULT_NB_LABELS, 
-                          activation_functions::sigmoid)
+                    new layer(dataset::MULT_NB_FEATURES, 20,
+                              activation_functions::linear),
+                    new layer(20, dataset::MULT_NB_LABELS,
+                              activation_functions::sigmoid)
             }
-        );
+    );
+    // Train the neural network.
     nn.fit(train, &loss_functions::mean_square_error);
-    auto predictions = nn.predict(test.get_features());
-
-*/
-
-    delete mult;
+    // Predict using the test dataset.
+    auto predictions = nn.predict(test);
+    // Show ground truth and the predictions.
+    for (size_t i = 0; i < predictions.size(); i ++)
+    {
+        matrix::print(test.get(i).get_labels());
+        matrix::print(predictions[i]);
+    }
 
     return EXIT_SUCCESS;
 }

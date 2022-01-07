@@ -22,17 +22,17 @@ namespace cudaNN
         public:
 
             /**
-             * @param input_size the size (number of columns) of the input. 
-             * @param nb_neurons the total number of neurons in this layer.
-             * @param activation_function the function that compute the output of a neuron. 
+             * @param input_size - the size (number of columns) of the input.
+             * @param nb_neurons - the total number of neurons in this layer.
+             * @param activation_function - the function that compute the output of a neuron.
              */
             layer(const size_t input_size, const size_t nb_neurons,
-                  activation_function_t activation_function);
+                  const activation_function_t activation_function);
 
             matrix forward_propagation(matrix &inputs) const;
-            matrix &backward_propagation(const matrix &errors);
+            matrix backward_propagation(const matrix &errors);
 
-            const size_t size() const;
+            size_t size() const;
 
         private:
 

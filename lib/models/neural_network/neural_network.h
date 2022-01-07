@@ -23,22 +23,23 @@ namespace cudaNN
     {
         public:
 
-            explicit neural_network(std::initializer_list<layer *> layers);
+            neural_network(std::initializer_list<layer *> layers);
             ~neural_network();
 
-            virtual void fit(dataset &data,
-                             const loss_function_t loss_function,
-                             const size_t epochs = 1,
-                             const size_t batch_size = 1) override;
+            void fit(dataset &data,
+                     loss_function_t loss_function,
+                     size_t epochs = 1,
+                     size_t batch_size = 1) override;
 
-            virtual matrix predict(const matrix &features) const override;
+            matrix predict(const matrix &features) const override;
+            std::vector<matrix> predict(dataset &test) const override;
 
         private:
 
             /**
              * Forward propagation/pass; calculate and store intermediate variables.
-             * @param features
-             * @return
+             * @param features - from a dataset entry.
+             * @return - the neural network predictions.
              */
             matrix _forward_propagation(const matrix &features) const;
 
@@ -51,7 +52,7 @@ namespace cudaNN
              */
             void _backward_propagation(const matrix &predictions, 
                                        const matrix &labels,
-                                       const loss_function_t loss_function);
+                                       loss_function_t loss_function);
 
             std::vector<layer *> _layers;
     };

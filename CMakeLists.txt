@@ -34,6 +34,9 @@ if (CUDA_FOUND)
     ###
     add_executable(matrix_test tests/matrix.cpp)
     target_link_libraries(matrix_test CudaNN)
+    ###
+    add_executable(activation_functions_test tests/activation_functions.cpp)
+    target_link_libraries(activation_functions_test CudaNN)
 endif ()
 ########################################################################
 ########################################################################

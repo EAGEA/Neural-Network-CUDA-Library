@@ -16,7 +16,7 @@ using namespace cudaNN;
 
 
 matrix::matrix(const matrix &m):
-        matrix(m, std::move(m.get_id() + " copy"))
+        matrix(m, m.get_id())
 {
 }
 
@@ -164,9 +164,7 @@ matrix &matrix::operator+=(const matrix &m)
 
     // Do the computation.
     auto cuda_dims = util::get_cuda_dims(_dimensions.first, _dimensions.second);
-    matrix_cuda::add(cuda_dims.first, cuda_dims.second,
-                     _data, m.get_data(),
-                     _dimensions.first, _dimensions.second);
+    matrix_cuda::add(cuda_dims.first, cuda_dims.second,*this, m);
 
     return *this;
 }
@@ -186,18 +184,13 @@ matrix &matrix::operator*=(const matrix &m)
     // Prepare multiplication result.
     auto nb_rows = _dimensions.first;
     auto nb_columns = m.get_dimensions().second;
-    float *output = new float[nb_rows * nb_columns];
+    matrix output = matrix(nb_rows, nb_columns, "matrix::operator*=::helper");
     // Do the computation.
     auto cuda_dims = util::get_cuda_dims(_dimensions.first, _dimensions.second);
     matrix_cuda::multiply(cuda_dims.first, cuda_dims.second,
-                     output,
-                     _data, m.get_data(),
-                     _dimensions.first, _dimensions.second,
-                     m.get_dimensions().first, m.get_dimensions().second);
+                     output,*this, m);
     // Get the result.
-    free();
-    allocate({nb_rows, nb_columns});
-    std::copy(output, output + get_length() * sizeof(float), _data);
+    *this = output;
 
     return *this;
 }

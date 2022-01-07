@@ -16,18 +16,18 @@ namespace cudaNN
      * "predictions" and "labels" (the ground truth).
      */
 
-    typedef matrix (*loss_function_t)(matrix, matrix);
+    typedef matrix (*loss_function_t)(const matrix &, const matrix &);
 
 
     namespace loss_functions
     {
         // For regression.
-        matrix mean_square_error(matrix predictions, matrix labels);
-        matrix mean_absolute_error(matrix predictions, matrix labels);
-        matrix mean_bias_error(matrix predictions, matrix labels);
+        matrix mean_square_error(const matrix &predictions, const matrix &labels);
+        matrix mean_absolute_error(const matrix &predictions, const matrix &labels);
+        matrix mean_bias_error(const matrix &predictions, const matrix &labels);
         // For classification.
-        matrix svm_loss(matrix predictions, matrix labels);
-        matrix cross_entropy_loss(matrix predictions, matrix labels);
+        matrix svm_loss(const matrix &predictions, const matrix &labels);
+        matrix cross_entropy_loss(const matrix &predictions, const matrix &labels);
     }
 
 
@@ -37,25 +37,25 @@ namespace cudaNN
     namespace loss_functions_cuda
     {
         void mean_square_error(dim3 block_dims, dim3 thread_dims,
-                               float *results,
-                               float *predictions,
-                               float *errors);
+                               matrix &results,
+                               matrix &predictions,
+                               matrix &errors);
         void mean_absolute_error(dim3 block_dims, dim3 thread_dims,
-                                 float *results,
-                                 float *predictions,
-                                 float *errors);
+                                 matrix &results,
+                                 matrix &predictions,
+                                 matrix &errors);
         void mean_bias_error(dim3 block_dims, dim3 thread_dims,
-                             float *results,
-                             float *predictions,
-                             float *errors);
+                             matrix &results,
+                             matrix &predictions,
+                             matrix &errors);
         void svm_loss(dim3 block_dims, dim3 thread_dims,
-                      float *results,
-                      float *predictions,
-                      float *errors);
+                      matrix &results,
+                      matrix &predictions,
+                      matrix &errors);
         void cross_entropy_loss(dim3 block_dims, dim3 thread_dims,
-                                float *results,
-                                float *predictions,
-                                float *errors);
+                                matrix &results,
+                                matrix &predictions,
+                                matrix &errors);
     }
 }
 

@@ -15,7 +15,7 @@ namespace cudaNN
     /**
      * Compute and return the outputs of the activation function
      * for each nodes in a layer.
-     * Each cell of the inputed matrix contains the 
+     * Each cell of the inputted matrix contains the
      * input for a node.
      * For a neural network, the inputs are the weighted
      * sum of the previous layer outputs, with the bias
@@ -23,15 +23,15 @@ namespace cudaNN
      * (i.e. (x1 * w1) + ... + (x2 * w2) + b).
      */
 
-    typedef matrix (*activation_function_t)(matrix);
+    typedef matrix (*activation_function_t)(const matrix &);
 
 
     namespace activation_functions
     {
-        matrix linear(matrix inputs);
-        matrix binary_step(matrix inputs);
-        matrix sigmoid(matrix inputs);
-        matrix relu(matrix inputs);
+        matrix linear(const matrix &inputs);
+        matrix binary_step(const matrix &inputs);
+        matrix sigmoid(const matrix &inputs);
+        matrix relu(const matrix &inputs);
     }
 
 
@@ -41,17 +41,13 @@ namespace cudaNN
     namespace activation_functions_cuda
     {
         void linear(dim3 block_dims, dim3 thread_dims,
-                    float *results, float *inputs,
-                    size_t nb_rows, size_t nb_cols);
+                    const matrix &results, const matrix &inputs);
         void binary_step(dim3 block_dims, dim3 thread_dims,
-                         float *results, float *inputs,
-                         size_t nb_rows, size_t nb_cols);
+                         const matrix &results, const matrix &inputs);
         void sigmoid(dim3 block_dims, dim3 thread_dims,
-                     float *results, float *inputs,
-                     size_t nb_rows, size_t nb_cols);
+                     const matrix &results, const matrix &inputs);
         void relu(dim3 block_dims, dim3 thread_dims,
-                  float *results, float *inputs,
-                  size_t nb_rows, size_t nb_cols);
+                  const matrix &results, const matrix &inputs);
     }
 }
 

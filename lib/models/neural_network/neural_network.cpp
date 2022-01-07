@@ -46,13 +46,13 @@ void neural_network::fit(dataset &data,
 
             // Get a sample of "batch size" (features + labels).
             auto batch = data.get_random_batch(batch_size);
-            // Train with it:
+            // Train with it.
             for (size_t k = 0; k < batch_size; k ++)
             {
-                auto element_ = batch.get(k);
+                auto e = batch.get(k);
                 // Forward + backward propagation.
-                auto predictions = _forward_propagation(element_.get_features());
-    //            _backward_propagation(*predictions, element_.get_labels(), loss_function);
+                auto predictions = _forward_propagation(e.get_features());
+                //_backward_propagation(predictions, e->get_labels(), loss_function);
             }
         }
     }
@@ -61,6 +61,18 @@ void neural_network::fit(dataset &data,
 matrix neural_network::predict(const matrix &features) const
 {
     return _forward_propagation(features);
+}
+
+std::vector<matrix> neural_network::predict(dataset &test) const
+{
+    auto predictions = std::vector<matrix>();
+
+    for (const auto& e: test.get_entries())
+    {
+        predictions.push_back(_forward_propagation(e.get_features()));
+    }
+
+    return predictions;
 }
 
 matrix neural_network::_forward_propagation(const matrix &features) const

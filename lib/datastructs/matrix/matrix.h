@@ -112,14 +112,13 @@ namespace cudaNN
      */
     namespace matrix_cuda
     {
+        void start_operation(const matrix &m, float **device_data);
+        void end_operation(const matrix &m, float **device_data);
         void add(const dim3 &block_dims, const dim3 &thread_dims,
-                 float *data1, float *data2,
-                 size_t nb_rows, size_t nb_cols);
+                 const matrix &m1, const matrix &m2);
         void multiply(const dim3 &block_dims, const dim3 &thread_dims,
-                      float *host_output,
-                      const float *host_data1, const float *host_data2,
-                      size_t nb_rows_1, size_t nb_cols_1,
-                      size_t nb_rows_2, size_t nb_cols_2);
+                      const matrix &m,
+                      const matrix &m1, const matrix &m2);
     }
 }
 

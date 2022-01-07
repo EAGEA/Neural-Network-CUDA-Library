@@ -17,7 +17,7 @@
 #define TERM_RESET "\033[0m"
 #define TERM_RED   "\033[31m"
 
-#define _DEBUG true
+#define _DEBUG false
 #define _ERROR true
 
 #define MAX_NB_THREADS 512

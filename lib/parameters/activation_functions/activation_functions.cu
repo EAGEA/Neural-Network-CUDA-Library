@@ -66,6 +66,27 @@ __global__ void __kernel_relu(float *results, float *inputs,
     }
 }
 
+void helper(dim3 block_dims, dim3 thread_dims,
+            const matrix &results, const matrix &inputs,
+            void (kernel)(float *result, float *inputs, size_t nb_rows, size_t nb_cols))
+{
+    float *device_data1;
+    float *device_data2;
+
+    // Prepare data on device.
+    matrix_cuda::start_operation(results, &device_data1);
+    matrix_cuda::start_operation(inputs, &device_data2);
+    // Do computations with CUDA threads.
+    kernel<<<block_dims, thread_dims>>>(
+            device_data1, device_data2,
+            results.get_dimensions().first, results.get_dimensions().second);
+    // Wait for all threads.
+    CUDA_CHECK(cudaDeviceSynchronize());
+    // Retrieve/free data from device.
+    matrix_cuda::end_operation(results, &device_data1);
+    matrix_cuda::end_operation(inputs, &device_data2);
+}
+
 
 /**
  * Wrappers for call on host.
@@ -73,41 +94,33 @@ __global__ void __kernel_relu(float *results, float *inputs,
 
 
 void activation_functions_cuda::linear(dim3 block_dims, dim3 thread_dims,
-                                       float *results, float *inputs,
-                                       size_t nb_rows, size_t nb_cols)
+                                       const matrix &results, const matrix &inputs)
 {
-    __kernel_linear<<<block_dims, thread_dims>>>(
-            results, inputs,
-            nb_rows, nb_cols);
-    cudaDeviceSynchronize();
+    helper(block_dims, thread_dims,
+           results, inputs,
+           __kernel_linear);
 }
 
 void activation_functions_cuda::binary_step(dim3 block_dims, dim3 thread_dims,
-                                            float *results, float *inputs,
-                                            size_t nb_rows, size_t nb_cols)
+                                            const matrix &results, const matrix &inputs)
 {
-    __kernel_binary_step<<<block_dims, thread_dims>>>(
-            results, inputs,
-            nb_rows, nb_cols);
-    cudaDeviceSynchronize();
+    helper(block_dims, thread_dims,
+           results, inputs,
+           __kernel_binary_step);
 }
 
 void activation_functions_cuda::sigmoid(dim3 block_dims, dim3 thread_dims,
-                                        float *results, float *inputs,
-                                        size_t nb_rows, size_t nb_cols)
+                                        const matrix &results, const matrix &inputs)
 {
-    __kernel_sigmoid<<<block_dims, thread_dims>>>(
-            results, inputs,
-            nb_rows, nb_cols);
-    cudaDeviceSynchronize();
+    helper(block_dims, thread_dims,
+           results, inputs,
+           __kernel_sigmoid);
 }
 
 void activation_functions_cuda::relu(dim3 block_dims, dim3 thread_dims,
-                                     float *results, float *inputs,
-                                     size_t nb_rows, size_t nb_cols)
+                                     const matrix &results, const matrix &inputs)
 {
-    __kernel_relu<<<block_dims, thread_dims>>>(
-            results, inputs,
-            nb_rows, nb_cols);
-    cudaDeviceSynchronize();
+    helper(block_dims, thread_dims,
+           results, inputs,
+           __kernel_relu);
 }

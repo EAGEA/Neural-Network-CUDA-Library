@@ -8,7 +8,7 @@
 using namespace cudaNN;
 
 
-matrix loss_functions::mean_square_error(matrix predictions, matrix labels)
+matrix loss_functions::mean_square_error(const matrix &predictions, const matrix &labels)
 {
     auto error = matrix(predictions.get_dimensions(),
                         "loss_functions::mean_square_error");
@@ -31,7 +31,7 @@ matrix loss_functions::mean_square_error(matrix predictions, matrix labels)
     return error;
 }
 
-matrix loss_functions::mean_absolute_error(matrix predictions, matrix labels)
+matrix loss_functions::mean_absolute_error(const matrix &predictions, const matrix &labels)
 {
     auto error = matrix(predictions.get_dimensions(),
                         "loss_functions::mean_absolute_error");
@@ -55,7 +55,7 @@ matrix loss_functions::mean_absolute_error(matrix predictions, matrix labels)
     return error;
 }
 
-matrix loss_functions::mean_bias_error(matrix predictions, matrix labels)
+matrix loss_functions::mean_bias_error(const matrix &predictions, const matrix &labels)
 {
     auto error = matrix(predictions.get_dimensions(),
                         "loss_functions::mean_bias_error");
@@ -79,7 +79,7 @@ matrix loss_functions::mean_bias_error(matrix predictions, matrix labels)
     return error;
 }
 
-matrix loss_functions::svm_loss(matrix predictions, matrix labels)
+matrix loss_functions::svm_loss(const matrix &predictions, const matrix &labels)
 {
     auto error = matrix(predictions.get_dimensions(),
                         "loss_functions::svm_loss");
@@ -102,7 +102,7 @@ matrix loss_functions::svm_loss(matrix predictions, matrix labels)
     return error;
 }
 
-matrix loss_functions::cross_entropy_loss(matrix predictions, matrix labels)
+matrix loss_functions::cross_entropy_loss(const matrix &predictions, const matrix &labels)
 {
     auto error = matrix(predictions.get_dimensions(),
                         "loss_functions::cross_entropy_loss");
