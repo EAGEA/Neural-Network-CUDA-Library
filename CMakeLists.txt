@@ -15,10 +15,10 @@ if (CUDA_FOUND)
     enable_language(CUDA)
     # Build Library ####################################################
     add_library(CudaNN
-            "lib/datastructs/dataset/dataset.cpp"
-            "lib/datastructs/dataset/entry/entry.cpp"
-            "lib/datastructs/matrix/matrix.cpp"
-            "lib/datastructs/matrix/matrix.cu"
+            "lib/data_structures/dataset/dataset.cpp"
+            "lib/data_structures/dataset/entry/entry.cpp"
+            "lib/data_structures/matrix/matrix.cpp"
+            "lib/data_structures/matrix/matrix.cu"
             "lib/models/neural_network/neural_network.cpp"
             "lib/models/neural_network/layers/layer.cpp"
             "lib/models/neural_network/layers/layer.cu"
@@ -29,14 +29,16 @@ if (CUDA_FOUND)
             "lib/util/util.cpp"
             )
     # Build tests ######################################################
-    add_executable(nn_test tests/nn.cpp)
-    target_link_libraries(nn_test CudaNN)
+    add_executable(test_matrix tests/matrix.cpp)
+    target_link_libraries(test_matrix CudaNN)
     ###
-    add_executable(matrix_test tests/matrix.cpp)
-    target_link_libraries(matrix_test CudaNN)
+    add_executable(test_activation_functions tests/activation_functions.cpp)
+    target_link_libraries(test_activation_functions CudaNN)
     ###
-    add_executable(activation_functions_test tests/activation_functions.cpp)
-    target_link_libraries(activation_functions_test CudaNN)
+    add_executable(test_loss_functions tests/loss_functions.cpp)
+    target_link_libraries(test_loss_functions CudaNN)
+    ###
+    add_executable(test_neural_network tests/neural_network.cpp)
+    target_link_libraries(test_neural_network CudaNN)
+    ###
 endif ()
-########################################################################
-########################################################################

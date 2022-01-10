@@ -5,8 +5,8 @@
 #ifndef CUDANN_DATASET_H
 #define CUDANN_DATASET_H
 
-#include "lib/datastructs/matrix/matrix.h"
-#include "lib/datastructs/dataset/entry/entry.h"
+#include "lib/data_structures/matrix/matrix.h"
+#include "lib/data_structures/dataset/entry/entry.h"
 #include "lib/util/util.h"
 
 #include <cstddef>

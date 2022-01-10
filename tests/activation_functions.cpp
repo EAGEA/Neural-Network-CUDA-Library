@@ -6,7 +6,6 @@
 
 
 using namespace cudaNN;
-using namespace cudaNN::matrix_operators;
 
 
 #define x 5
@@ -21,12 +20,12 @@ int main(int argc, char *argv[])
 {
     // ----------- //
     std::cout << "> original matrix" << std::endl;
-    auto m1 = matrix(x, y, "1");
+    auto m1 = matrix(x, y, "original");
     for (size_t i = 0; i < x; i ++)
     {
         for (size_t j= 0; j < y; j ++)
         {
-            m1[i * y + j] = i * j;
+            m1[i * y + j] = -1.f + i * j;
         }
     }
     matrix::print(m1);

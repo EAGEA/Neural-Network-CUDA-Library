@@ -18,11 +18,12 @@ __global__ void __kernel_linear(float *results, float *inputs,
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
 
     // Check if the thread is in the matrix dimensions.
     if (row < nb_rows && col < nb_cols)
     {
-        results[row * nb_cols + col] = inputs[row * nb_cols + col];
+        results[index] = inputs[index];
     }
 }
 
@@ -31,12 +32,12 @@ __global__ void __kernel_binary_step(float *results, float *inputs,
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
 
     // Check if the thread is in the matrix dimensions.
     if (row < nb_rows && col < nb_cols)
     {
-        results[row * nb_cols + col] = inputs[row * nb_cols + col] < 0.f ?
-                                       0.f : 1.f;
+        results[index] = inputs[index] < 0.f ? 0.f : 1.f;
     }
 }
 
@@ -45,11 +46,12 @@ __global__ void __kernel_sigmoid(float *results, float *inputs,
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
 
     // Check if the thread is in the matrix dimensions.
     if (row < nb_rows && col < nb_cols)
     {
-        results[row * nb_cols + col] = 1.f / (1.f + exp(-inputs[row * nb_cols + col]));
+        results[index] = 1.f / (1.f + exp(-inputs[index]));
     }
 }
 
@@ -58,17 +60,18 @@ __global__ void __kernel_relu(float *results, float *inputs,
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
 
     // Check if the thread is in the matrix dimensions.
     if (row < nb_rows && col < nb_cols)
     {
-        results[row * nb_cols + col] = fmax(0.f, inputs[row * nb_cols + col]);
+        results[index] = fmax(0.f, inputs[index]);
     }
 }
 
-void helper(dim3 block_dims, dim3 thread_dims,
-            const matrix &results, const matrix &inputs,
-            void (kernel)(float *result, float *inputs, size_t nb_rows, size_t nb_cols))
+void __helper(dim3 block_dims, dim3 thread_dims,
+              const matrix &results, const matrix &inputs,
+              void (kernel)(float *result, float *inputs, size_t nb_rows, size_t nb_cols))
 {
     float *device_data1;
     float *device_data2;
@@ -96,31 +99,31 @@ void helper(dim3 block_dims, dim3 thread_dims,
 void activation_functions_cuda::linear(dim3 block_dims, dim3 thread_dims,
                                        const matrix &results, const matrix &inputs)
 {
-    helper(block_dims, thread_dims,
-           results, inputs,
-           __kernel_linear);
+    __helper(block_dims, thread_dims,
+             results, inputs,
+             __kernel_linear);
 }
 
 void activation_functions_cuda::binary_step(dim3 block_dims, dim3 thread_dims,
                                             const matrix &results, const matrix &inputs)
 {
-    helper(block_dims, thread_dims,
-           results, inputs,
-           __kernel_binary_step);
+    __helper(block_dims, thread_dims,
+             results, inputs,
+             __kernel_binary_step);
 }
 
 void activation_functions_cuda::sigmoid(dim3 block_dims, dim3 thread_dims,
                                         const matrix &results, const matrix &inputs)
 {
-    helper(block_dims, thread_dims,
-           results, inputs,
-           __kernel_sigmoid);
+    __helper(block_dims, thread_dims,
+             results, inputs,
+             __kernel_sigmoid);
 }
 
 void activation_functions_cuda::relu(dim3 block_dims, dim3 thread_dims,
                                      const matrix &results, const matrix &inputs)
 {
-    helper(block_dims, thread_dims,
-           results, inputs,
-           __kernel_relu);
+    __helper(block_dims, thread_dims,
+             results, inputs,
+             __kernel_relu);
 }

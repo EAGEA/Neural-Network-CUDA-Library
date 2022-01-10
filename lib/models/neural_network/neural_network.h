@@ -24,7 +24,6 @@ namespace cudaNN
         public:
 
             neural_network(std::initializer_list<layer *> layers);
-            ~neural_network();
 
             void fit(dataset &data,
                      loss_function_t loss_function,

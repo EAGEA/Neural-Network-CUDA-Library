@@ -5,7 +5,7 @@
 #ifndef CUDANN_MODEL_H
 #define CUDANN_MODEL_H
 
-#include "lib/datastructs/dataset/dataset.h"
+#include "lib/data_structures/dataset/dataset.h"
 #include "lib/parameters/loss_functions/loss_functions.h"
 
 

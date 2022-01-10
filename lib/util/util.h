@@ -37,12 +37,11 @@ namespace cudaNN
         void ERROR_EXIT();
 
         /**
-         * @param nb_rows
-         * @param nb_columns
-         * @return the CUDA block/thread configuration such that it
-         *         covers a grid of size "nb_rows" * "nb_columns".
+         * @param dimensions - the pair <nb_rows, nb_cols> to map on a CUDA grid.
+         * @return - the CUDA block/thread configuration such that it
+         * covers a grid of size "nb_rows" * "nb_cols".
          */
-        std::pair<dim3, dim3> get_cuda_dims(size_t nb_rows, size_t nb_columns);
+        std::pair<dim3, dim3> get_cuda_dims(std::pair<size_t, size_t> dimensions);
 
         uint32_t swap_endian(uint32_t val);
     };

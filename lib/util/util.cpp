@@ -4,6 +4,8 @@
 
 #include "util.h"
 
+#include <cmath>
+
 
 using namespace cudaNN;
 
@@ -58,15 +60,18 @@ void util::ERROR_EXIT()
     std::exit(EXIT_FAILURE);
 }
 
-std::pair<dim3, dim3> util::get_cuda_dims(size_t nb_rows, size_t nb_columns)
+std::pair<dim3, dim3> util::get_cuda_dims(std::pair<size_t, size_t> dimensions)
 {
-    dim3 blocks_per_grid(1, 1);
-    dim3 threads_per_block = dim3(nb_columns, nb_rows);
+    size_t nb_rows = dimensions.first;
+    size_t nb_cols = dimensions.second;
 
-    if (nb_rows * nb_columns > MAX_NB_THREADS)
+    dim3 blocks_per_grid(1, 1);
+    dim3 threads_per_block = dim3(nb_cols, nb_rows);
+
+    if (nb_rows * nb_cols > MAX_NB_THREADS)
     {
-        blocks_per_grid.x = ceil((float) nb_columns / (float) MAX_NB_THREADS);
-        blocks_per_grid.y = ceil((float) nb_rows / (float) MAX_NB_THREADS);
+        blocks_per_grid.x = std::ceil((float) nb_cols / (float) MAX_NB_THREADS);
+        blocks_per_grid.y = std::ceil((float) nb_rows / (float) MAX_NB_THREADS);
         threads_per_block.x = MAX_NB_THREADS;
         threads_per_block.y = MAX_NB_THREADS;
     }

@@ -2,11 +2,10 @@
 // Created by Emilien Aufauvre on 10/12/2021.
 //
 
-#include "lib/datastructs/matrix/matrix.h"
+#include "lib/data_structures/matrix/matrix.h"
 
 
 using namespace cudaNN;
-using namespace cudaNN::matrix_operators;
 
 
 #define x 5
@@ -46,6 +45,9 @@ int main(int argc, char *argv[])
               << (m1 == m2 ? "true" : "false")
               << std::endl;
     // ----------- //
+    std::cout << "> sum of m1 (1)" << std::endl;
+    std::cout << "= " << m1.sum() << std::endl;
+    // ----------- //
     std::cout << "> += operator" << std::endl;
     m1 += m2;
     matrix::print(m1);
@@ -63,12 +65,16 @@ int main(int argc, char *argv[])
     matrix::print(m1);
     // ----------- //
     std::cout << "> != operator" << std::endl;
-    std::cout << "m1 is not equal to m2: "
+    std::cout << "m1 (1) is not equal to m2 (2): "
               << (m1 != m2 ? "true" : "false")
               << std::endl;
     // ----------- //
-    std::cout << "> init list constructor" << std::endl;
+    std::cout << "> initializer_list constructor" << std::endl;
     matrix::print(matrix({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, 3, "3"));
+    // ----------- //
+    std::cout << "> array constructor" << std::endl;
+    float values[] = { 1.f, 2.f, 3.f, 4.f };
+    matrix::print(matrix(values, { 2, 2 }, "4"));
     // ----------- //
 
     return EXIT_SUCCESS;

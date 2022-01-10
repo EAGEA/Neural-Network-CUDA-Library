@@ -5,7 +5,7 @@
 #ifndef CUDANN_ACTIVATION_FUNCTIONS_H
 #define CUDANN_ACTIVATION_FUNCTIONS_H
 
-#include "lib/datastructs/matrix/matrix.h"
+#include "lib/data_structures/matrix/matrix.h"
 
 #include <cmath>
 

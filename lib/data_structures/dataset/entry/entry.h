@@ -5,7 +5,7 @@
 #ifndef CUDANN_ENTRY_H
 #define CUDANN_ENTRY_H
 
-#include "lib/datastructs/matrix/matrix.h"
+#include "lib/data_structures/matrix/matrix.h"
 
 
 namespace cudaNN

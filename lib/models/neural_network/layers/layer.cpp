@@ -6,7 +6,6 @@
 
 
 using namespace cudaNN;
-using namespace cudaNN::matrix_operators;
 
 
 layer::layer(const size_t input_size, const size_t nb_neurons,
@@ -62,7 +61,7 @@ matrix layer::backward_propagation(const matrix &errors)
 {
     //TODO
     auto new_errors = matrix(errors.get_dimensions(), "layer::backward_propagation::errors");
-    auto cuda_dims = util::get_cuda_dims(1, 1); // TODO choose dims
+    auto cuda_dims = util::get_cuda_dims({ 1, 1 }); // TODO choose dims
 
     /*
     layer_cuda::backward_propagation(cuda_dims.first, cuda_dims.second, new_errors.get_device_data());

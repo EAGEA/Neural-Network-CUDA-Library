@@ -6,7 +6,6 @@
 
 
 using namespace cudaNN;
-using namespace matrix_operators;
 
 
 entry::entry(const matrix features, const matrix labels):

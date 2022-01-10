@@ -10,11 +10,6 @@
 using namespace cudaNN;
 
 
-/**
- * Static class member.
- */
-
-
 matrix::matrix(const matrix &m):
         matrix(m, m.get_id())
 {
@@ -132,22 +127,21 @@ const std::string &matrix::get_id() const
     return _id;
 }
 
-bool matrix::compare_data(const matrix &m) const
+matrix &matrix::operator=(const matrix &m)
 {
-    if (m.get_dimensions() != _dimensions)
+    if (this == &m)
     {
-        return false;
+        return *this;
     }
 
-    for (size_t i = 0; i < get_length(); i ++)
-    {
-        if (_data[i] != m[i])
-        {
-            return false;
-        }
-    }
+    free();
+    allocate(m.get_dimensions());
+    // Copy the values on host memory.
+    std::copy(m.get_data(),
+              m.get_data() + get_length() * sizeof(float),
+              _data);
 
-    return true;
+    return *this;
 }
 
 matrix &matrix::operator+=(const matrix &m)
@@ -163,10 +157,16 @@ matrix &matrix::operator+=(const matrix &m)
     }
 
     // Do the computation.
-    auto cuda_dims = util::get_cuda_dims(_dimensions.first, _dimensions.second);
+    auto cuda_dims = util::get_cuda_dims(_dimensions);
     matrix_cuda::add(cuda_dims.first, cuda_dims.second,*this, m);
 
     return *this;
+}
+
+matrix matrix::operator+(const matrix &m)
+{
+    matrix m_ = matrix(*this, "add(" + _id + ", " + m.get_id() + ")");
+    return (m_ += m);
 }
 
 matrix &matrix::operator*=(const matrix &m)
@@ -186,30 +186,19 @@ matrix &matrix::operator*=(const matrix &m)
     auto nb_columns = m.get_dimensions().second;
     matrix output = matrix(nb_rows, nb_columns, "matrix::operator*=::helper");
     // Do the computation.
-    auto cuda_dims = util::get_cuda_dims(_dimensions.first, _dimensions.second);
+    auto cuda_dims = util::get_cuda_dims(_dimensions);
     matrix_cuda::multiply(cuda_dims.first, cuda_dims.second,
-                     output,*this, m);
+                          output,*this, m);
     // Get the result.
     *this = output;
 
     return *this;
 }
 
-matrix &matrix::operator=(const matrix &m)
+matrix matrix::operator*(const matrix &m)
 {
-    if (this == &m)
-    {
-        return *this;
-    }
-
-    free();
-    allocate(m.get_dimensions());
-    // Copy the values on host memory.
-    std::copy(m.get_data(),
-              m.get_data() + get_length() * sizeof(float),
-              _data);
-
-    return *this;
+    matrix m_ = matrix(*this, "mult(" + _id + ", " + m.get_id() + ")");
+    return (m_ *= m);
 }
 
 float &matrix::operator[](const int &i)
@@ -220,6 +209,44 @@ float &matrix::operator[](const int &i)
 const float &matrix::operator[](const int &i) const
 {
     return _data[i];
+}
+
+bool matrix::operator==(const matrix &m) const
+{
+    if (m.get_dimensions() != _dimensions)
+    {
+        return false;
+    }
+
+    for (size_t i = 0; i < get_length(); i ++)
+    {
+        if (_data[i] != m[i])
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool matrix::operator!=(const matrix &m) const
+{
+    return ! (*this == m);
+}
+
+float matrix::sum() const
+{
+    float sum = 0.f;
+
+    if (get_length() > 0)
+    {
+        // Do the computation.
+        auto cuda_dims = util::get_cuda_dims(_dimensions);
+        matrix_cuda::sum(cuda_dims.first, cuda_dims.second,
+                         &sum, *this);
+    }
+
+    return sum;
 }
 
 void matrix::print(const matrix &m)
@@ -257,26 +284,4 @@ void matrix::print(const matrix &m)
     }
 
     std::cout << std::endl;
-}
-
-matrix matrix_operators::operator+(const matrix &m1, const matrix &m2)
-{
-    matrix m = matrix(m1, "add(" + m1.get_id() + ", " + m2.get_id() + ")");
-    return (m += m2);
-}
-
-matrix matrix_operators::operator*(const matrix &m1, const matrix &m2)
-{
-    matrix m = matrix(m1, "mult(" + m1.get_id() + ", " + m2.get_id() + ")");
-    return (m *= m2);
-}
-
-bool matrix_operators::operator==(const matrix &m1, const matrix &m2)
-{
-    return m1.compare_data(m2);
-}
-
-bool matrix_operators::operator!=(const matrix &m1, const matrix &m2)
-{
-    return ! m1.compare_data(m2);
 }

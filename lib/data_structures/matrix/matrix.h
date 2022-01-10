@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <string>
 #include <utility>
+#include <algorithm>
 #include <initializer_list>
 
 #define DEFAULT_ID "NaN"
@@ -36,11 +37,9 @@ namespace cudaNN
             explicit matrix(std::pair<size_t, size_t> dimensions);
             matrix(std::pair<size_t, size_t> dimensions, std::string id);
             matrix(std::initializer_list<float> values, size_t x, size_t y);
-            matrix(std::initializer_list<float> values, size_t x, size_t y,
-                   std::string id);
+            matrix(std::initializer_list<float> values, size_t x, size_t y, std::string id);
             matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions); 
-            matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions, 
-                   std::string id);
+            matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions, std::string id);
             matrix(const float *values, std::pair<size_t, size_t> dimensions); 
             matrix(const float *values, std::pair<size_t, size_t> dimensions, std::string id);
             ~matrix();
@@ -49,6 +48,10 @@ namespace cudaNN
             void free();
 
             void set_id(const std::string &id);
+
+            const std::string &get_id() const;
+            float *get_data() const;
+            float *get_data();
 
             /**
              * @return - the number of rows, and columns of the matrix.
@@ -60,21 +63,27 @@ namespace cudaNN
              */
             size_t get_length() const;
 
-            float *get_data() const;
-            float *get_data();
-
-            const std::string &get_id() const;
-
-            bool compare_data(const matrix &m) const;
-
             /**
-             * @Self_operators.
+             * @Operators
+             * Boolean operators are working only on host memory.
+             * Arithmetic operators are working with device memory
+             * and copy the results to the host (i.e. the matrix).
              */
-            matrix &operator+=(const matrix &m);
-            matrix &operator*=(const matrix &m);
             matrix &operator=(const matrix &m);
+            matrix &operator+=(const matrix &m);
+            matrix operator+(const matrix &m);
+            matrix &operator*=(const matrix &m);
+            matrix operator*(const matrix &m);
             float &operator[](const int &i);
             const float &operator[](const int &i) const;
+            bool operator==(const matrix &m) const;
+            bool operator!=(const matrix &m) const;
+
+            /**
+             * Enhanced using CUDA.
+             * @return - the sum of all the values in "_data".
+             */
+            float sum() const;
 
             /**
              * Print the given matrix (host memory).
@@ -84,27 +93,10 @@ namespace cudaNN
 
         private:
 
-            std::pair<size_t, size_t> _dimensions;
-
-            float *_data = nullptr;
-
             std::string _id;
+            std::pair<size_t, size_t> _dimensions;
+            float *_data = nullptr;
     };
-
-
-    /**
-     * @Operators
-     * Boolean operators are working only on host memory.
-     * Arithmetic operators are working with device memory
-     * and copy the results to the host (i.e. the matrix).
-     */
-    namespace matrix_operators
-    {
-        matrix operator*(const matrix &m1, const matrix &m2);
-        matrix operator+(const matrix &m1, const matrix &m2);
-        bool operator==(const matrix &m1, const matrix &m2);
-        bool operator!=(const matrix &m1, const matrix &m2);
-    }
 
 
     /**
@@ -119,6 +111,8 @@ namespace cudaNN
         void multiply(const dim3 &block_dims, const dim3 &thread_dims,
                       const matrix &m,
                       const matrix &m1, const matrix &m2);
+        void sum(const dim3 &block_dims, const dim3 &thread_dims,
+                 float *result, const matrix &m);
     }
 }
 

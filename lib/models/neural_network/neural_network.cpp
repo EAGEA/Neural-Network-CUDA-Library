@@ -13,11 +13,6 @@ neural_network::neural_network(std::initializer_list<layer *> layers):
 {
 }
 
-neural_network::~neural_network()
-{
-    // TODO
-}
-
 void neural_network::fit(dataset &data,
                          const loss_function_t loss_function,
                          const size_t epochs /*= 1*/,
@@ -77,8 +72,7 @@ std::vector<matrix> neural_network::predict(dataset &test) const
 
 matrix neural_network::_forward_propagation(const matrix &features) const
 {
-    auto predictions = features;
-    predictions.set_id("neural_network::_forward_propagation::predictions");
+    auto predictions = matrix(features, "neural_network::_forward_propagation::predictions");
 
     for (auto l: _layers)
     {
@@ -92,7 +86,15 @@ void neural_network::_backward_propagation(const matrix &predictions,
                                            const matrix &labels,
                                            const loss_function_t loss_function)
 {
-    auto errors = loss_function(predictions, labels);
+    // One error per neuron in the output layer.
+    auto errors = matrix(1, _layers[_layers.size() - 1]->size());
+
+    /*
+    for (size_t i = 0; i < errors.get_dimensions().second; i ++)
+    {
+        errors[i] = loss_function(predictions, labels);
+    }
+     */
 
     for (size_t i = _layers.size() - 1; i >= 0; i --)
     {
