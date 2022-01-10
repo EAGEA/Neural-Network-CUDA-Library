@@ -28,7 +28,8 @@ namespace cudaNN
             void fit(dataset &data,
                      loss_function_t loss_function,
                      size_t epochs = 1,
-                     size_t batch_size = 1) override;
+                     size_t batch_size = 1,
+                     float learning_rate = 0.01) override;
 
             matrix predict(const matrix &features) const override;
             std::vector<matrix> predict(dataset &test) const override;

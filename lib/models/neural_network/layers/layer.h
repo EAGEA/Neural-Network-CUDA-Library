@@ -60,6 +60,27 @@ namespace cudaNN
             matrix _biases;
             matrix _weights;
 
+            /**
+             * Parameters for the backpropagation
+             * "_old_weights" is the copy of "_weights" to keep in memory for
+             * error propagation (after weights update)
+             * "_old_biases" is the copy of "_biases" to keep in memory for
+             * error propagation (after biases update)
+             * "_previous_layer" corresponds to the previous layer in the
+             * backpropagation direction.
+             * "_dpreviousLayer" corresponds to the error of the previous
+             * layer.
+             * "_dcurrentLayer" corresponds to the error of the current
+             * layer.
+             */
+
+            matrix _old_weights;
+            matrix _old_biases;
+            matrix _previous_layer;
+            matrix _dprevious_layer;
+            matrix _dcurrent_layer;
+
+
             const activation_function_t _activation_function;
             /**
              * Dimension of the layer (number of neurons).

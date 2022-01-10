@@ -9,25 +9,57 @@ using namespace cudaNN;
 
 
 /**
- * Kernel functions.
+ * Kernel functions for backward propagation
  */
 
-
-__device__ void __kernel_update_activation_functions(float *errors)
+__global__ void __kernel_layer_error(float *weights, float *dnextLayer,
+                                     float *dcurrentLayer, int dim_W, int dim_nextLayer)
 {
-    // Update the weights.
+    //int col =
+    //int row =
 
-    // Update the biases.
+    // TO DO  : SUM OF ERRORS
+}
 
+// Without BATCH LEARNING ( no sum to do, no average) : ONLINE
+__global__ void __kernel_update_weights(float *weights, float *nextLayer, float *dcurrentLayer, float learning_rate)
+{
+    /*int col =
+    int row =
+
+            //Weight errors
+            dwij = nextLayer[TO DO ]
+    //Update weight
+    weights[TO DO] = weights[TO DO] - learning_rate * dwij
+
+    //(3) Synchronization before next layer
+    __syncThreads();*/
+}
+
+// Without BATCH LEARNING ( no sum to do, no average) : ONLINE
+__global__ void __kernel_update_biases(float *biases, float *nextLayer, float *dcurrentLayer, float learning_rate)
+{
+    /*
+    int col =
+    int row =
+
+            //Weight errors
+            dwij = nextLayer[TO DO]
+    //Update weight
+    biases[TO DO] = biases[TO DO] - learning_rate * dwij
+
+    //(3) Synchronization before next layer
+    __syncThreads();
+    */
 }
 
 __global__ void __kernel_backward_propagation(float *errors)
 {
-    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    /*size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;*/
 
     // Update the parameters of the activation functions.
-    __kernel_update_activation_functions(errors); //TODO
+    //__kernel_layer_error(errors); //TODO
 }
 
 

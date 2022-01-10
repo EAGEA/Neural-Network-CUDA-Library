@@ -16,7 +16,8 @@ neural_network::neural_network(std::initializer_list<layer *> layers):
 void neural_network::fit(dataset &data,
                          const loss_function_t loss_function,
                          const size_t epochs /*= 1*/,
-                         const size_t batch_size /*= 1*/)
+                         const size_t batch_size /*= 1*/,
+                         const float learning_rate /*= 0.01*/)
 {
     if (loss_function == nullptr)
     {

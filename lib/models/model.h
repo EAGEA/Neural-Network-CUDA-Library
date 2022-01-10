@@ -26,11 +26,13 @@ namespace cudaNN
              * during backpropagation of neural networks for example.
              * @param epochs - the number of iterations of the training process.
              * @param batch_size - the size of the samples during the training.
+             * @param learning_rate - the learning rate for training
              */
             virtual void fit(dataset &data,
                              loss_function_t loss_function,
                              size_t epochs = 1,
-                             size_t batch_size = 1) = 0;
+                             size_t batch_size = 1,
+                             float learning_rate = 0.01) = 0;
 
             /**
              * @param features - the features of a dataset entry.
