@@ -28,7 +28,7 @@ __global__ void __kernel_linear(float *results, float *inputs,
 }
 
 __global__ void __kernel_linear_derivative(float *results, float *inputs,
-                                size_t nb_rows, size_t nb_cols)
+                                           size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -37,11 +37,25 @@ __global__ void __kernel_linear_derivative(float *results, float *inputs,
     // Check if the thread is in the matrix dimensions.
     if (row < nb_rows && col < nb_cols)
     {
-        results[index] = inputs[index];
+        results[index] = 1.f;
     }
 }
 
 __global__ void __kernel_binary_step(float *results, float *inputs,
+                                     size_t nb_rows, size_t nb_cols)
+{
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
+
+    // Check if the thread is in the matrix dimensions.
+    if (row < nb_rows && col < nb_cols)
+    {
+        results[index] = inputs[index] < 0.f ? 0.f : 1.f;
+    }
+}
+
+__global__ void __kernel_binary_step_derivative(float *results, float *inputs,
                                      size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
@@ -65,7 +79,22 @@ __global__ void __kernel_sigmoid(float *results, float *inputs,
     // Check if the thread is in the matrix dimensions.
     if (row < nb_rows && col < nb_cols)
     {
-        results[index] = 1.f / (1.f + exp(-inputs[index]));
+        results[index] = 1.f / (1.f + std::exp(-inputs[index]));
+    }
+}
+
+__global__ void __kernel_sigmoid_derivative(float *results, float *inputs,
+                                 size_t nb_rows, size_t nb_cols)
+{
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
+
+    // Check if the thread is in the matrix dimensions.
+    if (row < nb_rows && col < nb_cols)
+    {
+        float sigmoid = 1.f / (1.f + std::exp(-inputs[index]));
+        results[index] = sigmoid * (1.f - sigmoid);
     }
 }
 
@@ -80,6 +109,20 @@ __global__ void __kernel_relu(float *results, float *inputs,
     if (row < nb_rows && col < nb_cols)
     {
         results[index] = fmax(0.f, inputs[index]);
+    }
+}
+
+__global__ void __kernel_relu_derivative(float *results, float *inputs,
+                              size_t nb_rows, size_t nb_cols)
+{
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
+
+    // Check if the thread is in the matrix dimensions.
+    if (row < nb_rows && col < nb_cols)
+    {
+        results[index] = inputs[index] > 0 ? 1.f : 0.f;
     }
 }
 
@@ -110,18 +153,66 @@ void __helper(dim3 block_dims, dim3 thread_dims,
  */
 
 
-void activation_functions_cuda::LINEAR(dim3 block_dims, dim3 thread_dims,
-                                       const matrix &results, const matrix &inputs)
+void activation_functions_cuda::linear(dim3 block_dims, dim3 thread_dims,
+                                                const matrix &results, const matrix &inputs)
 {
     __helper(block_dims, thread_dims,
              results, inputs,
              __kernel_linear);
 }
 
-void activation_functions_cuda::LINEAR_DERIVATIVE(dim3 block_dims, dim3 thread_dims,
-                                       const matrix &results, const matrix &inputs)
+void activation_functions_cuda::linear_derivative(dim3 block_dims, dim3 thread_dims,
+                                                  const matrix &results, const matrix &inputs)
 {
     __helper(block_dims, thread_dims,
              results, inputs,
              __kernel_linear_derivative);
+}
+
+void activation_functions_cuda::binary_step(dim3 block_dims, dim3 thread_dims,
+                                                     const matrix &results, const matrix &inputs)
+{
+    __helper(block_dims, thread_dims,
+             results, inputs,
+             __kernel_binary_step);
+}
+
+void activation_functions_cuda::binary_step_derivative(dim3 block_dims, dim3 thread_dims,
+                                                       const matrix &results, const matrix &inputs)
+{
+    __helper(block_dims, thread_dims,
+             results, inputs,
+             __kernel_binary_step_derivative);
+}
+
+void activation_functions_cuda::sigmoid(dim3 block_dims, dim3 thread_dims,
+                                                 const matrix &results, const matrix &inputs)
+{
+    __helper(block_dims, thread_dims,
+             results, inputs,
+             __kernel_sigmoid);
+}
+
+void activation_functions_cuda::sigmoid_derivative(dim3 block_dims, dim3 thread_dims,
+                                                   const matrix &results, const matrix &inputs)
+{
+    __helper(block_dims, thread_dims,
+             results, inputs,
+             __kernel_sigmoid_derivative);
+}
+
+void activation_functions_cuda::relu(dim3 block_dims, dim3 thread_dims,
+                                              const matrix &results, const matrix &inputs)
+{
+    __helper(block_dims, thread_dims,
+             results, inputs,
+             __kernel_relu);
+}
+
+void activation_functions_cuda::relu_derivative(dim3 block_dims, dim3 thread_dims,
+                                                const matrix &results, const matrix &inputs)
+{
+    __helper(block_dims, thread_dims,
+             results, inputs,
+             __kernel_relu_derivative);
 }

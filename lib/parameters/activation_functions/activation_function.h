@@ -12,39 +12,39 @@ namespace cudaNN
 {
     /**
      * CUDA function wrappers for call on host.
+     * Execute the named function on device.
      */
     namespace activation_functions_cuda
     {
         typedef void (*activation_function_t)(dim3 block_dims, dim3 thread_dims,
                                               const matrix &results, const matrix &inputs);
 
-        void LINEAR(dim3 block_dims, dim3 thread_dims,
+        void linear(dim3 block_dims, dim3 thread_dims,
                     const matrix &results, const matrix &inputs);
-        void LINEAR_DERIVATIVE(dim3 block_dims, dim3 thread_dims,
+        void linear_derivative(dim3 block_dims, dim3 thread_dims,
                                const matrix &results, const matrix &inputs);
-        void BINARY_STEP(dim3 block_dims, dim3 thread_dims,
+        void binary_step(dim3 block_dims, dim3 thread_dims,
                          const matrix &results, const matrix &inputs);
-        void BINARY_STEP_DERIVATIVE(dim3 block_dims, dim3 thread_dims,
+        void binary_step_derivative(dim3 block_dims, dim3 thread_dims,
                                     const matrix &results, const matrix &inputs);
-        void SIGMOID(dim3 block_dims, dim3 thread_dims,
+        void sigmoid(dim3 block_dims, dim3 thread_dims,
                      const matrix &results, const matrix &inputs);
-        void SIGMOID_DERIVATIVE(dim3 block_dims, dim3 thread_dims,
+        void sigmoid_derivative(dim3 block_dims, dim3 thread_dims,
                                 const matrix &results, const matrix &inputs);
-        void RELU(dim3 block_dims, dim3 thread_dims,
+        void relu(dim3 block_dims, dim3 thread_dims,
                   const matrix &results, const matrix &inputs);
-        void RELU_DERIVATIVE(dim3 block_dims, dim3 thread_dims,
+        void relu_derivative(dim3 block_dims, dim3 thread_dims,
                              const matrix &results, const matrix &inputs);
     }
 
 
     /**
-     * Compute and return the outputs of the activation function for each nodes in a layer.
-     * Each cell of the inputted matrix contains the
-     * input for a node.
-     * For a neural network, the inputs are the weighted
-     * sum of the previous layer outputs, with the bias
-     * corresponding to the current neuron
-     * (i.e. (x1 * w1) + ... + (x2 * w2) + b).
+     * Compute and return the outputs of the activation function for each
+     * nodes in a layer.
+     * Each cell of the inputted matrix contains the input of a node.
+     * Inputs(i) corresponds to addition between the weighted sum of the previous
+     * layer outputs, and the bias of the neuron "i".
+     * (i.e. (x1 * wi1) + ... + (x2 * wi2) + bi).
      */
     class activation_function
     {
@@ -79,14 +79,20 @@ namespace cudaNN
      */
     namespace activation_functions
     {
+        using namespace activation_functions_cuda;
+
         const activation_function LINEAR = activation_function("linear",
-                                                               activation_functions_cuda::LINEAR,
-                                                               activation_functions_cuda::LINEAR_DERIVATIVE);
-        /*
-        matrix binary_step(const matrix &inputs);
-        matrix sigmoid(const matrix &inputs);
-        matrix relu(const matrix &inputs);
-         */
+                                                               linear,
+                                                               linear_derivative);
+        const activation_function BINARY_STEP = activation_function("binary_step",
+                                                                    binary_step,
+                                                                    binary_step_derivative);
+        const activation_function SIGMOID = activation_function("sigmoid",
+                                                                sigmoid,
+                                                                sigmoid_derivative);
+        const activation_function RELU = activation_function("relu",
+                                                             relu,
+                                                             relu_derivative);
     }
 }
 

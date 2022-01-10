@@ -5,7 +5,7 @@
 #include "lib/data_structures/dataset/dataset.h"
 #include "lib/models/neural_network/neural_network.h"
 #include "lib/models/neural_network/layers/layer.h"
-#include "lib/parameters/activation_functions/activation_function_.h"
+#include "lib/parameters/activation_functions/activation_function.h"
 
 #include <cstdlib>
 #include <ctime>
@@ -18,7 +18,7 @@ using namespace cudaNN;
 /**
  * Load a basic dataset. Define a simple neural network.
  * Train it with a part of the dataset, and predict with
- * another part.
+ * another part. Print results.
  */
 int main(int argc, char *argv[])
 {
@@ -34,16 +34,16 @@ int main(int argc, char *argv[])
     neural_network nn = neural_network(
             {
                     new layer(dataset::MULT_NB_FEATURES, 20,
-                              activation_functions::linear),
+                              activation_functions::LINEAR),
                     new layer(20, dataset::MULT_NB_LABELS,
-                              activation_functions::relu)
+                              activation_functions::RELU)
             }
     );
     // Train the neural network.
     nn.fit(train, loss_functions::mean_squared_error);
     // Predict using the test dataset.
     auto predictions = nn.predict(test);
-    // Show ground truth and the predictions.
+    // Print ground truths and the predictions.
     for (size_t i = 0; i < predictions.size(); i ++)
     {
         matrix::print(test.get(i).get_labels());
