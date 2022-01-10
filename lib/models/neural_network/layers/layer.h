@@ -77,8 +77,8 @@ namespace cudaNN
             matrix _old_weights;
             matrix _old_biases;
             matrix _previous_layer;
-            matrix _dprevious_layer;
-            matrix _dcurrent_layer;
+            matrix _d_previous_layer;
+            matrix _d_current_layer;
 
 
             const activation_function _activation_function;
