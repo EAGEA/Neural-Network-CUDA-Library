@@ -2,7 +2,7 @@
 // Created by Emilien Aufauvre on 07/01/2022.
 //
 
-#include "lib/parameters/activation_functions/activation_functions.h"
+#include "lib/parameters/activation_functions/activation_function.h"
 
 
 using namespace cudaNN;
@@ -31,7 +31,9 @@ int main(int argc, char *argv[])
     matrix::print(m1);
     // ----------- //
     std::cout << "> linear (identity)" << std::endl;
-    matrix::print(activation_functions::linear(m1));
+    matrix::print(activation_functions::LINEAR.compute(m1));
+    matrix::print(activation_functions::LINEAR.compute_derivative(m1));
+    /*
     // ----------- //
     std::cout << "> sigmoid" << std::endl;
     matrix::print(activation_functions::sigmoid(m1));
@@ -42,6 +44,6 @@ int main(int argc, char *argv[])
     std::cout << "> relu" << std::endl;
     matrix::print(activation_functions::relu(m1));
     // ----------- //
-
+*/
     return EXIT_SUCCESS;
 }

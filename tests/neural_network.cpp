@@ -5,7 +5,7 @@
 #include "lib/data_structures/dataset/dataset.h"
 #include "lib/models/neural_network/neural_network.h"
 #include "lib/models/neural_network/layers/layer.h"
-#include "lib/parameters/activation_functions/activation_functions.h"
+#include "lib/parameters/activation_functions/activation_function_.h"
 
 #include <cstdlib>
 #include <ctime>

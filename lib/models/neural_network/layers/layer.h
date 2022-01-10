@@ -6,7 +6,7 @@
 #define CUDANN_LAYER_H
 
 #include "lib/models/neural_network/layers/layer.h"
-#include "lib/parameters/activation_functions/activation_functions.h"
+#include "lib/parameters/activation_functions/activation_function.h"
 #include "lib/util/util.h"
 
 #include <random>
@@ -27,7 +27,7 @@ namespace cudaNN
              * @param activation_function - the function that compute the output of a neuron.
              */
             layer(const size_t input_size, const size_t nb_neurons,
-                  const activation_function_t activation_function);
+                  activation_function activation_function);
 
             matrix forward_propagation(matrix &inputs) const;
             matrix backward_propagation(const matrix &errors);
@@ -81,7 +81,8 @@ namespace cudaNN
             matrix _dcurrent_layer;
 
 
-            const activation_function_t _activation_function;
+            const activation_function _activation_function;
+
             /**
              * Dimension of the layer (number of neurons).
              */
