@@ -68,13 +68,14 @@ void layer::backward_propagation(matrix &errors, layer *next, float learning_rat
     if (next != nullptr)
     {
         // If not the output layer.
-        errors = next->_weights * errors;
+        errors = next->_old_weights * errors;
     }
 
     errors = errors.hadamard_product(_derivatives.transpose());
 
     // Do the gradient descent.
     // - update weights.
+    _old_weights = _weights;
     _weights -= (errors * _inputs).transpose() * learning_rate;
     // - update biases.
     _biases -= errors.transpose() * learning_rate;

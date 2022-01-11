@@ -71,6 +71,11 @@ namespace cudaNN
              */
             matrix _inputs;
 
+            /**
+             * To store the weights before the gradient descend. Used during backpropagation.
+             */
+            matrix _old_weights;
+
             const function _activation_function;
 
             /**
