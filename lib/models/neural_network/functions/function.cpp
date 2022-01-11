@@ -32,7 +32,7 @@ matrix function::compute(std::vector<matrix *> inputs) const
     return outputs;
 }
 
-matrix function::compute_derivative(std::vector<matrix *> inputs) const
+matrix function::compute_derivatives(std::vector<matrix *> inputs) const
 {
     auto outputs = matrix(inputs[0]->get_dimensions(),
                           "function::" + _id + "_derivative("

@@ -32,19 +32,19 @@ int main(int argc, char *argv[])
     // ----------- //
     std::cout << "> linear (identity)" << std::endl;
     matrix::print(activation_functions::LINEAR.compute({ &m1 }));
-    matrix::print(activation_functions::LINEAR.compute_derivative({ &m1 }));
+    matrix::print(activation_functions::LINEAR.compute_derivatives({&m1}));
     // ----------- //
     std::cout << "> binary step" << std::endl;
     matrix::print(activation_functions::BINARY_STEP.compute({ &m1 }));
-    matrix::print(activation_functions::BINARY_STEP.compute_derivative({ &m1 }));
+    matrix::print(activation_functions::BINARY_STEP.compute_derivatives({&m1}));
     // ----------- //
     std::cout << "> sigmoid" << std::endl;
     matrix::print(activation_functions::SIGMOID.compute({ &m1 }));
-    matrix::print(activation_functions::SIGMOID.compute_derivative({ &m1 }));
+    matrix::print(activation_functions::SIGMOID.compute_derivatives({&m1}));
     // ----------- //
     std::cout << "> relu" << std::endl;
     matrix::print(activation_functions::RELU.compute({ &m1 }));
-    matrix::print(activation_functions::RELU.compute_derivative({ &m1 }));
+    matrix::print(activation_functions::RELU.compute_derivatives({&m1}));
     // ----------- //
     return EXIT_SUCCESS;
 }

@@ -72,12 +72,23 @@ namespace cudaNN
             matrix &operator=(const matrix &m);
             matrix &operator+=(const matrix &m);
             matrix operator+(const matrix &m);
+            matrix &operator-=(const matrix &m);
+            matrix operator-(const matrix &m);
             matrix &operator*=(const matrix &m);
             matrix operator*(const matrix &m);
+            matrix &operator*=(float f);
+            matrix operator*(float f);
             float &operator[](const int &i);
             const float &operator[](const int &i) const;
             bool operator==(const matrix &m) const;
             bool operator!=(const matrix &m) const;
+
+            /**
+             * Enhanced with CUDA.
+             * @param v - a vector.
+             * @return - return the Hadamard product between the current matrix and "v".
+             */
+            matrix hadamard_product(const matrix &v);
 
             /**
              * Enhanced using CUDA.
@@ -114,9 +125,15 @@ namespace cudaNN
         void end_operation(const matrix &m, float **device_data);
         void add(const dim3 &block_dims, const dim3 &thread_dims,
                  const matrix &m1, const matrix &m2);
+        void subtract(const dim3 &block_dims, const dim3 &thread_dims,
+                      const matrix &m1, const matrix &m2);
         void multiply(const dim3 &block_dims, const dim3 &thread_dims,
                       const matrix &m,
                       const matrix &m1, const matrix &m2);
+        void multiply(const dim3 &block_dims, const dim3 &thread_dims,
+                      const matrix &m, float f);
+        void hadamard_product(dim3 block_dims, dim3 thread_dims,
+                              const matrix &v1, const matrix &v2);
         void sum(const dim3 &block_dims, const dim3 &thread_dims,
                  float *result, const matrix &m);
         void transpose(const dim3 &block_dims, const dim3 &thread_dims,

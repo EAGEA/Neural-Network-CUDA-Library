@@ -16,7 +16,7 @@ entry::entry(const matrix features, const matrix labels):
 
 entry::~entry()
 {
-    util::DEBUG("entry::entry", "---");
+    //util::DEBUG("entry::entry", "---");
 }
 
 const matrix &entry::get_features() const

@@ -17,15 +17,15 @@ dataset::dataset(std::vector<entry> &entries):
 
 dataset::~dataset()
 {
-    util::DEBUG("dataset::~dataset", "---");
+    //util::DEBUG("dataset::~dataset", "---");
 }
 
-void dataset::add(const matrix features, const matrix labels)
+void dataset::add(const matrix &features, const matrix &labels)
 {
     _entries.emplace_back(features, labels);
 }
 
-void dataset::add(entry e)
+void dataset::add(const entry &e)
 {
     _entries.push_back(e);
 }
@@ -65,13 +65,13 @@ std::pair<dataset, dataset> dataset::train_test_split(const float train_size_rat
 
     auto train = dataset();
     auto test = dataset();
-    size_t train_size = size_ * train_size_ratio;
+    size_t train_size = (float) size_ * train_size_ratio;
 
-    // Fill array with [0, "MULT_SIZE"] sequence, and shuffle it.
-    std::array<size_t, dataset::MULT_SIZE> numbers {};
+    // Fill array with [0, "size_"] sequence, and shuffle it.
+    auto numbers = std::vector<size_t>(size_);
     std::iota(numbers.begin(), numbers.end(), 0);
     std::random_device generator;
-    std::mt19937 distribution = std::mt19937(generator());
+    auto distribution = std::mt19937(generator());
     std::shuffle(numbers.begin(), numbers.end(), distribution);
     // Select the "train_size" first indexes for the training set.
     for (size_t i = 0; i < size_; i ++)
@@ -99,11 +99,11 @@ dataset dataset::get_random_batch(const size_t batch_size)
     }
 
     auto batch = dataset();
-    // Fill array with [0, "_entries.size()"] sequence, and shuffle it.
-    auto numbers = std::vector<size_t>(_entries.size());
+    // Fill array with [0, "size()"] sequence, and shuffle it.
+    auto numbers = std::vector<size_t>(size());
     std::iota(numbers.begin(), numbers.end(), 0);
     std::random_device generator;
-    std::mt19937 distribution = std::mt19937(generator());
+    auto distribution = std::mt19937(generator());
     std::shuffle(numbers.begin(), numbers.end(), distribution);
     // Select the "batch_size" first numbers as indexes.
     for (size_t i = 0; i < batch_size; i ++)
@@ -122,7 +122,6 @@ dataset dataset::load_mult()
 
     for (size_t i = 0; i < MULT_SIZE; i ++)
     {
-        // TODO need to free pointers (entry be pointer).
         auto features = matrix(1, MULT_NB_FEATURES,
                                "dataset::mult::features::" + std::to_string(i));
         auto labels = matrix({ 1 }, 1, MULT_NB_LABELS,
@@ -144,7 +143,7 @@ void dataset::print(dataset &d)
 {
     size_t i = 1;
 
-    for (auto e: d.get_entries())
+    for (const auto &e: d.get_entries())
     {
         std::cout << ">>> n°" << (i ++) << " <<<" << std::endl; 
         entry::print(e);

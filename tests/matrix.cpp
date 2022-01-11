@@ -48,6 +48,9 @@ int main(int argc, char *argv[])
     std::cout << "> sum of m1 (1)" << std::endl;
     std::cout << "= " << m1.sum() << std::endl;
     // ----------- //
+    std::cout << "> Hadamard product"<< std::endl;
+    matrix::print(m1.hadamard_product(m2));
+    // ----------- //
     std::cout << "> transpose of m1 (1)" << std::endl;
     matrix::print(m1.transpose());
     // ----------- //
@@ -66,6 +69,14 @@ int main(int argc, char *argv[])
     std::cout << "> * & = operators" << std::endl;
     m1 = m1 * m2;
     matrix::print(m1);
+    // ----------- //
+    std::cout << "> *= float operator" << std::endl;
+    m2 *= 0.5f;
+    matrix::print(m2);
+    // ----------- //
+    std::cout << "> * float & = operators" << std::endl;
+    m2 = m2 * 0.1f;
+    matrix::print(m2);
     // ----------- //
     std::cout << "> != operator" << std::endl;
     std::cout << "m1 (1) is not equal to m2 (2): "

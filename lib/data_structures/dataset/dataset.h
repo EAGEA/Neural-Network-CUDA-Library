@@ -30,8 +30,8 @@ namespace cudaNN
             explicit dataset(std::vector<entry> &entries);
             ~dataset();
 
-            void add(matrix features, matrix labels);
-            void add(entry e);
+            void add(const matrix &features, const matrix &labels);
+            void add(const entry &e);
 
             entry &get(size_t i);
             std::vector<entry> &get_entries();
@@ -54,13 +54,13 @@ namespace cudaNN
 
 
             /**
-             * @Multiplication_dataset:
+             * @multiplication_dataset
              * - for the "MULT_SIZE" entry, generate "MULT_N" random numbers
              * in [0, "MULT_MAX"[ (the features), and associate them to the result
              * of the multiplication between them (the label).
              */
             static const size_t MULT_SIZE = 100;
-            static const size_t MULT_NB_FEATURES = 3;
+            static const size_t MULT_NB_FEATURES = 2;
             static const size_t MULT_NB_LABELS = 1;
             static const size_t MULT_MAX = 10;
             static dataset load_mult();

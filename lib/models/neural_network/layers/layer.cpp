@@ -53,32 +53,31 @@ matrix layer::feed_forward(matrix &inputs)
                     + ")");
         util::ERROR_EXIT();
     }
-
+    // Save the inputs from previous layer.
+    _inputs = inputs;
     // Compute the output of each neuron.
-    auto sum = inputs * _weights + _biases;
-    // Compute the result of the activation function derivative on the inputs (for backprop).
-    _derivative = _activation_function.compute_derivative({ &sum });
+    auto sum = _inputs * _weights + _biases;
+    // Compute the result of the activation function derivative on the inputs (for back propagation).
+    _derivatives = _activation_function.compute_derivatives({&sum});
     // Compute the result of the activation function on the inputs.
     return _activation_function.compute({ &sum });
 }
 
-void layer::backward_propagation(matrix &errors, const layer *previous)
+void layer::backward_propagation(matrix &errors, layer *next, float learning_rate)
 {
-    if (previous != nullptr)
+    if (next != nullptr)
     {
         // If not the output layer.
-        errors = previous->get_weights().transpose() * errors;
+        errors = next->_weights * errors;
     }
 
-    // Do the vector (and not matrix) mult computation "errors * _derivative".
-    auto cuda_dims = util::get_cuda_dims(errors.get_dimensions());
-    layer_cuda::backward_propagation(cuda_dims.first, cuda_dims.second,
-                                     errors, _derivative);
-}
+    errors = errors.hadamard_product(_derivatives.transpose());
 
-matrix layer::get_weights() const
-{
-    return _weights;
+    // Do the gradient descent.
+    // - update weights.
+    _weights -= (errors * _inputs).transpose() * learning_rate;
+    // - update biases.
+    _biases -= errors.transpose() * learning_rate;
 }
 
 size_t layer::size() const

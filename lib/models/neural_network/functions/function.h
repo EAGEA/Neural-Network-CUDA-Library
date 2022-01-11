@@ -35,7 +35,7 @@ namespace cudaNN
              * @return - the result of the derivative
              * "_function_derivative" on "inputs".
              */
-            matrix compute_derivative(std::vector<matrix *> inputs) const;
+            matrix compute_derivatives(std::vector<matrix *> inputs) const;
 
         private:
 

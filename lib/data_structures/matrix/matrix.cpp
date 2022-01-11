@@ -78,7 +78,7 @@ matrix::matrix(const float *values, std::pair<size_t, size_t> dimensions, std::s
 
 matrix::~matrix()
 {
-    util::DEBUG("matrix::~matrix", "--- " + _id);
+    //util::DEBUG("matrix::~matrix", "--- " + _id);
     free();
 }
 
@@ -149,7 +149,7 @@ matrix &matrix::operator+=(const matrix &m)
     if (_dimensions != m.get_dimensions())
     {
         // Invalid.
-        util::ERROR("matrix::operator*=",
+        util::ERROR("matrix::operator+=",
                     "matrix::_id " + _id + " + " + m.get_id()
                     + " >> Invalid @m size; not the same number "
                     + "of rows and/or columns");
@@ -167,6 +167,31 @@ matrix matrix::operator+(const matrix &m)
 {
     matrix m_ = matrix(*this, "add(" + _id + ", " + m.get_id() + ")");
     return (m_ += m);
+}
+
+matrix &matrix::operator-=(const matrix &m)
+{
+    if (_dimensions != m.get_dimensions())
+    {
+        // Invalid.
+        util::ERROR("matrix::operator-=",
+                    "matrix::_id " + _id + " + " + m.get_id()
+                    + " >> Invalid @m size; not the same number "
+                    + "of rows and/or columns");
+        util::ERROR_EXIT();
+    }
+
+    // Do the computation.
+    auto cuda_dims = util::get_cuda_dims(_dimensions);
+    matrix_cuda::subtract(cuda_dims.first, cuda_dims.second,*this, m);
+
+    return *this;
+}
+
+matrix matrix::operator-(const matrix &m)
+{
+    matrix m_ = matrix(*this, "subtract(" + _id + ", " + m.get_id() + ")");
+    return (m_ -= m);
 }
 
 matrix &matrix::operator*=(const matrix &m)
@@ -201,6 +226,21 @@ matrix matrix::operator*(const matrix &m)
     return (m_ *= m);
 }
 
+matrix &matrix::operator*=(float f)
+{
+    // Do the computation.
+    auto cuda_dims = util::get_cuda_dims(_dimensions);
+    matrix_cuda::multiply(cuda_dims.first, cuda_dims.second, *this, f);
+
+    return *this;
+}
+
+matrix matrix::operator*(float f)
+{
+    matrix m_ = matrix(*this, "mult(" + _id + ", float(" + std::to_string(f) + "))");
+    return (m_ *= f);
+}
+
 float &matrix::operator[](const int &i)
 {
     return _data[i];
@@ -232,6 +272,26 @@ bool matrix::operator==(const matrix &m) const
 bool matrix::operator!=(const matrix &m) const
 {
     return ! (*this == m);
+}
+
+matrix matrix::hadamard_product(const matrix &v)
+{
+    if (_dimensions != v.get_dimensions())
+    {
+        // Invalid.
+        util::ERROR("matrix::hadamard_product",
+                    "matrix::_id " + _id + " + " + v.get_id()
+                    + " >> Invalid @m size; not the same number "
+                    + "of rows and/or columns");
+        util::ERROR_EXIT();
+    }
+
+    matrix m = matrix(*this, "hadamard_product(" + _id + ", " + v.get_id() + ")");
+    // Do the computation.
+    auto cuda_dims = util::get_cuda_dims(_dimensions);
+    matrix_cuda::hadamard_product(cuda_dims.first, cuda_dims.second,
+                                  m, v);
+    return m;
 }
 
 float matrix::sum() const

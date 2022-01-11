@@ -43,23 +43,23 @@ int main(int argc, char *argv[])
     // ----------- //
     std::cout << "> mean squared error (MSE)" << std::endl;
     matrix::print(loss_functions::MEAN_SQUARED_ERROR.compute({ &m1, &m2 }));
-    matrix::print(loss_functions::MEAN_SQUARED_ERROR.compute_derivative({ &m1, &m2 }));
+    matrix::print(loss_functions::MEAN_SQUARED_ERROR.compute_derivatives({&m1, &m2}));
     // ----------- //
     std::cout << "> mean absolute error (MAE)" << std::endl;
     matrix::print(loss_functions::MEAN_ABSOLUTE_ERROR.compute({ &m1, &m2 }));
-    matrix::print(loss_functions::MEAN_ABSOLUTE_ERROR.compute_derivative({ &m1, &m2 }));
+    matrix::print(loss_functions::MEAN_ABSOLUTE_ERROR.compute_derivatives({&m1, &m2}));
     // ----------- //
     std::cout << "> mean bias error (MBE)" << std::endl;
     matrix::print(loss_functions::MEAN_BIAS_ERROR.compute({ &m1, &m2 }));
-    matrix::print(loss_functions::MEAN_BIAS_ERROR.compute_derivative({ &m1, &m2 }));
+    matrix::print(loss_functions::MEAN_BIAS_ERROR.compute_derivatives({&m1, &m2}));
     // ----------- //
     std::cout << "> hinge loss" << std::endl;
     matrix::print(loss_functions::HINGE_LOSS.compute({ &m1, &m2 }));
-    matrix::print(loss_functions::HINGE_LOSS.compute_derivative({ &m1, &m2 }));
+    matrix::print(loss_functions::HINGE_LOSS.compute_derivatives({&m1, &m2}));
     // ----------- //
     std::cout << "> binary cross entropy loss (LCE)" << std::endl;
     matrix::print(loss_functions::BINARY_CROSS_ENTROPY_LOSS.compute({ &m1, &m2 }));
-    matrix::print(loss_functions::BINARY_CROSS_ENTROPY_LOSS.compute_derivative({ &m1, &m2 }));
+    matrix::print(loss_functions::BINARY_CROSS_ENTROPY_LOSS.compute_derivatives({&m1, &m2}));
     // ----------- //
 
     return EXIT_SUCCESS;

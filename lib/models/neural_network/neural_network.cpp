@@ -30,9 +30,6 @@ void neural_network::fit(dataset &data,
         // For each epoch, execute the training on batches:
         for (size_t j = 1; j <= nb_batches; j ++)
         {
-            util::DEBUG("neural_network::fit", 
-                        "- Starting batch " + std::to_string(j)); 
-
             // Get a sample of "batch size" (features + labels).
             auto batch = data.get_random_batch(batch_size);
             // Train with it.
@@ -42,7 +39,7 @@ void neural_network::fit(dataset &data,
                 // Forward + backward propagation.
                 auto predictions = _feed_forward(e.get_features());
                 auto labels = e.get_labels();
-                _backward_propagation(predictions, labels, loss_function);
+                _backward_propagation(predictions, labels, loss_function, learning_rate);
             }
         }
     }
@@ -79,13 +76,14 @@ matrix neural_network::_feed_forward(const matrix &features) const
 
 void neural_network::_backward_propagation(matrix &predictions,
                                            matrix &labels,
-                                           const function &loss_function)
+                                           const function &loss_function,
+                                           float learning_rate)
 {
-    auto errors = loss_function.compute_derivative({ &predictions, &labels });
+    auto errors = loss_function.compute_derivatives({&predictions, &labels});
 
     for (size_t i = _layers.size(); i > 0; i --)
     {
-        layer *previous = i == _layers.size() ? nullptr : _layers[i];
-        _layers[i - 1]->backward_propagation(errors, previous);
+        layer *next = i == _layers.size() ? nullptr : _layers[i];
+        _layers[i - 1]->backward_propagation(errors, next, learning_rate);
     }
 }

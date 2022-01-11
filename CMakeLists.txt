@@ -21,7 +21,6 @@ if (CUDA_FOUND)
             "lib/data_structures/matrix/matrix.cu"
             "lib/models/neural_network/neural_network.cpp"
             "lib/models/neural_network/layers/layer.cpp"
-            "lib/models/neural_network/layers/layer.cu"
             "lib/models/neural_network/functions/function.cpp"
             "lib/models/neural_network/functions/function.h"
             "lib/models/neural_network/functions/activation_functions/activation_functions.cu"

@@ -32,19 +32,22 @@ int main(int argc, char *argv[])
     // Define a basic neural network.
     neural_network nn = neural_network(
             {
-                    new layer(dataset::MULT_NB_FEATURES, 20,
-                              activation_functions::LINEAR),
-                    new layer(20, dataset::MULT_NB_LABELS,
-                              activation_functions::RELU)
+                    new layer(dataset::MULT_NB_FEATURES, 8,
+                              activation_functions::SIGMOID),
+                    new layer(8, 4,
+                              activation_functions::RELU),
+                    new layer(4, dataset::MULT_NB_LABELS,
+                              activation_functions::SIGMOID)
             }
     );
     // Train the neural network.
-    nn.fit(train, loss_functions::MEAN_SQUARED_ERROR);
+    nn.fit(train, loss_functions::MEAN_SQUARED_ERROR, 1);
     // Predict using the test dataset.
     auto predictions = nn.predict(test);
     // Print ground truths and the predictions.
     for (size_t i = 0; i < predictions.size(); i ++)
     {
+        std::cout << "-------------------------------------------" << std::endl;
         matrix::print(test.get(i).get_labels());
         matrix::print(predictions[i]);
     }

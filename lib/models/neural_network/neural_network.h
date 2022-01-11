@@ -52,7 +52,8 @@ namespace cudaNN
              */
             void _backward_propagation(matrix &predictions,
                                        matrix &labels,
-                                       const function &loss_function);
+                                       const function &loss_function,
+                                       float learning_rate);
 
             std::vector<layer *> _layers;
     };

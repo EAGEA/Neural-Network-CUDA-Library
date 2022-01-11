@@ -30,9 +30,8 @@ namespace cudaNN
                   function activation_function);
 
             matrix feed_forward(matrix &inputs);
-            void backward_propagation(matrix &errors, const layer *previous);
+            void backward_propagation(matrix &errors, layer *next, float learning_rate);
 
-            matrix get_weights() const;
             size_t size() const;
 
         private:
@@ -65,7 +64,12 @@ namespace cudaNN
              * To store the results of the derivative of the activation function
              * on the current inputs. Used during backpropagation.
              */
-            matrix _derivative;
+            matrix _derivatives;
+
+            /**
+             * To store last inputs from previous layer. Used during backpropagation.
+             */
+            matrix _inputs;
 
             const function _activation_function;
 
@@ -74,16 +78,6 @@ namespace cudaNN
              */
             const size_t _size;
     };
-
-
-    /**
-     * CUDA function wrappers for call on host.
-     */
-    namespace layer_cuda
-    {
-        void backward_propagation(dim3 block_dims, dim3 thread_dims,
-                                  const matrix &v1, const matrix &v2);
-    }
 }
 
 

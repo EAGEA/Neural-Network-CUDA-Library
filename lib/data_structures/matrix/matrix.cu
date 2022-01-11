@@ -27,6 +27,20 @@ __global__ void __kernel_add(float *data1, const float *data2,
     }
 }
 
+__global__ void __kernel_subtract(float *data1, const float *data2,
+                                  size_t nb_rows, size_t nb_cols)
+{
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
+
+    // Check if thread index is in the output dimensions.
+    if (row < nb_rows && col < nb_cols)
+    {
+        data1[index] -= data2[index];
+    }
+}
+
 __global__ void __kernel_multiply(float *result,
                                   const float *data1, const float *data2,
                                   size_t nb_rows_1, size_t nb_cols_1,
@@ -46,6 +60,34 @@ __global__ void __kernel_multiply(float *result,
         }
 
         result[row * nb_cols_2 + col] = sum;
+    }
+}
+
+__global__ void __kernel_multiply(float *data, float f,
+                                  size_t nb_rows, size_t nb_cols)
+{
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
+
+    // Check if thread index is in the output dimensions.
+    if (row < nb_rows && col < nb_cols)
+    {
+        data[index] *= f;
+    }
+}
+
+__global__ void __kernel_hadamard_product(float *v1, float *v2,
+                                          size_t nb_rows, size_t nb_cols)
+{
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
+
+    // Check if thread index is in the output dimensions.
+    if (row < nb_rows && col < nb_cols)
+    {
+        v1[index] *= v2[index];
     }
 }
 
@@ -137,6 +179,26 @@ void matrix_cuda::add(const dim3 &block_dims, const dim3 &thread_dims,
     end_operation(m2, &device_data2);
 }
 
+void matrix_cuda::subtract(const dim3 &block_dims, const dim3 &thread_dims,
+                           const matrix &m1, const matrix &m2)
+{
+    float *device_data1;
+    float *device_data2;
+
+    // Prepare data on device.
+    start_operation(m1, &device_data1);
+    start_operation(m2, &device_data2);
+    // Do computations with CUDA threads.
+    __kernel_subtract<<<block_dims, thread_dims>>>(
+            device_data1, device_data2,
+            m1.get_dimensions().first, m1.get_dimensions().second);
+    // Wait for all threads.
+    CUDA_CHECK(cudaDeviceSynchronize());
+    // Retrieve/free data from device.
+    end_operation(m1, &device_data1);
+    end_operation(m2, &device_data2);
+}
+
 void matrix_cuda::multiply(const dim3 &block_dims, const dim3 &thread_dims,
                            const matrix &m,
                            const matrix &m1, const matrix &m2)
@@ -161,6 +223,43 @@ void matrix_cuda::multiply(const dim3 &block_dims, const dim3 &thread_dims,
     end_operation(m, &device_result);
     end_operation(m1, &device_data1);
     end_operation(m2, &device_data2);
+}
+
+void matrix_cuda::multiply(const dim3 &block_dims, const dim3 &thread_dims,
+                      const matrix &m, float f)
+{
+    float *device_data;
+
+    // Prepare data on device.
+    start_operation(m, &device_data);
+    // Do computations with CUDA threads.
+    __kernel_multiply<<<block_dims, thread_dims>>>(
+            device_data, f,
+            m.get_dimensions().first, m.get_dimensions().second);
+    // Wait for all threads.
+    CUDA_CHECK(cudaDeviceSynchronize());
+    // Retrieve/free data from device.
+    end_operation(m, &device_data);
+}
+
+void matrix_cuda::hadamard_product(dim3 block_dims, dim3 thread_dims,
+                                   const matrix &v1, const matrix &v2)
+{
+    float *device_data1;
+    float *device_data2;
+
+    // Prepare data on device.
+    matrix_cuda::start_operation(v1, &device_data1);
+    matrix_cuda::start_operation(v2, &device_data2);
+    // Do computations with CUDA threads.
+    __kernel_hadamard_product<<<block_dims, thread_dims>>>(
+            device_data1, device_data2,
+            v1.get_dimensions().first, v1.get_dimensions().second);
+    // Wait for all threads.
+    CUDA_CHECK(cudaDeviceSynchronize());
+    // Retrieve/free data from device.
+    matrix_cuda::end_operation(v1, &device_data1);
+    matrix_cuda::end_operation(v2, &device_data2);
 }
 
 void matrix_cuda::sum(const dim3 &block_dims, const dim3 &thread_dims,
