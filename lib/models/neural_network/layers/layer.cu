@@ -100,11 +100,11 @@ __global__ void __kernel_update_biases(float *biases, float *previous_layer,
     __syncThreads();
     */
 }
-
+/*
 __global__ void __kernel_backward_propagation(float *errors)
 {
     /*size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;*/
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
 
     // Update the functions of the activation functions.
     //__kernel_layer_error(errors,col,row); //TODO
@@ -113,6 +113,21 @@ __global__ void __kernel_backward_propagation(float *errors)
     // Update the biases
     //__kernel_update_biases()
 }
+*/
+
+__global__ void __kernel_backward_propagation(float *v1, float *v2,
+                                              size_t nb_rows, size_t nb_cols)
+{
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
+
+    // Check if thread index is in the output dimensions.
+    if (row < nb_rows && col < nb_cols)
+    {
+        v1[index] *= v2[index];
+    }
+}
 
 
 /**
@@ -120,8 +135,22 @@ __global__ void __kernel_backward_propagation(float *errors)
  */
 
 
-void layer_cuda::backward_propagation(dim3 block_dims, dim3 thread_dims, float *errors)
+void layer_cuda::backward_propagation(dim3 block_dims, dim3 thread_dims,
+                                      const matrix &v1, const matrix &v2)
 {
-    __kernel_backward_propagation<<<block_dims, thread_dims>>>(errors);
-    cudaDeviceSynchronize();
+    float *device_data1;
+    float *device_data2;
+
+    // Prepare data on device.
+    matrix_cuda::start_operation(v1, &device_data1);
+    matrix_cuda::start_operation(v2, &device_data2);
+    // Do computations with CUDA threads.
+    __kernel_backward_propagation<<<block_dims, thread_dims>>>(
+            device_data1, device_data2,
+            v1.get_dimensions().first, v2.get_dimensions().second);
+    // Wait for all threads.
+    CUDA_CHECK(cudaDeviceSynchronize());
+    // Retrieve/free data from device.
+    matrix_cuda::end_operation(v1, &device_data1);
+    matrix_cuda::end_operation(v2, &device_data2);
 }
