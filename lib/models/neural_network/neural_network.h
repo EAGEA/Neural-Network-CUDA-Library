@@ -26,7 +26,7 @@ namespace cudaNN
             neural_network(std::initializer_list<layer *> layers);
 
             void fit(dataset &data,
-                     loss_function_t loss_function,
+                     function_t loss_function,
                      size_t epochs = 1,
                      size_t batch_size = 1,
                      float learning_rate = 0.01) override;
@@ -41,18 +41,18 @@ namespace cudaNN
              * @param features - from a dataset entry.
              * @return - the neural network predictions.
              */
-            matrix _forward_propagation(const matrix &features) const;
+            matrix _feed_forward(const matrix &features) const;
 
             /**
              * Backpropagation; calculate and store the gradients of intermediate
-             * variables and parameters, using the given loss function.
+             * variables and functions, using the given loss function.
              * @param predictions
              * @param labels
              * @param loss_function
              */
             void _backward_propagation(const matrix &predictions, 
                                        const matrix &labels,
-                                       loss_function_t loss_function);
+                                       function_t loss_function);
 
             std::vector<layer *> _layers;
     };

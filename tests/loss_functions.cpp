@@ -2,7 +2,7 @@
 // Created by Emilien Aufauvre on 07/01/2022.
 //
 
-#include "lib/parameters/loss_functions/loss_functions.h"
+#include "lib/models/neural_network/functions/loss_functions/loss_functions.h"
 
 
 using namespace cudaNN;
@@ -42,19 +42,24 @@ int main(int argc, char *argv[])
     matrix::print(m2);
     // ----------- //
     std::cout << "> mean squared error (MSE)" << std::endl;
-    std::cout << loss_functions::mean_squared_error(m1, m2) << std::endl;
+    matrix::print(loss_functions::MEAN_SQUARED_ERROR.compute({ &m1, &m2 }));
+    matrix::print(loss_functions::MEAN_SQUARED_ERROR.compute_derivative({ &m1, &m2 }));
     // ----------- //
     std::cout << "> mean absolute error (MAE)" << std::endl;
-    std::cout << loss_functions::mean_absolute_error(m1, m2) << std::endl;
+    matrix::print(loss_functions::MEAN_ABSOLUTE_ERROR.compute({ &m1, &m2 }));
+    matrix::print(loss_functions::MEAN_ABSOLUTE_ERROR.compute_derivative({ &m1, &m2 }));
     // ----------- //
     std::cout << "> mean bias error (MBE)" << std::endl;
-    std::cout << loss_functions::mean_bias_error(m1, m2) << std::endl;
+    matrix::print(loss_functions::MEAN_BIAS_ERROR.compute({ &m1, &m2 }));
+    matrix::print(loss_functions::MEAN_BIAS_ERROR.compute_derivative({ &m1, &m2 }));
     // ----------- //
     std::cout << "> hinge loss" << std::endl;
-    std::cout << loss_functions::hinge_loss(m1, m2) << std::endl;
+    matrix::print(loss_functions::HINGE_LOSS.compute({ &m1, &m2 }));
+    matrix::print(loss_functions::HINGE_LOSS.compute_derivative({ &m1, &m2 }));
     // ----------- //
     std::cout << "> binary cross entropy loss (LCE)" << std::endl;
-    std::cout << loss_functions::binary_cross_entropy_loss(m1, m2) << std::endl;
+    matrix::print(loss_functions::BINARY_CROSS_ENTROPY_LOSS.compute({ &m1, &m2 }));
+    matrix::print(loss_functions::BINARY_CROSS_ENTROPY_LOSS.compute_derivative({ &m1, &m2 }));
     // ----------- //
 
     return EXIT_SUCCESS;

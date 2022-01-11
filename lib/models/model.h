@@ -6,7 +6,7 @@
 #define CUDANN_MODEL_H
 
 #include "lib/data_structures/dataset/dataset.h"
-#include "lib/parameters/loss_functions/loss_functions.h"
+#include "lib/models/neural_network/functions/loss_functions/loss_functions.h"
 
 
 namespace cudaNN
@@ -29,7 +29,7 @@ namespace cudaNN
              * @param learning_rate - the learning rate for training
              */
             virtual void fit(dataset &data,
-                             loss_function_t loss_function,
+                             function_t loss_function,
                              size_t epochs = 1,
                              size_t batch_size = 1,
                              float learning_rate = 0.01) = 0;

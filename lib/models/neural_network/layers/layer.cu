@@ -106,7 +106,7 @@ __global__ void __kernel_backward_propagation(float *errors)
     /*size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;*/
 
-    // Update the parameters of the activation functions.
+    // Update the functions of the activation functions.
     //__kernel_layer_error(errors,col,row); //TODO
     // Update the weights
     //__kernel_update_weights()

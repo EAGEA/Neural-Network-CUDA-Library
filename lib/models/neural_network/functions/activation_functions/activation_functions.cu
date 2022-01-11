@@ -2,7 +2,7 @@
 // Created by Emilien Aufauvre on 12/12/2021.
 //
 
-#include "activation_function.h"
+#include "activation_functions.h"
 
 
 using namespace cudaNN;
@@ -154,65 +154,65 @@ void __helper(dim3 block_dims, dim3 thread_dims,
 
 
 void activation_functions_cuda::linear(dim3 block_dims, dim3 thread_dims,
-                                                const matrix &results, const matrix &inputs)
+                                       std::vector<matrix *> m)
 {
     __helper(block_dims, thread_dims,
-             results, inputs,
+             *m[0], *m[1],
              __kernel_linear);
 }
 
 void activation_functions_cuda::linear_derivative(dim3 block_dims, dim3 thread_dims,
-                                                  const matrix &results, const matrix &inputs)
+                                                  std::vector<matrix *> m)
 {
     __helper(block_dims, thread_dims,
-             results, inputs,
+             *m[0], *m[1],
              __kernel_linear_derivative);
 }
 
 void activation_functions_cuda::binary_step(dim3 block_dims, dim3 thread_dims,
-                                                     const matrix &results, const matrix &inputs)
+                                            std::vector<matrix *> m)
 {
     __helper(block_dims, thread_dims,
-             results, inputs,
+             *m[0], *m[1],
              __kernel_binary_step);
 }
 
 void activation_functions_cuda::binary_step_derivative(dim3 block_dims, dim3 thread_dims,
-                                                       const matrix &results, const matrix &inputs)
+                                                       std::vector<matrix *> m)
 {
     __helper(block_dims, thread_dims,
-             results, inputs,
+             *m[0], *m[1],
              __kernel_binary_step_derivative);
 }
 
 void activation_functions_cuda::sigmoid(dim3 block_dims, dim3 thread_dims,
-                                                 const matrix &results, const matrix &inputs)
+                                        std::vector<matrix *> m)
 {
     __helper(block_dims, thread_dims,
-             results, inputs,
+             *m[0], *m[1],
              __kernel_sigmoid);
 }
 
 void activation_functions_cuda::sigmoid_derivative(dim3 block_dims, dim3 thread_dims,
-                                                   const matrix &results, const matrix &inputs)
+                                                   std::vector<matrix *> m)
 {
     __helper(block_dims, thread_dims,
-             results, inputs,
+             *m[0], *m[1],
              __kernel_sigmoid_derivative);
 }
 
 void activation_functions_cuda::relu(dim3 block_dims, dim3 thread_dims,
-                                              const matrix &results, const matrix &inputs)
+                                     std::vector<matrix *> m)
 {
     __helper(block_dims, thread_dims,
-             results, inputs,
+             *m[0], *m[1],
              __kernel_relu);
 }
 
 void activation_functions_cuda::relu_derivative(dim3 block_dims, dim3 thread_dims,
-                                                const matrix &results, const matrix &inputs)
+                                                std::vector<matrix *> m)
 {
     __helper(block_dims, thread_dims,
-             results, inputs,
+             *m[0], *m[1],
              __kernel_relu_derivative);
 }

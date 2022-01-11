@@ -22,10 +22,10 @@ if (CUDA_FOUND)
             "lib/models/neural_network/neural_network.cpp"
             "lib/models/neural_network/layers/layer.cpp"
             "lib/models/neural_network/layers/layer.cu"
-            "lib/parameters/activation_functions/activation_function.cpp"
-            "lib/parameters/activation_functions/activation_function.cu"
-            "lib/parameters/loss_functions/loss_functions.cpp"
-            "lib/parameters/loss_functions/loss_functions.cu"
+            "lib/models/neural_network/functions/function.cpp"
+            "lib/models/neural_network/functions/function.h"
+            "lib/models/neural_network/functions/activation_functions/activation_functions.cu"
+            "lib/models/neural_network/functions/loss_functions/loss_functions.cu"
             "lib/util/util.cpp"
             )
     # Build tests ######################################################

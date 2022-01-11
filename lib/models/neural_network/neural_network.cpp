@@ -14,7 +14,7 @@ neural_network::neural_network(std::initializer_list<layer *> layers):
 }
 
 void neural_network::fit(dataset &data,
-                         const loss_function_t loss_function,
+                         const function_t loss_function,
                          const size_t epochs /*= 1*/,
                          const size_t batch_size /*= 1*/,
                          const float learning_rate /*= 0.01*/)
@@ -47,7 +47,7 @@ void neural_network::fit(dataset &data,
             {
                 auto e = batch.get(k);
                 // Forward + backward propagation.
-                auto predictions = _forward_propagation(e.get_features());
+                auto predictions = _feed_forward(e.get_features());
                 //_backward_propagation(predictions, e->get_labels(), loss_function);
             }
         }
@@ -56,7 +56,7 @@ void neural_network::fit(dataset &data,
 
 matrix neural_network::predict(const matrix &features) const
 {
-    return _forward_propagation(features);
+    return _feed_forward(features);
 }
 
 std::vector<matrix> neural_network::predict(dataset &test) const
@@ -65,19 +65,19 @@ std::vector<matrix> neural_network::predict(dataset &test) const
 
     for (const auto& e: test.get_entries())
     {
-        predictions.push_back(_forward_propagation(e.get_features()));
+        predictions.push_back(_feed_forward(e.get_features()));
     }
 
     return predictions;
 }
 
-matrix neural_network::_forward_propagation(const matrix &features) const
+matrix neural_network::_feed_forward(const matrix &features) const
 {
-    auto predictions = matrix(features, "neural_network::_forward_propagation::predictions");
+    auto predictions = matrix(features, "neural_network::_feed_forward::predictions");
 
     for (auto l: _layers)
     {
-        predictions = l->forward_propagation(predictions);
+        predictions = l->feed_forward(predictions);
     }
 
     return predictions;
@@ -85,20 +85,12 @@ matrix neural_network::_forward_propagation(const matrix &features) const
 
 void neural_network::_backward_propagation(const matrix &predictions, 
                                            const matrix &labels,
-                                           const loss_function_t loss_function)
+                                           const function_t loss_function)
 {
-    // One error per neuron in the output layer.
-    auto errors = matrix(1, _layers[_layers.size() - 1]->size());
-
-    /*
-    for (size_t i = 0; i < errors.get_dimensions().second; i ++)
-    {
-        errors[i] = loss_function(predictions, labels);
-    }
-     */
+    //auto errors = loss_function(predictions, labels);
 
     for (size_t i = _layers.size() - 1; i >= 0; i --)
     {
-        errors = _layers.at(i)->backward_propagation(errors);
+        //errors = _layers.at(i)->backward_propagation(errors);
     }
 }
