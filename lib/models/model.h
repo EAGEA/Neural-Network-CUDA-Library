@@ -29,7 +29,7 @@ namespace cudaNN
              * @param learning_rate - the learning rate for training
              */
             virtual void fit(dataset &data,
-                             function_t loss_function,
+                             const function &loss_function,
                              size_t epochs = 1,
                              size_t batch_size = 1,
                              float learning_rate = 0.01) = 0;

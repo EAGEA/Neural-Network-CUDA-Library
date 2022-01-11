@@ -29,9 +29,10 @@ namespace cudaNN
             layer(const size_t input_size, const size_t nb_neurons,
                   function activation_function);
 
-            matrix feed_forward(matrix &inputs) const;
-            matrix backward_propagation(const matrix &errors);
+            matrix feed_forward(matrix &inputs);
+            void backward_propagation(matrix &errors, const layer *previous);
 
+            matrix get_weights() const;
             size_t size() const;
 
         private:
@@ -61,25 +62,10 @@ namespace cudaNN
             matrix _weights;
 
             /**
-             * Parameters for the backpropagation
-             * "_old_weights" is the copy of "_weights" to keep in memory for
-             * error propagation (after weights update)
-             * "_old_biases" is the copy of "_biases" to keep in memory for
-             * error propagation (after biases update)
-             * "_previous_layer" corresponds to the previous layer in the
-             * backpropagation direction.
-             * "_dpreviousLayer" corresponds to the error of the previous
-             * layer.
-             * "_dcurrentLayer" corresponds to the error of the current
-             * layer.
+             * To store the results of the derivative of the activation function
+             * on the current inputs. Used during backpropagation.
              */
-
-            matrix _old_weights;
-            matrix _old_biases;
-            matrix _previous_layer;
-            matrix _d_previous_layer;
-            matrix _d_current_layer;
-
+            matrix _derivative;
 
             const function _activation_function;
 
@@ -95,7 +81,8 @@ namespace cudaNN
      */
     namespace layer_cuda
     {
-        void backward_propagation(dim3 block_dims, dim3 thread_dims, float *errors);
+        void backward_propagation(dim3 block_dims, dim3 thread_dims,
+                                  const matrix &v1, const matrix &v2);
     }
 }
 

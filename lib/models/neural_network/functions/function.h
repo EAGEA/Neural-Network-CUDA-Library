@@ -15,6 +15,9 @@ namespace cudaNN
     typedef void (*function_t)(dim3 block_dims, dim3 thread_dims, std::vector<matrix *>);
 
 
+    /**
+     * Wrapper of a function on matrices, and its derivative.
+     */
     class function
     {
         public:

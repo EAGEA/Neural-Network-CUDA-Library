@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
             }
     );
     // Train the neural network.
-    nn.fit(train, loss_functions::mean_squared_error);
+    nn.fit(train, loss_functions::MEAN_SQUARED_ERROR);
     // Predict using the test dataset.
     auto predictions = nn.predict(test);
     // Print ground truths and the predictions.

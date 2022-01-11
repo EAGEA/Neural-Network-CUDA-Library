@@ -14,18 +14,11 @@ neural_network::neural_network(std::initializer_list<layer *> layers):
 }
 
 void neural_network::fit(dataset &data,
-                         const function_t loss_function,
+                         const function &loss_function,
                          const size_t epochs /*= 1*/,
                          const size_t batch_size /*= 1*/,
                          const float learning_rate /*= 0.01*/)
 {
-    if (loss_function == nullptr)
-    {
-        // Invalid.
-        util::ERROR("neural_network::fit", "Invalid @loss_function");
-        util::ERROR_EXIT();
-    }
-
     for (size_t i = 1; i <= epochs; i ++)
     {
         size_t nb_batches = data.size() / batch_size;
@@ -48,7 +41,8 @@ void neural_network::fit(dataset &data,
                 auto e = batch.get(k);
                 // Forward + backward propagation.
                 auto predictions = _feed_forward(e.get_features());
-                //_backward_propagation(predictions, e->get_labels(), loss_function);
+                auto labels = e.get_labels();
+                _backward_propagation(predictions, labels, loss_function);
             }
         }
     }
@@ -83,14 +77,15 @@ matrix neural_network::_feed_forward(const matrix &features) const
     return predictions;
 }
 
-void neural_network::_backward_propagation(const matrix &predictions, 
-                                           const matrix &labels,
-                                           const function_t loss_function)
+void neural_network::_backward_propagation(matrix &predictions,
+                                           matrix &labels,
+                                           const function &loss_function)
 {
-    //auto errors = loss_function(predictions, labels);
+    auto errors = loss_function.compute_derivative({ &predictions, &labels });
 
-    for (size_t i = _layers.size() - 1; i >= 0; i --)
+    for (size_t i = _layers.size(); i > 0; i --)
     {
-        //errors = _layers.at(i)->backward_propagation(errors);
+        layer *previous = i == _layers.size() ? nullptr : _layers[i];
+        _layers[i - 1]->backward_propagation(errors, previous);
     }
 }

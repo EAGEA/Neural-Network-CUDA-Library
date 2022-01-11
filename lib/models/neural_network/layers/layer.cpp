@@ -40,7 +40,7 @@ void layer::_init_weights()
     }
 }
 
-matrix layer::feed_forward(matrix &inputs) const
+matrix layer::feed_forward(matrix &inputs)
 {
     if (inputs.get_dimensions().second != _weights.get_dimensions().first)
     {
@@ -56,19 +56,29 @@ matrix layer::feed_forward(matrix &inputs) const
 
     // Compute the output of each neuron.
     auto sum = inputs * _weights + _biases;
+    // Compute the result of the activation function derivative on the inputs (for backprop).
+    _derivative = _activation_function.compute_derivative({ &sum });
+    // Compute the result of the activation function on the inputs.
     return _activation_function.compute({ &sum });
 }
 
-matrix layer::backward_propagation(const matrix &errors)
+void layer::backward_propagation(matrix &errors, const layer *previous)
 {
-    //TODO
-    auto new_errors = matrix(errors.get_dimensions(), "layer::backward_propagation::errors");
-    auto cuda_dims = util::get_cuda_dims({ 1, 1 }); // TODO choose dims
+    if (previous != nullptr)
+    {
+        // If not the output layer.
+        errors = previous->get_weights().transpose() * errors;
+    }
 
-    /*
-    layer_cuda::backward_propagation(cuda_dims.first, cuda_dims.second, new_errors.get_device_data());
-*/
-    return new_errors;
+    // Do the vector (and not matrix) mult computation "errors * _derivative".
+    auto cuda_dims = util::get_cuda_dims(errors.get_dimensions());
+    layer_cuda::backward_propagation(cuda_dims.first, cuda_dims.second,
+                                     errors, _derivative);
+}
+
+matrix layer::get_weights() const
+{
+    return _weights;
 }
 
 size_t layer::size() const

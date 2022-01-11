@@ -26,7 +26,7 @@ namespace cudaNN
             neural_network(std::initializer_list<layer *> layers);
 
             void fit(dataset &data,
-                     function_t loss_function,
+                     const function &loss_function,
                      size_t epochs = 1,
                      size_t batch_size = 1,
                      float learning_rate = 0.01) override;
@@ -50,9 +50,9 @@ namespace cudaNN
              * @param labels
              * @param loss_function
              */
-            void _backward_propagation(const matrix &predictions, 
-                                       const matrix &labels,
-                                       function_t loss_function);
+            void _backward_propagation(matrix &predictions,
+                                       matrix &labels,
+                                       const function &loss_function);
 
             std::vector<layer *> _layers;
     };
