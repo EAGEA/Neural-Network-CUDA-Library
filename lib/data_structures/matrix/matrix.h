@@ -86,6 +86,12 @@ namespace cudaNN
             float sum() const;
 
             /**
+             * Enhanced using CUDA.
+             * @return - the transpose of the matrix.
+             */
+            matrix transpose() const;
+
+            /**
              * Print the given matrix (host memory).
              * @param m - the matrix concerned.
              */
@@ -113,6 +119,8 @@ namespace cudaNN
                       const matrix &m1, const matrix &m2);
         void sum(const dim3 &block_dims, const dim3 &thread_dims,
                  float *result, const matrix &m);
+        void transpose(const dim3 &block_dims, const dim3 &thread_dims,
+                       const matrix &result, const matrix &m);
     }
 }
 

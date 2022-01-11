@@ -48,6 +48,9 @@ int main(int argc, char *argv[])
     std::cout << "> sum of m1 (1)" << std::endl;
     std::cout << "= " << m1.sum() << std::endl;
     // ----------- //
+    std::cout << "> transpose of m1 (1)" << std::endl;
+    matrix::print(m1.transpose());
+    // ----------- //
     std::cout << "> += operator" << std::endl;
     m1 += m2;
     matrix::print(m1);

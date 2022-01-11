@@ -76,6 +76,21 @@ __global__ void __kernel_sum(float *data, size_t nb_rows, size_t nb_cols)
     }
 }
 
+__global__ void __kernel_transpose(float *data1, const float *data2,
+                                   size_t nb_rows, size_t nb_cols)
+{
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index_1 = row * nb_cols + col;
+    size_t index_2 = col * nb_rows + row;
+
+    // Check if thread index is in the output dimensions.
+    if (row < nb_rows && col < nb_cols)
+    {
+        data1[index_2] = data2[index_1];
+    }
+}
+
 
 /**
  * Wrappers for call on host.
@@ -165,4 +180,24 @@ void matrix_cuda::sum(const dim3 &block_dims, const dim3 &thread_dims,
                           sizeof(float),
                           cudaMemcpyDeviceToHost));
     CUDA_CHECK(cudaFree(device_data));
+}
+
+void matrix_cuda::transpose(const dim3 &block_dims, const dim3 &thread_dims,
+                            const matrix &result, const matrix &m)
+{
+    float *device_data1;
+    float *device_data2;
+
+    // Prepare data on device.
+    start_operation(result, &device_data1);
+    start_operation(m, &device_data2);
+    // Do computations with CUDA threads.
+    __kernel_transpose<<<block_dims, thread_dims>>>(
+            device_data1, device_data2,
+            m.get_dimensions().first, m.get_dimensions().second);
+    // Wait for all threads.
+    CUDA_CHECK(cudaDeviceSynchronize());
+    // Retrieve/free data from device.
+    end_operation(result, &device_data1);
+    end_operation(m, &device_data2);
 }

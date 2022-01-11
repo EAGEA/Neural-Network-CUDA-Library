@@ -249,6 +249,16 @@ float matrix::sum() const
     return sum;
 }
 
+matrix matrix::transpose() const
+{
+    matrix m = matrix(_dimensions.second, _dimensions.first, "transpose(" + _id + ")");
+    // Do the computation.
+    auto cuda_dims = util::get_cuda_dims(_dimensions);
+    matrix_cuda::transpose(cuda_dims.first, cuda_dims.second, m, *this);
+
+    return m;
+}
+
 void matrix::print(const matrix &m)
 {
     if (! m.get_id().empty())
