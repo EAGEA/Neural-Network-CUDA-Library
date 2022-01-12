@@ -156,9 +156,20 @@ matrix &matrix::operator+=(const matrix &m)
         util::ERROR_EXIT();
     }
 
-    // Do the computation.
-    auto cuda_dims = util::get_cuda_dims(_dimensions);
-    matrix_cuda::add(cuda_dims.first, cuda_dims.second,*this, m);
+    if (USE_GPU)
+    {
+        // Do the computation on device.
+        auto cuda_dims = util::get_cuda_dims(_dimensions);
+        matrix_cuda::add(cuda_dims.first, cuda_dims.second,*this, m);
+    }
+    else
+    {
+        // Do the computation on host.
+        for (size_t i = 0; i < get_length(); i ++)
+        {
+            _data[i] += m.get_data()[i];
+        }
+    }
 
     return *this;
 }
@@ -181,9 +192,20 @@ matrix &matrix::operator-=(const matrix &m)
         util::ERROR_EXIT();
     }
 
-    // Do the computation.
-    auto cuda_dims = util::get_cuda_dims(_dimensions);
-    matrix_cuda::subtract(cuda_dims.first, cuda_dims.second,*this, m);
+    if (USE_GPU)
+    {
+        // Do the computation on device.
+        auto cuda_dims = util::get_cuda_dims(_dimensions);
+        matrix_cuda::subtract(cuda_dims.first, cuda_dims.second,*this, m);
+    }
+    else
+    {
+        // Do the computation on host.
+        for (size_t i = 0; i < get_length(); i ++)
+        {
+            _data[i] -= m.get_data()[i];
+        }
+    }
 
     return *this;
 }
@@ -212,10 +234,29 @@ matrix &matrix::operator*=(const matrix &m)
     auto nb_rows = _dimensions.first;
     auto nb_columns = m.get_dimensions().second;
     matrix output = matrix(nb_rows, nb_columns, "matrix::operator*=::helper");
-    // Do the computation.
-    auto cuda_dims = util::get_cuda_dims({ nb_rows, nb_columns });
-    matrix_cuda::multiply(cuda_dims.first, cuda_dims.second,
-                          output,*this, m);
+
+    if (USE_GPU)
+    {
+        // Do the computation on device.
+        auto cuda_dims = util::get_cuda_dims({ nb_rows, nb_columns });
+        matrix_cuda::multiply(cuda_dims.first, cuda_dims.second,
+                              output,*this, m);
+    }
+    else
+    {
+        // Do the computation on host.
+        for (size_t i = 0; i < _dimensions.first; i ++)
+        {
+            for (size_t j = 0; j < m.get_dimensions().second; j ++)
+            {
+                for (size_t k = 0; k < _dimensions.second; k ++)
+                {
+                    output.get_data()[i * nb_rows + j] += _data[i * nb_rows + k]
+                                                          * m.get_data()[k * m.get_dimensions().first + j];
+                }
+            }
+        }
+    }
     // Get the result.
     *this = output;
 
@@ -230,9 +271,20 @@ matrix matrix::operator*(const matrix &m)
 
 matrix &matrix::operator*=(float f)
 {
-    // Do the computation.
-    auto cuda_dims = util::get_cuda_dims(_dimensions);
-    matrix_cuda::multiply(cuda_dims.first, cuda_dims.second, *this, f);
+    if (USE_GPU)
+    {
+        // Do the computation on device.
+        auto cuda_dims = util::get_cuda_dims(_dimensions);
+        matrix_cuda::multiply(cuda_dims.first, cuda_dims.second, *this, f);
+    }
+    else
+    {
+        // Do the computation on host.
+        for (size_t i = 0; i < get_length(); i ++)
+        {
+            _data[i] *= f;
+        }
+    }
 
     return *this;
 }
@@ -289,10 +341,23 @@ matrix matrix::hadamard_product(const matrix &v)
     }
 
     matrix m = matrix(*this, "hadamard_product(" + _id + ", " + v.get_id() + ")");
-    // Do the computation.
-    auto cuda_dims = util::get_cuda_dims(_dimensions);
-    matrix_cuda::hadamard_product(cuda_dims.first, cuda_dims.second,
-                                  m, v);
+
+    if (USE_GPU)
+    {
+        // Do the computation on device.
+        auto cuda_dims = util::get_cuda_dims(_dimensions);
+        matrix_cuda::hadamard_product(cuda_dims.first, cuda_dims.second,
+                                      m, v);
+    }
+    else
+    {
+        // Do the computation on host.
+        for (size_t i = 0; i < get_length(); i ++)
+        {
+            m.get_data()[i] = _data[i] * v.get_data()[i];
+        }
+    }
+
     return m;
 }
 
@@ -302,10 +367,21 @@ float matrix::sum() const
 
     if (get_length() > 0)
     {
-        // Do the computation.
-        auto cuda_dims = util::get_cuda_dims(_dimensions);
-        matrix_cuda::sum(cuda_dims.first, cuda_dims.second,
-                         &sum, *this);
+        if (USE_GPU)
+        {
+            // Do the computation on device.
+            auto cuda_dims = util::get_cuda_dims(_dimensions);
+            matrix_cuda::sum(cuda_dims.first, cuda_dims.second,
+                             &sum, *this);
+        }
+        else
+        {
+            // Do the computation on host.
+            for (size_t i = 0; i < get_length(); i ++)
+            {
+                sum += _data[i];
+            }
+        }
     }
 
     return sum;
@@ -314,9 +390,24 @@ float matrix::sum() const
 matrix matrix::transpose() const
 {
     matrix m = matrix(_dimensions.second, _dimensions.first, "transpose(" + _id + ")");
-    // Do the computation.
-    auto cuda_dims = util::get_cuda_dims(_dimensions);
-    matrix_cuda::transpose(cuda_dims.first, cuda_dims.second, m, *this);
+
+    if (USE_GPU)
+    {
+        // Do the computation on device.
+        auto cuda_dims = util::get_cuda_dims(_dimensions);
+        matrix_cuda::transpose(cuda_dims.first, cuda_dims.second, m, *this);
+    }
+    else
+    {
+        // Do the computation on host.
+        for (size_t i = 0; i < _dimensions.first; i ++)
+        {
+            for (size_t j = 0; j < _dimensions.second; j ++)
+            {
+                m[j * _dimensions.first + i] = _data[i * _dimensions.second + j];
+            }
+        }
+    }
 
     return m;
 }
@@ -325,7 +416,7 @@ void matrix::print(const matrix &m)
 {
     if (! m.get_id().empty())
     {
-        std::cout << "> ID: " 
+        std::cout << "> ID: "
                   << m.get_id()
                   << " <"  
                   << std::endl;

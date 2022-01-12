@@ -34,11 +34,11 @@ int main(int argc, char *argv[])
             {
                     new layer(dataset::MULT_NB_FEATURES, 16,
                               initializations::HE,
-                              activation_functions::RELU),
-                    new layer(16, 8,
+                              activation_functions::SIGMOID),
+                    new layer(16, 32,
                               initializations::XAVIER,
                               activation_functions::TANH),
-                    new layer(8, 16,
+                    new layer(32, 16,
                               initializations::HE,
                               activation_functions::RELU),
                     new layer(16, dataset::MULT_NB_LABELS,
@@ -47,7 +47,8 @@ int main(int argc, char *argv[])
             }
     );
     // Train the neural network.
-    nn.fit(train, loss_functions::MEAN_SQUARED_ERROR, 2);
+    nn.fit(train, loss_functions::BINARY_CROSS_ENTROPY_LOSS,
+           2,16, 0.01);
     // Predict using the test dataset.
     auto predictions = nn.predict(test);
     // Print ground truths and the predictions.

@@ -5,6 +5,7 @@
 #ifndef CUDANN_MATRIX_H
 #define CUDANN_MATRIX_H
 
+#include "lib/global.h"
 #include "lib/util/util.h"
 
 #include <vector_types.h> // To keep .cpp/.h extensions (cuda types).
