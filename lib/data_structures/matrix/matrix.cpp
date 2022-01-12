@@ -203,6 +203,8 @@ matrix &matrix::operator*=(const matrix &m)
                     "matrix::_id " + _id + " + " + m.get_id()
                     + " >> Invalid @m size; not the same number "
                     + "of rows as the number of columns");
+        std::cout << _id <<  _dimensions.first << " " << _dimensions.second << std::endl;
+        std::cout << m.get_id() << m.get_dimensions().first << " " << m.get_dimensions().second << std::endl;
         util::ERROR_EXIT();
     }
 
@@ -211,7 +213,7 @@ matrix &matrix::operator*=(const matrix &m)
     auto nb_columns = m.get_dimensions().second;
     matrix output = matrix(nb_rows, nb_columns, "matrix::operator*=::helper");
     // Do the computation.
-    auto cuda_dims = util::get_cuda_dims(_dimensions);
+    auto cuda_dims = util::get_cuda_dims({ nb_rows, nb_columns });
     matrix_cuda::multiply(cuda_dims.first, cuda_dims.second,
                           output,*this, m);
     // Get the result.

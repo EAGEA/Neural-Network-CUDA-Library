@@ -33,6 +33,10 @@ namespace cudaNN
                   std::vector<matrix *> m);
         void relu_derivative(dim3 block_dims, dim3 thread_dims,
                              std::vector<matrix *> m);
+        void tanh(dim3 block_dims, dim3 thread_dims,
+                  std::vector<matrix *> m);
+        void tanh_derivative(dim3 block_dims, dim3 thread_dims,
+                             std::vector<matrix *> m);
     }
 
 
@@ -60,6 +64,9 @@ namespace cudaNN
         const auto RELU = function("relu",
                                    relu,
                                    relu_derivative);
+        const auto TANH = function("tanh",
+                                   tanh,
+                                   tanh_derivative);
     }
 }
 

@@ -129,8 +129,8 @@ dataset dataset::load_mult()
 
         for (size_t j = 0; j < MULT_NB_FEATURES; j ++)
         {
-            features.get_data()[j] = (int) (std::rand() % MULT_MAX);
-            labels.get_data()[0] *= (int) features.get_data()[j];
+            features.get_data()[j] = ((float) std::rand() / (float) RAND_MAX) * (float) MULT_MAX;
+            labels.get_data()[0] *= features.get_data()[j];
         }
 
         data.add(features, labels);

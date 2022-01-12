@@ -46,5 +46,9 @@ int main(int argc, char *argv[])
     matrix::print(activation_functions::RELU.compute({ &m1 }));
     matrix::print(activation_functions::RELU.compute_derivatives({&m1}));
     // ----------- //
+    std::cout << "> tanh" << std::endl;
+    matrix::print(activation_functions::TANH.compute({ &m1 }));
+    matrix::print(activation_functions::TANH.compute_derivatives({&m1}));
+    // ----------- //
     return EXIT_SUCCESS;
 }

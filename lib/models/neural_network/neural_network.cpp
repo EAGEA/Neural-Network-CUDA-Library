@@ -39,8 +39,10 @@ void neural_network::fit(dataset &data,
                 // Forward + backward propagation.
                 auto predictions = _feed_forward(e.get_features());
                 auto labels = e.get_labels();
-                _backward_propagation(predictions, labels, loss_function, learning_rate);
+                _backward_propagation(predictions, labels, loss_function);
             }
+
+            _gradient_descent(batch_size, learning_rate);
         }
     }
 }
@@ -76,14 +78,21 @@ matrix neural_network::_feed_forward(const matrix &features) const
 
 void neural_network::_backward_propagation(matrix &predictions,
                                            matrix &labels,
-                                           const function &loss_function,
-                                           float learning_rate)
+                                           const function &loss_function)
 {
-    auto errors = loss_function.compute_derivatives({&predictions, &labels});
+    auto errors = loss_function.compute_derivatives({ &predictions, &labels });
 
     for (size_t i = _layers.size(); i > 0; i --)
     {
-        layer *next = i == _layers.size() ? nullptr : _layers[i];
-        _layers[i - 1]->backward_propagation(errors, next, learning_rate);
+        _layers[i - 1]->backward_propagation(errors,(i == _layers.size() ?
+                                                     nullptr : _layers[i]));
+    }
+}
+
+void neural_network::_gradient_descent(size_t batch_size, float learning_rate)
+{
+    for (auto l: _layers)
+    {
+        l->gradient_descent(batch_size, learning_rate);
     }
 }

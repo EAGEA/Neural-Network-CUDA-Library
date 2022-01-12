@@ -37,7 +37,8 @@ namespace cudaNN
         private:
 
             /**
-             * Forward propagation/pass; calculate and store intermediate variables.
+             * Forward propagation/pass; for a given entry, compute the predictions
+             * of the model.
              * @param features - from a dataset entry.
              * @return - the neural network predictions.
              */
@@ -45,15 +46,26 @@ namespace cudaNN
 
             /**
              * Backpropagation; calculate and store the gradients of intermediate
-             * variables and functions, using the given loss function.
-             * @param predictions
-             * @param labels
-             * @param loss_function
+             * variables and functions, using the given loss function, for a given
+             * entry.
+             * @param predictions - the prediction of the model on this entry.
+             * @param labels - the ground truth of the entry.
+             * @param loss_function - compute the error between the predictions
+             * and labels.
              */
             void _backward_propagation(matrix &predictions,
                                        matrix &labels,
-                                       const function &loss_function,
-                                       float learning_rate);
+                                       const function &loss_function);
+
+            /**
+             * Change the model weights and biases in response to the computed
+             * errors during the backpropagation.
+             * @param batch_size - the number of entries that the model has
+             * processed before executing this function.
+             * @param learning_rate - determines how much we have to change
+             * the model according to the computed errors.
+             */
+            void _gradient_descent(size_t batch_size, float learning_rate);
 
             std::vector<layer *> _layers;
     };

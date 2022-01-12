@@ -79,7 +79,7 @@ __global__ void __kernel_sigmoid(float *results, float *inputs,
     // Check if the thread is in the matrix dimensions.
     if (row < nb_rows && col < nb_cols)
     {
-        results[index] = 1.f / (1.f + std::exp(-inputs[index]));
+        results[index] = 1.f / (1.f + expf(-inputs[index]));
     }
 }
 
@@ -93,7 +93,7 @@ __global__ void __kernel_sigmoid_derivative(float *results, float *inputs,
     // Check if the thread is in the matrix dimensions.
     if (row < nb_rows && col < nb_cols)
     {
-        float sigmoid = 1.f / (1.f + std::exp(-inputs[index]));
+        float sigmoid = 1.f / (1.f + expf(-inputs[index]));
         results[index] = sigmoid * (1.f - sigmoid);
     }
 }
@@ -113,7 +113,7 @@ __global__ void __kernel_relu(float *results, float *inputs,
 }
 
 __global__ void __kernel_relu_derivative(float *results, float *inputs,
-                              size_t nb_rows, size_t nb_cols)
+                                         size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -123,6 +123,35 @@ __global__ void __kernel_relu_derivative(float *results, float *inputs,
     if (row < nb_rows && col < nb_cols)
     {
         results[index] = inputs[index] > 0 ? 1.f : 0.f;
+    }
+}
+
+__global__ void __kernel_tanh(float *results, float *inputs,
+                              size_t nb_rows, size_t nb_cols)
+{
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
+
+    // Check if the thread is in the matrix dimensions.
+    if (row < nb_rows && col < nb_cols)
+    {
+        results[index] = tanh(inputs[index]);
+    }
+}
+
+__global__ void __kernel_tanh_derivative(float *results, float *inputs,
+                                         size_t nb_rows, size_t nb_cols)
+{
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
+
+    // Check if the thread is in the matrix dimensions.
+    if (row < nb_rows && col < nb_cols)
+    {
+        float tanh_ = tanh(inputs[index]);
+        results[index] = 1.f - tanh_ * tanh_;
     }
 }
 
@@ -215,4 +244,20 @@ void activation_functions_cuda::relu_derivative(dim3 block_dims, dim3 thread_dim
     __helper(block_dims, thread_dims,
              *m[0], *m[1],
              __kernel_relu_derivative);
+}
+
+void activation_functions_cuda::tanh(dim3 block_dims, dim3 thread_dims,
+                                     std::vector<matrix *> m)
+{
+    __helper(block_dims, thread_dims,
+             *m[0], *m[1],
+             __kernel_tanh);
+}
+
+void activation_functions_cuda::tanh_derivative(dim3 block_dims, dim3 thread_dims,
+                                                std::vector<matrix *> m)
+{
+    __helper(block_dims, thread_dims,
+             *m[0], *m[1],
+             __kernel_tanh_derivative);
 }

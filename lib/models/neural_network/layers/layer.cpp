@@ -11,14 +11,16 @@ using namespace cudaNN;
 
 
 layer::layer(const size_t input_size, const size_t nb_neurons,
+             initializations init,
              function activation_function):
         _size(nb_neurons),
         _biases(1, nb_neurons, "layer::biases"),
         _weights(input_size, nb_neurons, "layer::weights"),
-        _activation_function(std::move(activation_function))
+        _activation_function(std::move(activation_function)),
+        _first_entry(true)
 {
     _init_biases();
-    _init_weights();
+    _init_weights(init);
 }
 
 void layer::_init_biases()
@@ -29,10 +31,22 @@ void layer::_init_biases()
     }
 }
 
-void layer::_init_weights()
+void layer::_init_weights(initializations init)
 {
     std::random_device generator;
-    std::normal_distribution<float> distribution = std::normal_distribution<float>(0.f, 1.f);
+    std::normal_distribution<float> distribution;
+
+    switch (init)
+    {
+        case initializations::XAVIER:
+            distribution = std::normal_distribution<float>(
+                    0.f, sqrtf(1.f / (float) _weights.get_dimensions().first));
+            break;
+        case initializations::HE:
+            distribution = std::normal_distribution<float>(
+                    0.f, sqrtf(2.f / (float) _weights.get_dimensions().first));
+            break;
+    }
 
     for (int i = 0; i < _weights.get_length(); i ++)
     {
@@ -58,27 +72,40 @@ matrix layer::feed_forward(matrix &inputs)
     // Compute the output of each neuron.
     auto sum = _inputs * _weights + _biases;
     // Compute the result of the activation function derivative on the inputs (for back propagation).
-    _derivatives = _activation_function.compute_derivatives({&sum});
+    _derivatives = _activation_function.compute_derivatives({ &sum });
     // Compute the result of the activation function on the inputs.
     return _activation_function.compute({ &sum });
 }
 
-void layer::backward_propagation(matrix &errors, layer *next, float learning_rate)
+void layer::backward_propagation(matrix &errors, layer *next)
 {
     if (next != nullptr)
     {
         // If not the output layer.
-        errors = next->_old_weights * errors;
+        errors = next->_weights * errors;
     }
 
     errors = errors.hadamard_product(_derivatives.transpose());
 
-    // Do the gradient descent.
-    // - update weights.
-    _old_weights = _weights;
-    _weights -= (errors * _inputs).transpose() * learning_rate;
-    // - update biases.
-    _biases -= errors.transpose() * learning_rate;
+    if (_first_entry)
+    {
+        // The first entry of the batch (i.e. first computed errors).
+        _errors = errors;
+        _first_entry = false;
+    }
+    else
+    {
+        _errors += errors;
+    }
+}
+
+void layer::gradient_descent(size_t batch_size, float learning_rate)
+{
+    // Update weights and biases.
+    _weights -= (_errors * _inputs).transpose() * (learning_rate / (float) batch_size);
+    _biases -= _errors.transpose() * (learning_rate / (float) batch_size);
+    // Reset for next backpropagation.
+    _first_entry = true;
 }
 
 size_t layer::size() const
