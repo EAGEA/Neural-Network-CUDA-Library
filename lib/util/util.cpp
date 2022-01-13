@@ -4,8 +4,6 @@
 
 #include "util.h"
 
-#include <cmath>
-
 
 using namespace cudaNN;
 
@@ -77,10 +75,4 @@ std::pair<dim3, dim3> util::get_cuda_dims(std::pair<size_t, size_t> dimensions)
     }
 
     return { blocks_per_grid, threads_per_block };
-}
-
-uint32_t util::swap_endian(uint32_t val)
-{
-    val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF);
-    return (val << 16) | (val >> 16);
 }

@@ -6,7 +6,7 @@
 #define CUDANN_MODEL_H
 
 #include "lib/data_structures/dataset/dataset.h"
-#include "lib/models/neural_network/functions/loss_functions/loss_functions.h"
+#include "lib/functions/loss_functions/loss_functions.h"
 
 
 namespace cudaNN

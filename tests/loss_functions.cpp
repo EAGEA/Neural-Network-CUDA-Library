@@ -2,7 +2,7 @@
 // Created by Emilien Aufauvre on 07/01/2022.
 //
 
-#include "lib/models/neural_network/functions/loss_functions/loss_functions.h"
+#include "lib/functions/loss_functions/loss_functions.h"
 
 
 using namespace cudaNN;

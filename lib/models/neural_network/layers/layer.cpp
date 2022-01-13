@@ -4,19 +4,17 @@
 
 #include "layer.h"
 
-#include <utility>
-
 
 using namespace cudaNN;
 
 
 layer::layer(const size_t input_size, const size_t nb_neurons,
              initializations init,
-             function activation_function):
+             const function &activation_function):
         _size(nb_neurons),
         _biases(1, nb_neurons, "layer::biases"),
         _weights(input_size, nb_neurons, "layer::weights"),
-        _activation_function(std::move(activation_function)),
+        _activation_function(activation_function),
         _first_entry(true)
 {
     _init_biases();

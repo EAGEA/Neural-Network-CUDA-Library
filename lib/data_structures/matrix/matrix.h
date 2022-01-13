@@ -21,10 +21,9 @@
 namespace cudaNN
 {
     /**
-     * Matrix representation, allocating memory on both host and
-     * device, and implementing computations with CUDA.
-     * A matrix of size N*M has N rows (first dimensions)
-     * and M columns (second dimension).
+     * Matrix representation. Depending on the current configuration
+     * either do computations using CUDA, or sequential C++.
+     * A matrix of size N*M has N rows and M columns (row major).
      */
     class matrix
     {
@@ -39,9 +38,9 @@ namespace cudaNN
             matrix(std::pair<size_t, size_t> dimensions, std::string id);
             matrix(std::initializer_list<float> values, size_t x, size_t y);
             matrix(std::initializer_list<float> values, size_t x, size_t y, std::string id);
-            matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions); 
+            matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions);
             matrix(std::initializer_list<float> values, std::pair<size_t, size_t> dimensions, std::string id);
-            matrix(const float *values, std::pair<size_t, size_t> dimensions); 
+            matrix(const float *values, std::pair<size_t, size_t> dimensions);
             matrix(const float *values, std::pair<size_t, size_t> dimensions, std::string id);
             ~matrix();
 
@@ -65,10 +64,7 @@ namespace cudaNN
             size_t get_length() const;
 
             /**
-             * @Operators
-             * Boolean operators are working only on host memory.
-             * Arithmetic operators are working with device memory
-             * and copy the results to the host (i.e. the matrix).
+             * @operators
              */
             matrix &operator=(const matrix &m);
             matrix &operator+=(const matrix &m);
@@ -85,20 +81,17 @@ namespace cudaNN
             bool operator!=(const matrix &m) const;
 
             /**
-             * Enhanced with CUDA.
              * @param v - a vector.
              * @return - return the Hadamard product between the current matrix and "v".
              */
             matrix hadamard_product(const matrix &v);
 
             /**
-             * Enhanced using CUDA.
              * @return - the sum of all the values in "_data".
              */
             float sum() const;
 
             /**
-             * Enhanced using CUDA.
              * @return - the transpose of the matrix.
              */
             matrix transpose() const;
@@ -118,27 +111,36 @@ namespace cudaNN
 
 
     /**
-     * CUDA function wrappers for call on host.
+     * Cuda functions to be executed on device.
      */
-    namespace matrix_cuda
+    namespace matrix_parallel
     {
         void start_operation(const matrix &m, float **device_data);
         void end_operation(const matrix &m, float **device_data);
-        void add(const dim3 &block_dims, const dim3 &thread_dims,
-                 const matrix &m1, const matrix &m2);
-        void subtract(const dim3 &block_dims, const dim3 &thread_dims,
+        void add(const matrix &m1, const matrix &m2);
+        void subtract(const matrix &m1, const matrix &m2);
+        void multiply(const matrix &m,
                       const matrix &m1, const matrix &m2);
-        void multiply(const dim3 &block_dims, const dim3 &thread_dims,
-                      const matrix &m,
+        void multiply(const matrix &m, float f);
+        void do_hadamard_product(const matrix &v1, const matrix &v2);
+        void do_sum(float *result, const matrix &m);
+        void do_transpose(matrix &result, const matrix &m);
+    }
+
+
+    /**
+     * C++ functions to be executed on host.
+     */
+    namespace matrix_sequential
+    {
+        void add(const matrix &m1, const matrix &m2);
+        void subtract(const matrix &m1, const matrix &m2);
+        void multiply(const matrix &m,
                       const matrix &m1, const matrix &m2);
-        void multiply(const dim3 &block_dims, const dim3 &thread_dims,
-                      const matrix &m, float f);
-        void hadamard_product(dim3 block_dims, dim3 thread_dims,
-                              const matrix &v1, const matrix &v2);
-        void sum(const dim3 &block_dims, const dim3 &thread_dims,
-                 float *result, const matrix &m);
-        void transpose(const dim3 &block_dims, const dim3 &thread_dims,
-                       const matrix &result, const matrix &m);
+        void multiply(const matrix &m, float f);
+        void do_hadamard_product(const matrix &v1, const matrix &v2);
+        void do_sum(float *result, const matrix &m);
+        void do_transpose(matrix &result, const matrix &m);
     }
 }
 

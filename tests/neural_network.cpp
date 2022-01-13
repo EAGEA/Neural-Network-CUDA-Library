@@ -3,7 +3,7 @@
 //
 
 #include "lib/data_structures/dataset/dataset.h"
-#include "lib/models/neural_network/functions/function.h"
+#include "lib/functions/function.h"
 #include "lib/models/neural_network/neural_network.h"
 #include "lib/models/neural_network/layers/layer.h"
 

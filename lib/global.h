@@ -6,7 +6,10 @@
 #define CUDANN_GLOBAL_H
 
 
-#define USE_GPU false
+#define _USE_GPU true
+
+#define _DEBUG true
+#define _ERROR true
 
 
 #endif //CUDANN_GLOBAL_H

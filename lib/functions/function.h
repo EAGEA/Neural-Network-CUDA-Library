@@ -12,36 +12,35 @@
 
 namespace cudaNN
 {
-    typedef void (*function_t)(dim3 block_dims, dim3 thread_dims, std::vector<matrix *>);
+    typedef void (*function_t)(std::vector<matrix *>);
 
 
     /**
-     * Wrapper of a function on matrices, and its derivative.
+     * Abstract wrapper to execute a function or its derivative on matrices.
      */
     class function
     {
         public:
 
-            function(std::string id, function_t f, function_t f_derivative);
+            function(std::string id, function_t , function_t _f);
 
             /**
              * @param inputs - the matrices to be used for computation.
-             * @return - the result of the function "_function" on "inputs".
+             * @return - the result of the function "_f" on "inputs".
              */
             matrix compute(std::vector<matrix *> inputs) const;
 
             /**
              * @param inputs - the matrices to be used for computation.
-             * @return - the result of the derivative
-             * "_function_derivative" on "inputs".
+             * @return - the result of the derivative "_df" on "inputs".
              */
             matrix compute_derivatives(std::vector<matrix *> inputs) const;
 
         private:
 
             const std::string _id;
-            const function_t _function;
-            const function_t _function_derivative;
+            const function_t _f;
+            const function_t _df;
     };
 }
 

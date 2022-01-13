@@ -2,7 +2,7 @@
 // Created by Emilien Aufauvre on 07/01/2022.
 //
 
-#include "lib/models/neural_network/functions/activation_functions/activation_functions.h"
+#include "lib/functions/activation_functions/activation_functions.h"
 
 
 using namespace cudaNN;
@@ -31,23 +31,23 @@ int main(int argc, char *argv[])
     matrix::print(m1);
     // ----------- //
     std::cout << "> linear (identity)" << std::endl;
-    matrix::print(activation_functions::LINEAR.compute({ &m1 }));
+    matrix::print(activation_functions::LINEAR.compute({&m1 }));
     matrix::print(activation_functions::LINEAR.compute_derivatives({&m1}));
     // ----------- //
     std::cout << "> binary step" << std::endl;
-    matrix::print(activation_functions::BINARY_STEP.compute({ &m1 }));
+    matrix::print(activation_functions::BINARY_STEP.compute({&m1 }));
     matrix::print(activation_functions::BINARY_STEP.compute_derivatives({&m1}));
     // ----------- //
     std::cout << "> sigmoid" << std::endl;
-    matrix::print(activation_functions::SIGMOID.compute({ &m1 }));
+    matrix::print(activation_functions::SIGMOID.compute({&m1 }));
     matrix::print(activation_functions::SIGMOID.compute_derivatives({&m1}));
     // ----------- //
     std::cout << "> relu" << std::endl;
-    matrix::print(activation_functions::RELU.compute({ &m1 }));
+    matrix::print(activation_functions::RELU.compute({&m1 }));
     matrix::print(activation_functions::RELU.compute_derivatives({&m1}));
     // ----------- //
     std::cout << "> tanh" << std::endl;
-    matrix::print(activation_functions::TANH.compute({ &m1 }));
+    matrix::print(activation_functions::TANH.compute({&m1 }));
     matrix::print(activation_functions::TANH.compute_derivatives({&m1}));
     // ----------- //
     return EXIT_SUCCESS;

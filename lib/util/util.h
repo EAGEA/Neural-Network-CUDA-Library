@@ -5,6 +5,8 @@
 #ifndef CUDANN_UTIL_H
 #define CUDANN_UTIL_H
 
+#include "lib/global.h"
+
 #include <cuda_runtime_api.h> // To keep .cpp/.h extensions.
 #include <cstdlib>
 #include <cstdio>
@@ -16,9 +18,6 @@
 
 #define TERM_RESET "\033[0m"
 #define TERM_RED   "\033[31m"
-
-#define _DEBUG true
-#define _ERROR true
 
 #define MAX_NB_THREADS 512
 
@@ -42,8 +41,6 @@ namespace cudaNN
          * covers a grid of size "nb_rows" * "nb_cols".
          */
         std::pair<dim3, dim3> get_cuda_dims(std::pair<size_t, size_t> dimensions);
-
-        uint32_t swap_endian(uint32_t val);
     };
 }
 

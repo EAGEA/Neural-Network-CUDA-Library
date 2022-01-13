@@ -84,11 +84,11 @@ int main(int argc, char *argv[])
               << std::endl;
     // ----------- //
     std::cout << "> initializer_list constructor" << std::endl;
-    matrix::print(matrix({ 1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, 3, "3"));
+    matrix::print(matrix({1, 2, 3, 4, 5, 6, 7, 8, 9 }, 3, 3, "3"));
     // ----------- //
     std::cout << "> array constructor" << std::endl;
     float values[] = { 1.f, 2.f, 3.f, 4.f };
-    matrix::print(matrix(values, { 2, 2 }, "4"));
+    matrix::print(matrix(values, {2, 2 }, "4"));
     // ----------- //
 
     return EXIT_SUCCESS;

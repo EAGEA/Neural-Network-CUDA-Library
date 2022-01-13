@@ -6,37 +6,44 @@
 #define CUDANN_LOSS_FUNCTIONS_H
 
 #include "lib/data_structures/matrix/matrix.h"
-#include "lib/models/neural_network/functions/function.h"
+#include "lib/functions/function.h"
 
 
 namespace cudaNN
 {
     /**
-     * CUDA function wrappers for call on host.
-     * Execute the named function on device.
+     * Cuda functions to be executed on device.
      */
-    namespace loss_functions_cuda
+    namespace loss_functions_parallel
     {
-        void mean_squared_error(dim3 block_dims, dim3 thread_dims,
-                                std::vector<matrix *> m);
-        void mean_squared_error_derivative(dim3 block_dims, dim3 thread_dims,
-                                           std::vector<matrix *> m);
-        void mean_absolute_error(dim3 block_dims, dim3 thread_dims,
-                                 std::vector<matrix *> m);
-        void mean_absolute_error_derivative(dim3 block_dims, dim3 thread_dims,
-                                            std::vector<matrix *> m);
-        void mean_bias_error(dim3 block_dims, dim3 thread_dims,
-                             std::vector<matrix *> m);
-        void mean_bias_error_derivative(dim3 block_dims, dim3 thread_dims,
-                                        std::vector<matrix *> m);
-        void hinge_loss(dim3 block_dims, dim3 thread_dims,
-                        std::vector<matrix *> m);
-        void hinge_loss_derivative(dim3 block_dims, dim3 thread_dims,
-                                   std::vector<matrix *> m);
-        void binary_cross_entropy_loss(dim3 block_dims, dim3 thread_dims,
-                                       std::vector<matrix *> m);
-        void binary_cross_entropy_loss_derivative(dim3 block_dims, dim3 thread_dims,
-                                                  std::vector<matrix *> m);
+        void mean_squared_error(std::vector<matrix *> m);
+        void mean_squared_error_derivative(std::vector<matrix *> m);
+        void mean_absolute_error(std::vector<matrix *> m);
+        void mean_absolute_error_derivative(std::vector<matrix *> m);
+        void mean_bias_error(std::vector<matrix *> m);
+        void mean_bias_error_derivative(std::vector<matrix *> m);
+        void hinge_loss(std::vector<matrix *> m);
+        void hinge_loss_derivative(std::vector<matrix *> m);
+        void binary_cross_entropy_loss(std::vector<matrix *> m);
+        void binary_cross_entropy_loss_derivative(std::vector<matrix *> m);
+    }
+
+
+    /**
+     * C++ functions to be executed on host.
+     */
+    namespace loss_functions_sequential
+    {
+        void mean_squared_error(std::vector<matrix *> m);
+        void mean_squared_error_derivative(std::vector<matrix *> m);
+        void mean_absolute_error(std::vector<matrix *> m);
+        void mean_absolute_error_derivative(std::vector<matrix *> m);
+        void mean_bias_error(std::vector<matrix *> m);
+        void mean_bias_error_derivative(std::vector<matrix *> m);
+        void hinge_loss(std::vector<matrix *> m);
+        void hinge_loss_derivative(std::vector<matrix *> m);
+        void binary_cross_entropy_loss(std::vector<matrix *> m);
+        void binary_cross_entropy_loss_derivative(std::vector<matrix *> m);
     }
 
 
@@ -46,7 +53,11 @@ namespace cudaNN
      */
     namespace loss_functions
     {
-        using namespace loss_functions_cuda;
+#if _USE_GPU
+        using namespace loss_functions_parallel;
+#else
+        using namespace loss_functions_sequential;
+#endif
 
         /**
          * For regression.

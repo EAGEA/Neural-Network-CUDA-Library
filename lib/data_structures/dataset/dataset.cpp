@@ -124,7 +124,7 @@ dataset dataset::load_mult()
     {
         auto features = matrix(1, MULT_NB_FEATURES,
                                "dataset::mult::features::" + std::to_string(i));
-        auto labels = matrix({ 1 }, 1, MULT_NB_LABELS,
+        auto labels = matrix({1 }, 1, MULT_NB_LABELS,
                              "dataset::mult::labels::" + std::to_string(i));
 
         for (size_t j = 0; j < MULT_NB_FEATURES; j ++)
