@@ -8,7 +8,7 @@
 using namespace cudaNN;
 
 
-entry::entry(const matrix features, const matrix labels):
+entry::entry(matrix features, matrix labels):
         _features(features),
         _labels(labels)
 {

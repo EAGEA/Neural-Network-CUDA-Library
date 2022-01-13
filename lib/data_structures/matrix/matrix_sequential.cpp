@@ -29,13 +29,13 @@ void matrix_sequential::multiply(const matrix &m,
 {
     for (size_t i = 0; i < m1.get_dimensions().first; i ++)
     {
-        for (size_t j = 0; j < m.get_dimensions().second; j ++)
+        for (size_t j = 0; j < m2.get_dimensions().second; j ++)
         {
-            for (size_t k = 0; k < m1.get_dimensions().second; k ++)
+            for (size_t k = 0; k < m2.get_dimensions().first; k ++)
             {
-                m.get_data()[i * m.get_dimensions().first + j] +=
-                        m1.get_data()[i * m.get_dimensions().first + k]
-                        * m2.get_data()[k * m2.get_dimensions().first + j];
+                m.get_data()[i * m.get_dimensions().second + j] +=
+                        m1.get_data()[i * m1.get_dimensions().second + k]
+                        * m2.get_data()[k * m2.get_dimensions().second + j];
             }
         }
     }

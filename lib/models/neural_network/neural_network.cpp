@@ -35,7 +35,7 @@ void neural_network::fit(dataset &data,
             // Train with it.
             for (size_t k = 0; k < batch_size; k ++)
             {
-                auto e = batch.get(k);
+                auto &e = batch.get(k);
                 // Forward + backward propagation.
                 auto predictions = _feed_forward(e.get_features());
                 auto labels = e.get_labels();

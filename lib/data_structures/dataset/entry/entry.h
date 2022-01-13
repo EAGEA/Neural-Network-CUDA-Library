@@ -17,7 +17,7 @@ namespace cudaNN
     {
         public:
 
-            entry(const matrix features, const matrix labels);
+            entry(matrix features, matrix labels);
             ~entry();
 
             const matrix &get_features() const;
