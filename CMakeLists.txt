@@ -33,7 +33,7 @@ if (CUDA_FOUND)
     add_executable(test_matrix tests/matrix.cpp)
     target_link_libraries(test_matrix CudaNN)
     ###
-    add_executable(test_activation_functions tests/activation_functions.cpp)
+    add_executable(test_activation_functions tests/activation_functions.cpp tests/op_time.cpp)
     target_link_libraries(test_activation_functions CudaNN)
     ###
     add_executable(test_loss_functions tests/loss_functions.cpp)
@@ -41,5 +41,8 @@ if (CUDA_FOUND)
     ###
     add_executable(test_neural_network tests/neural_network.cpp)
     target_link_libraries(test_neural_network CudaNN)
+    ###
+    add_executable(test_op_time tests/op_time.cpp tests/op_time.cpp)
+    target_link_libraries(test_op_time CudaNN)
     ###
 endif ()
