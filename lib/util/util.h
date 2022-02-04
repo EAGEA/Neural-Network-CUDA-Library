@@ -19,7 +19,7 @@
 #define TERM_RESET "\033[0m"
 #define TERM_RED   "\033[31m"
 
-#define MAX_NB_THREADS 512
+#define MAX_NB_THREADS_BLOCK 1024
 
 #define CUDA_CHECK(ans) { util::CUDA_ASSERT((ans), __FILE__, __LINE__); }
 

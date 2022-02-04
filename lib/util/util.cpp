@@ -66,13 +66,27 @@ std::pair<dim3, dim3> util::get_cuda_dims(std::pair<size_t, size_t> dimensions)
     dim3 blocks_per_grid(1, 1);
     dim3 threads_per_block = dim3(nb_cols, nb_rows);
 
-    if (nb_rows * nb_cols > MAX_NB_THREADS)
+    if (nb_rows * nb_cols > MAX_NB_THREADS_BLOCK)
     {
-        blocks_per_grid.x = std::ceil((float) nb_cols / (float) MAX_NB_THREADS);
-        blocks_per_grid.y = std::ceil((float) nb_rows / (float) MAX_NB_THREADS);
-        threads_per_block.x = MAX_NB_THREADS;
-        threads_per_block.y = MAX_NB_THREADS;
+        auto side = (size_t) std::sqrt((float) MAX_NB_THREADS_BLOCK);
+
+        blocks_per_grid.x = std::ceil((float) nb_cols / (float) side);
+        blocks_per_grid.y = std::ceil((float) nb_rows / (float) side);
+        threads_per_block.x = side;
+        threads_per_block.y = side;
     }
+
+    DEBUG("util::get_cuda_dims",
+          "nb_cols=" + std::to_string(nb_cols)
+          + " & nb_rows=" + std::to_string(nb_rows)
+          + " => Grid=(" + std::to_string(blocks_per_grid.x)
+          + ", " + std::to_string(blocks_per_grid.y)
+          + ", " + std::to_string(blocks_per_grid.z)
+          + ") & Block=(" + std::to_string(threads_per_block.x)
+          + ", " + std::to_string(threads_per_block.y)
+          + ", " + std::to_string(threads_per_block.z)
+          + ")"
+    );
 
     return { blocks_per_grid, threads_per_block };
 }
