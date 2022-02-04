@@ -9,7 +9,7 @@
 /**
  * Execute on device (nvidia) or host.
  */
-#define _USE_GPU false
+#define _USE_GPU true
 
 /**
  * Show logs.

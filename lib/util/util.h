@@ -21,14 +21,14 @@
 
 #define MAX_NB_THREADS 512
 
-#define CUDA_CHECK(ans) { util::GPU_ASSERT((ans), __FILE__, __LINE__); }
+#define CUDA_CHECK(ans) { util::CUDA_ASSERT((ans), __FILE__, __LINE__); }
 
 
 namespace cudaNN
 {
     namespace util
     {
-        void GPU_ASSERT(cudaError_t code, const char *file, int line, bool abort = true);
+        void CUDA_ASSERT(cudaError_t code, const char *file, int line, bool abort = true);
 
         void DEBUG(const std::string &location, const std::string &message);
         void ERROR(const std::string &location, const std::string &message);
@@ -41,6 +41,9 @@ namespace cudaNN
          * covers a grid of size "nb_rows" * "nb_cols".
          */
         std::pair<dim3, dim3> get_cuda_dims(std::pair<size_t, size_t> dimensions);
+
+        void end_record(float *time_event, cudaEvent_t &start_event, cudaEvent_t &end_event);
+        void start_record(cudaEvent_t &start_event, cudaEvent_t &end_event);
     };
 }
 
