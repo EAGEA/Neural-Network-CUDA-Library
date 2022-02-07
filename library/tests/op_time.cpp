@@ -11,12 +11,13 @@ using namespace cudaNN;
 
 
 #define MIN_POWER 0
-#define MAX_POWER 11
+#define MAX_POWER 10
 #define NB_OPERATIONS 7
 
 
 /**
  * Compute the total time of the operations on matrices.
+ * Output them in .csv files to be plotted.
  */
 int main(int argc, char *argv[])
 {
@@ -39,33 +40,60 @@ int main(int argc, char *argv[])
         auto m2 = matrix(size, size, "2");
 
         // Add.
-        util::start_record(start_event, end_event);
+        util::CPU_start_record(&time_event[0]);
         m1 + m2;
-        util::end_record(&time_event[0], start_event, end_event);
+        util::CPU_end_record(&time_event[0]);
         // Sub.
-        util::start_record(start_event, end_event);
+        util::CPU_start_record(&time_event[1]);
         m1 - m2;
-        util::end_record(&time_event[1], start_event, end_event);
+        util::CPU_end_record(&time_event[1]);
         // Multiply.
-        util::start_record(start_event, end_event);
-        m1 * m2;
-        util::end_record(&time_event[2], start_event, end_event);
+        if (_USE_GPU)
+        {
+            util::GPU_start_record(start_event, end_event);
+            m1 * m2;
+            util::GPU_end_record(&time_event[2], start_event, end_event);
+        }
+        else
+        {
+            util::CPU_start_record(&time_event[2]);
+            m1 * m2;
+            util::CPU_end_record(&time_event[2]);
+        }
         // Multiply float.
-        util::start_record(start_event, end_event);
+        util::CPU_start_record(&time_event[3]);
         m1 * 1.f;
-        util::end_record(&time_event[3], start_event, end_event);
+        util::CPU_end_record(&time_event[3]);
         // Hadamard.
-        util::start_record(start_event, end_event);
+        util::CPU_start_record(&time_event[4]);
         m1.hadamard_product(m2);
-        util::end_record(&time_event[4], start_event, end_event);
+        util::CPU_end_record(&time_event[4]);
         // Sum.
-        util::start_record(start_event, end_event);
-        m1.sum();
-        util::end_record(&time_event[5], start_event, end_event);
+        if (_USE_GPU)
+        {
+            util::GPU_start_record(start_event, end_event);
+            m1.sum();
+            util::GPU_end_record(&time_event[5], start_event, end_event);
+        }
+        else
+        {
+            util::CPU_start_record(&time_event[5]);
+            m1.sum();
+            util::CPU_end_record(&time_event[5]);
+        }
         // Transposes.
-        util::start_record(start_event, end_event);
-        m1.transpose();
-        util::end_record(&time_event[6], start_event, end_event);
+        if (_USE_GPU)
+        {
+            util::GPU_start_record(start_event, end_event);
+            m1.transpose();
+            util::GPU_end_record(&time_event[6], start_event, end_event);
+        }
+        else
+        {
+            util::CPU_start_record(&time_event[6]);
+            m1.transpose();
+            util::CPU_end_record(&time_event[6]);
+        }
 
         // Add to the files.
         for (size_t j = 0; j < NB_OPERATIONS; j ++)

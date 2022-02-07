@@ -91,16 +91,26 @@ std::pair<dim3, dim3> util::get_cuda_dims(std::pair<size_t, size_t> dimensions)
     return { blocks_per_grid, threads_per_block };
 }
 
-void util::start_record(cudaEvent_t &start_event, cudaEvent_t &end_event)
+void util::GPU_start_record(cudaEvent_t &start_event, cudaEvent_t &end_event)
 {
     cudaEventCreate(&start_event);
     cudaEventCreate(&end_event);
     cudaEventRecord(start_event, 0);
 }
 
-void util::end_record(float *time_event, cudaEvent_t &start_event, cudaEvent_t &end_event)
+void util::GPU_end_record(float *time_event, cudaEvent_t &start_event, cudaEvent_t &end_event)
 {
     cudaEventRecord(end_event, 0);
     cudaEventSynchronize(end_event);
     cudaEventElapsedTime(time_event, start_event, end_event);
+}
+
+void util::CPU_start_record(float *time_event)
+{
+    *time_event = (float) std::clock();
+}
+
+void util::CPU_end_record(float *time_event)
+{
+    *time_event = 1000.f * ((float) std::clock() - *time_event) / CLOCKS_PER_SEC;
 }

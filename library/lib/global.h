@@ -7,14 +7,14 @@
 
 
 /**
- * Execute on device (nvidia) or host.
+ * Execute on device or host.
  */
 #define _USE_GPU true
 
 /**
  * Show logs.
  */
-#define _DEBUG true
+#define _DEBUG false
 #define _ERROR true
 
 

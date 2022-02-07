@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <cstdarg>
 #include <cmath>
+#include <ctime>
 #include <iostream>
 #include <string>
 #include <utility>
@@ -42,8 +43,10 @@ namespace cudaNN
          */
         std::pair<dim3, dim3> get_cuda_dims(std::pair<size_t, size_t> dimensions);
 
-        void end_record(float *time_event, cudaEvent_t &start_event, cudaEvent_t &end_event);
-        void start_record(cudaEvent_t &start_event, cudaEvent_t &end_event);
+        void GPU_start_record(cudaEvent_t &start_event, cudaEvent_t &end_event);
+        void GPU_end_record(float *time_event, cudaEvent_t &start_event, cudaEvent_t &end_event);
+        void CPU_start_record(float *time_event);
+        void CPU_end_record(float *time_event);
     };
 }
 
