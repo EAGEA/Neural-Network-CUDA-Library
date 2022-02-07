@@ -250,6 +250,11 @@ void matrix_parallel::multiply(const matrix &m,
 
 void matrix_parallel::multiply(const matrix &m, float f)
 {
+    for (size_t i = 0; i < m.get_length(); i ++)
+    {
+        m.get_data()[i] *= f;
+    }
+    /*
     auto cuda_dims = util::get_cuda_dims(m.get_dimensions());
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
@@ -266,10 +271,16 @@ void matrix_parallel::multiply(const matrix &m, float f)
     CUDA_CHECK(cudaDeviceSynchronize());
     // Retrieve/free data from device.
     end_operation(m, &device_data);
+     */
 }
 
 void matrix_parallel::do_hadamard_product(const matrix &v1, const matrix &v2)
 {
+    for (size_t i = 0; i < v1.get_length(); i ++)
+    {
+        v1.get_data()[i] *= v2.get_data()[i];
+    }
+    /*
     auto cuda_dims = util::get_cuda_dims(v1.get_dimensions());
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
@@ -289,6 +300,7 @@ void matrix_parallel::do_hadamard_product(const matrix &v1, const matrix &v2)
     // Retrieve/free data from device.
     end_operation(v1, &device_data1);
     end_operation(v2, &device_data2);
+     */
 }
 
 void matrix_parallel::do_sum(float *result, const matrix &m)
