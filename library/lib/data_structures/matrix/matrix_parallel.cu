@@ -161,6 +161,12 @@ void matrix_parallel::end_operation(const matrix &m, float **device_data)
 
 void matrix_parallel::add(const matrix &m1, const matrix &m2)
 {
+    // Execute on CPU (more performances).
+    for (size_t i = 0; i < m1.get_length(); i ++)
+    {
+        m1.get_data()[i] += m2.get_data()[i];
+    }
+    /*
     auto cuda_dims = util::get_cuda_dims(m1.get_dimensions());
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
@@ -180,10 +186,17 @@ void matrix_parallel::add(const matrix &m1, const matrix &m2)
     // Retrieve/free data from device.
     end_operation(m1, &device_data1);
     end_operation(m2, &device_data2);
+     */
 }
 
 void matrix_parallel::subtract(const matrix &m1, const matrix &m2)
 {
+    // Execute on CPU (more performances).
+    for (size_t i = 0; i < m1.get_length(); i ++)
+    {
+        m1.get_data()[i] += m2.get_data()[i];
+    }
+    /*
     auto cuda_dims = util::get_cuda_dims(m1.get_dimensions());
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
@@ -203,6 +216,7 @@ void matrix_parallel::subtract(const matrix &m1, const matrix &m2)
     // Retrieve/free data from device.
     end_operation(m1, &device_data1);
     end_operation(m2, &device_data2);
+     */
 }
 
 void matrix_parallel::multiply(const matrix &m,
