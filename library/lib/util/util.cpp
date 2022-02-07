@@ -30,7 +30,10 @@ void util::DEBUG(const std::string &location, const std::string &message)
 {
     if (_DEBUG)
     {
-        std::cout << "[DEBUG] at " + location + " >> " + message << std::endl;
+        std::cout << TERM_GREEN
+                  << "[DEBUG] at " + location + " >> " + message
+                  << TERM_RESET
+                  << std::endl;
     }
 }
 

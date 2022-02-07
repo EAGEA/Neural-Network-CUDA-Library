@@ -17,8 +17,9 @@
 #include <string>
 #include <utility>
 
-#define TERM_RESET "\033[0m"
-#define TERM_RED   "\033[31m"
+#define TERM_RESET   "\033[0m"
+#define TERM_RED     "\033[31m"
+#define TERM_GREEN   "\033[92m"
 
 #define MAX_NB_THREADS_BLOCK 1024
 
