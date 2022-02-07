@@ -116,7 +116,7 @@ dataset dataset::get_random_batch(const size_t batch_size)
 
 dataset dataset::load_mult()
 {
-    util::DEBUG("dataset::load_mult", "loading the mult dataset");
+    util::INFO("dataset::load_mult", "loading the mult dataset");
 
     auto data = dataset();
 

@@ -21,6 +21,11 @@ void util::CUDA_ASSERT(cudaError_t code, const char *file, int line, bool abort 
     }
 }
 
+void util::INFO(const std::string &location, const std::string &message)
+{
+    std::cout << "[INFO] at " + location + " >> " + message << std::endl;
+}
+
 void util::DEBUG(const std::string &location, const std::string &message)
 {
     if (_DEBUG)

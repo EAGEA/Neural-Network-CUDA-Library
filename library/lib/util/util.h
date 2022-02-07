@@ -31,6 +31,7 @@ namespace cudaNN
     {
         void CUDA_ASSERT(cudaError_t code, const char *file, int line, bool abort = true);
 
+        void INFO(const std::string &location, const std::string &message);
         void DEBUG(const std::string &location, const std::string &message);
         void ERROR(const std::string &location, const std::string &message);
         void ERROR(const std::string &location, const std::string &message, cudaError_t err);

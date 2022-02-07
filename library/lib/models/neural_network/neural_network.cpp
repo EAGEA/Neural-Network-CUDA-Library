@@ -23,7 +23,7 @@ void neural_network::fit(dataset &data,
     {
         size_t nb_batches = data.size() / batch_size;
 
-        util::DEBUG("neural_network::fit", 
+        util::INFO("neural_network::fit",
                     "Starting epoch " + std::to_string(i) 
                     + " with " + std::to_string(nb_batches) + " batches");
 
