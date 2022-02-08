@@ -9,9 +9,11 @@
 
 #include <cstdlib>
 #include <ctime>
-
+#include "chrono"
 
 using namespace cudaNN;
+
+using namespace std::chrono;
 
 
 /**
@@ -32,32 +34,39 @@ int main(int argc, char *argv[])
     // Define a basic neural network.
     neural_network nn = neural_network(
             {
-                    new layer(dataset::MULT_NB_FEATURES, 16,
+                    new layer(dataset::MULT_NB_FEATURES, 2048,
                               initializations::HE,
                               activation_functions::SIGMOID),
-                    new layer(16, 32,
+                    new layer(2048, 1024,
                               initializations::XAVIER,
                               activation_functions::TANH),
-                    new layer(32, 16,
+                    new layer(1024, 512,
                               initializations::HE,
                               activation_functions::RELU),
-                    new layer(16, dataset::MULT_NB_LABELS,
+                    new layer(512, 256,
+                              initializations::HE,
+                              activation_functions::RELU),
+                    new layer(256, dataset::MULT_NB_LABELS,
                               initializations::XAVIER,
                               activation_functions::LINEAR)
             }
     );
     // Train the neural network.
+    auto start = high_resolution_clock::now();
     nn.fit(train, loss_functions::BINARY_CROSS_ENTROPY_LOSS,
            2,16, 0.01);
+    auto end = high_resolution_clock::now();
+    std::chrono::duration<double> diff = end - start;
+    std::cout << "TOTAL TIME : " << diff.count() << " seconds.\n";
     // Predict using the test dataset.
     auto predictions = nn.predict(test);
     // Print ground truths and the predictions.
-    for (size_t i = 0; i < predictions.size(); i ++)
+    /*for (size_t i = 0; i < predictions.size(); i ++)
     {
         std::cout << "-------------------------------------------" << std::endl;
         matrix::print(test.get(i).get_labels());
         matrix::print(predictions[i]);
-    }
+    }*/
 
     return EXIT_SUCCESS;
 }

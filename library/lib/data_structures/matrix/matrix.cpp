@@ -3,9 +3,10 @@
 //
 
 #include "matrix.h"
-
+#include "chrono"
 
 using namespace cudaNN;
+using namespace std::chrono;
 
 #if _USE_GPU
 using namespace matrix_parallel;
@@ -161,7 +162,6 @@ matrix &matrix::operator+=(const matrix &m)
     }
 
     add(*this, m);
-
     return *this;
 }
 
