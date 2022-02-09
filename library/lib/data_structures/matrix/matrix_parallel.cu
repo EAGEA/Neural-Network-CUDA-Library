@@ -89,7 +89,7 @@ __global__ void __kernel_tiled_multiply(float *result,
 
         if( col < nb_cols_2 && m * TILE_WIDTH + ty < nb_cols_2)
         {
-            subTileData1[ty][tx] = data2[(m * TILE_WIDTH + ty) * nb_cols_2 + col];
+            subTileData2[ty][tx] = data2[(m * TILE_WIDTH + ty) * nb_cols_2 + col];
         }
         else subTileData2[ty][tx] = 0;
 
@@ -100,12 +100,11 @@ __global__ void __kernel_tiled_multiply(float *result,
                 sum += subTileData1[ty][k] * subTileData2[k][tx];
             }
         }
-        if(row < nb_cols_1 && col < nb_cols_2) {
-            __syncthreads();
-        }
+        __syncthreads();
     }
-
-    result[row * nb_cols_2 + col] = sum;
+    if(row < nb_cols_1 && col < nb_cols_2) {
+        result[row * nb_cols_2 + col] = sum;
+    }
 }
 
 __global__ void __kernel_multiply(float *data, float f,
