@@ -7,6 +7,8 @@
 
 using namespace cudaNN;
 
+#define TILE_WIDTH 32
+
 
 /**
  * Kernel functions.
@@ -61,6 +63,49 @@ __global__ void __kernel_multiply(float *result,
 
         result[row * nb_cols_2 + col] = sum;
     }
+}
+
+__global__ void __kernel_tiled_multiply(float *result,
+                                  const float *data1, const float *data2,
+                                  size_t nb_rows_1, size_t nb_cols_1,
+                                  size_t nb_rows_2, size_t nb_cols_2)
+{
+    __shared__ float subTileData1[TILE_WIDTH][TILE_WIDTH];
+    __shared__ float subTileData2[TILE_WIDTH][TILE_WIDTH];
+
+    int tx = threadIdx.x; int ty = threadIdx.y;
+    size_t col = blockIdx.x * TILE_WIDTH + threadIdx.x;
+    size_t row = blockIdx.y * TILE_WIDTH + threadIdx.y;
+
+    float sum = .0f;
+
+    for(int m = 0; m < (nb_cols_1 - 1)/TILE_WIDTH + 1; m++)
+    {
+        if( row < nb_cols_1 && m * TILE_WIDTH + tx < nb_cols_1)
+        {
+            subTileData1[ty][tx] = data1[row * nb_cols_1 + m * TILE_WIDTH + tx];
+        }
+        else subTileData1[ty][tx] = 0;
+
+        if( col < nb_cols_2 && m * TILE_WIDTH + ty < nb_cols_2)
+        {
+            subTileData1[ty][tx] = data2[(m * TILE_WIDTH + ty) * nb_cols_2 + col];
+        }
+        else subTileData2[ty][tx] = 0;
+
+        __syncthreads();
+        if(row < nb_cols_1 && col < nb_cols_2)
+        {
+            for (int k = 0; k < TILE_WIDTH; ++k) {
+                sum += subTileData1[ty][k] * subTileData2[k][tx];
+            }
+        }
+        if(row < nb_cols_1 && col < nb_cols_2) {
+            __syncthreads();
+        }
+    }
+
+    result[row * nb_cols_2 + col] = sum;
 }
 
 __global__ void __kernel_multiply(float *data, float f,
