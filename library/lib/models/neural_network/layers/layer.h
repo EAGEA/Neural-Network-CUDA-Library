@@ -47,6 +47,14 @@ namespace cudaNN
             void backward_propagation(matrix &errors, layer *next);
             void gradient_descent(size_t batch_size, float learning_rate);
 
+            /**
+             * Printing functions of the layer
+             */
+            void print_neurons();
+            void print_weights();
+            void print_biases();
+            void print_errors();
+
             size_t size() const;
 
         private:

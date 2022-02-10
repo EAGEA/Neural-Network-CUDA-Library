@@ -106,6 +106,27 @@ void layer::gradient_descent(size_t batch_size, float learning_rate)
     _first_entry = true;
 }
 
+void layer::print_neurons()
+{
+    matrix::print(_inputs);
+}
+
+void layer::print_weights()
+{
+    matrix::print(_weights);
+}
+
+void layer::print_biases()
+{
+    matrix::print(_biases);
+}
+
+void layer::print_errors()
+{
+    matrix::print(_errors);
+}
+
+
 size_t layer::size() const
 {
     return _size;

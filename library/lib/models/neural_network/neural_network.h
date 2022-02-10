@@ -33,6 +33,7 @@ namespace cudaNN
 
             matrix predict(const matrix &features) const override;
             std::vector<matrix> predict(dataset &test) const override;
+            layer *get_layer(int idx);
 
         private:
 

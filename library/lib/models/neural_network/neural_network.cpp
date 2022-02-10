@@ -96,3 +96,8 @@ void neural_network::_gradient_descent(size_t batch_size, float learning_rate)
         l->gradient_descent(batch_size, learning_rate);
     }
 }
+
+layer *neural_network::get_layer(int idx)
+{
+    return _layers[idx];
+}

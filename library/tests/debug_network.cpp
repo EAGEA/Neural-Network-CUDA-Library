@@ -29,18 +29,27 @@ int main(int argc, char *argv[]) {
     auto mult = dataset::load_mult();
     auto split = mult.train_test_split();
     auto train = split.first;
+    //dataset::print(train);
     auto test = split.second;
+    //dataset::print(test);
     // Define a basic neural network.
     neural_network nn = neural_network(
             {
-                    new layer(dataset::MULT_NB_FEATURES, 16,
+                    new layer(dataset::MULT_NB_FEATURES, 8,
                               initializations::HE,
                               activation_functions::SIGMOID),
-                    new layer(16, dataset::MULT_NB_LABELS,
+                    new layer(8, dataset::MULT_NB_LABELS,
                               initializations::XAVIER,
                               activation_functions::LINEAR)
             }
     );
+
+    //Print the first layer at the beginning
+    auto l = nn.get_layer(0);
+    //Weights from this layer to the next
+    l->print_weights();
+    //Biases from this layer to the next
+    l->print_biases();
 
 
     return EXIT_SUCCESS;
