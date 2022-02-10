@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     auto train = split.first;
     //dataset::print(train);
     auto test = split.second;
-    dataset::print(test);
+    //dataset::print(test);
     // Define a basic neural network.
     neural_network nn = neural_network(
             {
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
                               activation_functions::SIGMOID),
                     new layer(8, dataset::SMALLIMG_NB_LABELS,
                               initializations::XAVIER,
-                              activation_functions::LINEAR)
+                              activation_functions::SOFTMAX)
             }
     );
 
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     // Train the neural network.
     auto start = high_resolution_clock::now();
     nn.fit(train, loss_functions::BINARY_CROSS_ENTROPY_LOSS,
-           2,16, 0.01);
+           2,4, 0.01);
     auto end = high_resolution_clock::now();
     std::chrono::duration<double> diff = end - start;
     std::cout << "TOTAL TIME : " << diff.count() << " seconds.\n";

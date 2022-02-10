@@ -153,7 +153,6 @@ dataset dataset::load_smallimg()
                              "dataset::smallimg::labels::" + std::to_string(i));
 
         int number = rand() % 4;
-        std::cout << "Random number : " << number << "\n";
         switch(number)
         {
             case 0:

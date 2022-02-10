@@ -140,6 +140,24 @@ __global__ void __kernel_tanh(float *results, float *inputs,
     }
 }
 
+__global__ void __kernel_softmax(float *results, float *inputs,
+                              size_t notused,size_t size)
+{
+    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+    float sum = .0f;
+    // Check if the thread is in the matrix dimensions.
+    if (index < size)
+    {
+        for(int i = 0; i < size; i++)
+        {
+            sum+=exp(inputs[i]);
+        }
+
+        results[index] = exp(inputs[index])/sum;
+        __syncthreads();
+    }
+}
+
 __global__ void __kernel_tanh_derivative(float *results, float *inputs,
                                          size_t nb_rows, size_t nb_cols)
 {
@@ -233,4 +251,9 @@ void activation_functions_parallel::tanh(std::vector<matrix *> m)
 void activation_functions_parallel::tanh_derivative(std::vector<matrix *> m)
 {
     __helper(*m[0], *m[1],__kernel_tanh_derivative);
+}
+
+void activation_functions_parallel::softmax(std::vector<matrix *> m)
+{
+    __helper(*m[0], *m[1],__kernel_softmax);
 }
