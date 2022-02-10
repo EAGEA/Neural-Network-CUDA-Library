@@ -139,6 +139,66 @@ dataset dataset::load_mult()
     return data;
 }
 
+dataset dataset::load_smallimg()
+{
+    util::INFO("dataset::load_smallimg", "loading the smallimg dataset");
+
+    auto data = dataset();
+
+    for (size_t i = 0; i < SMALLIMG_SIZE; i ++)
+    {
+        auto features = matrix(1, SMALLIMG_NB_FEATURES,
+                               "dataset::smallimg::features::" + std::to_string(i));
+        auto labels = matrix({1 }, 1, 1,
+                             "dataset::smallimg::labels::" + std::to_string(i));
+
+        int number = rand() % 4;
+        std::cout << "Random number : " << number << "\n";
+        switch(number)
+        {
+            case 0:
+            {
+                features.get_data()[0] = 0;
+                features.get_data()[1] = 0;
+                features.get_data()[2] = 0;
+                features.get_data()[3] = 0;
+                labels.get_data()[0] = 0;
+                break;
+            }
+            case 1:
+            {
+                features.get_data()[0] = 1;
+                features.get_data()[1] = 0;
+                features.get_data()[2] = 0;
+                features.get_data()[3] = 1;
+                labels.get_data()[0] = 1;
+                break;
+            }
+            case 2:
+            {
+                features.get_data()[0] = 0;
+                features.get_data()[1] = 1;
+                features.get_data()[2] = 0;
+                features.get_data()[3] = 1;
+                labels.get_data()[0] = 2;
+                break;
+            }
+            case 3:
+            {
+                features.get_data()[0] = 1;
+                features.get_data()[1] = 1;
+                features.get_data()[2] = 1;
+                features.get_data()[3] = 1;
+                labels.get_data()[0] = 3;
+                break;
+            }
+        }
+        data.add(features, labels);
+    }
+
+    return data;
+}
+
 void dataset::print(dataset &d)
 {
     size_t i = 1;

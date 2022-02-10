@@ -26,19 +26,19 @@ int main(int argc, char *argv[]) {
     std::srand((unsigned int) std::time(nullptr));
 
     // Load and split the dataset.
-    auto mult = dataset::load_mult();
+    auto mult = dataset::load_smallimg();
     auto split = mult.train_test_split();
     auto train = split.first;
     //dataset::print(train);
     auto test = split.second;
-    //dataset::print(test);
+    dataset::print(test);
     // Define a basic neural network.
     neural_network nn = neural_network(
             {
-                    new layer(dataset::MULT_NB_FEATURES, 8,
+                    new layer(dataset::SMALLIMG_NB_FEATURES, 8,
                               initializations::HE,
                               activation_functions::SIGMOID),
-                    new layer(8, dataset::MULT_NB_LABELS,
+                    new layer(8, dataset::SMALLIMG_NB_LABELS,
                               initializations::XAVIER,
                               activation_functions::LINEAR)
             }
@@ -50,6 +50,14 @@ int main(int argc, char *argv[]) {
     l->print_weights();
     //Biases from this layer to the next
     l->print_biases();
+
+    // Train the neural network.
+    auto start = high_resolution_clock::now();
+    nn.fit(train, loss_functions::BINARY_CROSS_ENTROPY_LOSS,
+           2,16, 0.01);
+    auto end = high_resolution_clock::now();
+    std::chrono::duration<double> diff = end - start;
+    std::cout << "TOTAL TIME : " << diff.count() << " seconds.\n";
 
 
     return EXIT_SUCCESS;

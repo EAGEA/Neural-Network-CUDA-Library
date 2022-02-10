@@ -66,6 +66,15 @@ namespace cudaNN
             static dataset load_mult();
 
             /**
+             * @image_datase
+             */
+
+            static const size_t SMALLIMG_SIZE = 256;
+            static const size_t SMALLIMG_NB_FEATURES = 4;
+            static const size_t SMALLIMG_NB_LABELS = 4;
+            static dataset load_smallimg();
+
+            /**
              * Print the given dataset.
              * @param d - the dataset concerned.
              */
