@@ -26,6 +26,8 @@ namespace cudaNN
         void hinge_loss_derivative(std::vector<matrix *> m);
         void binary_cross_entropy_loss(std::vector<matrix *> m);
         void binary_cross_entropy_loss_derivative(std::vector<matrix *> m);
+        void cross_entropy_loss(std::vector<matrix *> m);
+        void cross_entropy_loss_derivative(std::vector<matrix *> m);
     }
 
 
@@ -44,6 +46,8 @@ namespace cudaNN
         void hinge_loss_derivative(std::vector<matrix *> m);
         void binary_cross_entropy_loss(std::vector<matrix *> m);
         void binary_cross_entropy_loss_derivative(std::vector<matrix *> m);
+        void cross_entropy_loss(std::vector<matrix *> m);
+        void cross_entropy_loss_derivative(std::vector<matrix *> m);
     }
 
 
@@ -108,6 +112,16 @@ namespace cudaNN
         const auto BINARY_CROSS_ENTROPY_LOSS = function("binary_cross_entropy_loss",
                                                         binary_cross_entropy_loss,
                                                         binary_cross_entropy_loss_derivative);
+
+        /**
+         * For classification.
+         * Measure the performance of a classification model whose output
+         * is a probability value between 0 and 1.
+         * Increase as the predicted probability diverges from the actual label.
+         */
+        const auto CROSS_ENTROPY_LOSS = function("cross_entropy_loss",
+                                                        cross_entropy_loss,
+                                                        cross_entropy_loss_derivative);
     }
 }
 

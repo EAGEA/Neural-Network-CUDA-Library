@@ -165,6 +165,38 @@ __global__ void __kernel_binary_cross_entropy_loss_derivative(float *errors,
     }
 }
 
+__global__ void __kernel_cross_entropy_loss(float *errors,
+                                                   float *predictions, float *labels,
+                                                   size_t nb_rows, size_t nb_cols)
+{
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
+
+    // Check if the thread is in the matrix dimensions.
+    if (row < nb_rows && col < nb_cols)
+    {
+        errors[index] = -(labels[index] / predictions[index]
+                          - (1.f - labels[index]) / (1.f - predictions[index]));
+    }
+}
+
+__global__ void __kernel_cross_entropy_loss_derivative(float *errors,
+                                                              float *predictions, float *labels,
+                                                              size_t nb_rows, size_t nb_cols)
+{
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
+
+    // Check if the thread is in the matrix dimensions.
+    if (row < nb_rows && col < nb_cols)
+    {
+        errors[index] = -(labels[index] / predictions[index]
+                          - (1.f - labels[index]) / (1.f - predictions[index]));
+    }
+}
+
 void __helper(const matrix &errors,
               const matrix &predictions, const matrix &labels,
               void (kernel)(float *errors, float *predictions, float *labels,
@@ -247,6 +279,16 @@ void loss_functions_parallel::binary_cross_entropy_loss(std::vector<matrix *> m)
 }
 
 void loss_functions_parallel::binary_cross_entropy_loss_derivative(std::vector<matrix *> m)
+{
+    __helper(*m[0], *m[1], *m[2], __kernel_binary_cross_entropy_loss_derivative);
+}
+
+void loss_functions_parallel::cross_entropy_loss(std::vector<matrix *> m)
+{
+    __helper(*m[0], *m[1], *m[2], __kernel_cross_entropy_loss);
+}
+
+void loss_functions_parallel::cross_entropy_loss_derivative(std::vector<matrix *> m)
 {
     __helper(*m[0], *m[1], *m[2], __kernel_binary_cross_entropy_loss_derivative);
 }

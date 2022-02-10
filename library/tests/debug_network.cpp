@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     auto mult = dataset::load_smallimg();
     auto split = mult.train_test_split();
     auto train = split.first;
-    //dataset::print(train);
+    dataset::print(train);
     auto test = split.second;
     //dataset::print(test);
     // Define a basic neural network.
@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 
     // Train the neural network.
     auto start = high_resolution_clock::now();
-    nn.fit(train, loss_functions::BINARY_CROSS_ENTROPY_LOSS,
+    nn.fit(train, loss_functions::CROSS_ENTROPY_LOSS,
            2,4, 0.01);
     auto end = high_resolution_clock::now();
     std::chrono::duration<double> diff = end - start;
