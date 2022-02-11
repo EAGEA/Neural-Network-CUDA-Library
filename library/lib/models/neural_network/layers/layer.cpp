@@ -85,6 +85,7 @@ void layer::backward_propagation(matrix &errors, layer *next)
 
     errors = errors.hadamard_product(_derivatives.transpose());
 
+
     if (_first_entry)
     {
         // The first entry of the batch (i.e. first computed errors).

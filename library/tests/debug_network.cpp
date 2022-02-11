@@ -45,11 +45,11 @@ int main(int argc, char *argv[]) {
     );
 
     //Print the first layer at the beginning
-    auto l = nn.get_layer(0);
+    auto l = nn.get_layer(1);
     //Weights from this layer to the next
     l->print_weights();
     //Biases from this layer to the next
-    l->print_biases();
+    //l->print_biases();
 
     // Train the neural network.
     auto start = high_resolution_clock::now();

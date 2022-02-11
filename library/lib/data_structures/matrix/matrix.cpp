@@ -269,7 +269,7 @@ bool matrix::operator!=(const matrix &m) const
 
 matrix matrix::hadamard_product(const matrix &v)
 {
-    if (_dimensions != v.get_dimensions())
+    if (_dimensions != v.get_dimensions() && !(_dimensions.first != 1 || _dimensions.second != 1))
     {
         // Invalid.
         util::ERROR("matrix::hadamard_product",
