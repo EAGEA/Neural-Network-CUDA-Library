@@ -61,18 +61,11 @@ int main(int argc, char *argv[])
     // Predict using the test dataset.
     auto predictions = nn.predict(test);
     // Print ground truths and the predictions.
-    int correct = 0;
     for (size_t i = 0; i < predictions.size(); i ++)
     {
-        /*std::cout << "-------------------------------------------" << std::endl;
+        std::cout << "-------------------------------------------" << std::endl;
         matrix::print(test.get(i).get_labels());
-        matrix::print(predictions[i]);*/
-        if(test.get(i).get_labels() == predictions[i])
-        {
-            correct+=1;
-        }
+        matrix::print(predictions[i]);
     }
-    std::cout << "Accuracy : " << correct/predictions.size() << "%\n";
-
     return EXIT_SUCCESS;
 }

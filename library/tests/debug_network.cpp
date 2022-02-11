@@ -54,10 +54,36 @@ int main(int argc, char *argv[]) {
     // Train the neural network.
     auto start = high_resolution_clock::now();
     nn.fit(train, loss_functions::CROSS_ENTROPY_LOSS,
-           1,1, 0.01);
+           5,1, 0.01);
     auto end = high_resolution_clock::now();
     std::chrono::duration<double> diff = end - start;
     std::cout << "TOTAL TIME : " << diff.count() << " seconds.\n";
+
+    // Predict using the test dataset.
+    auto predictions = nn.predict(test);
+    // Print ground truths and the predictions.
+    float correct = .0f;
+    for (size_t i = 0; i < predictions.size(); i ++)
+    {
+        std::cout << "-------------------------------------------" << std::endl;
+        matrix::print(test.get(i).get_labels());
+        matrix::print(predictions[i]);
+        float max = .0f;
+        int id = 0;
+        for(int j = 0; j < predictions[i].get_length(); j++)
+        {
+            if(predictions[i][j] >= max)
+            {
+                max = predictions[i][j];
+                id = j;
+            }
+        }
+        if(test.get(i).get_labels()[id] == 1)
+        {
+            correct+=.1f;
+        }
+    }
+    std::cout << "Accuracy : " << (correct/predictions.size()) * 1000 << "%\n";
 
 
     return EXIT_SUCCESS;
