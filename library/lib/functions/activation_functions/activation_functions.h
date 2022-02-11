@@ -27,6 +27,7 @@ namespace cudaNN
         void tanh(std::vector<matrix *> m);
         void tanh_derivative(std::vector<matrix *> m);
         void softmax(std::vector<matrix *> m);
+        void softmax_derivative(std::vector<matrix *> m);
     }
 
 
@@ -85,7 +86,7 @@ namespace cudaNN
                                    tanh_derivative);
         const auto SOFTMAX = function("softmax",
                                    softmax,
-                                   tanh_derivative);
+                                   softmax_derivative);
     }
 }
 

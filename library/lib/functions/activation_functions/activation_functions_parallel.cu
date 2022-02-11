@@ -140,8 +140,23 @@ __global__ void __kernel_tanh(float *results, float *inputs,
     }
 }
 
+__global__ void __kernel_tanh_derivative(float *results, float *inputs,
+                                         size_t nb_rows, size_t nb_cols)
+{
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
+
+    // Check if the thread is in the matrix dimensions.
+    if (row < nb_rows && col < nb_cols)
+    {
+        float tanh_ = tanhf(inputs[index]);
+        results[index] = 1.f - tanh_ * tanh_;
+    }
+}
+
 __global__ void __kernel_softmax(float *results, float *inputs,
-                              size_t notused,size_t size)
+                                 size_t notused,size_t size)
 {
     size_t index = blockIdx.x * blockDim.x + threadIdx.x;
     float sum = .0f;
@@ -158,18 +173,16 @@ __global__ void __kernel_softmax(float *results, float *inputs,
     }
 }
 
-__global__ void __kernel_tanh_derivative(float *results, float *inputs,
-                                         size_t nb_rows, size_t nb_cols)
+__global__ void __kernel_softmax_derivative(float *results, float *inputs,
+                                         size_t notused, size_t size)
 {
-    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
+    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
 
     // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    if (index < size)
     {
-        float tanh_ = tanhf(inputs[index]);
-        results[index] = 1.f - tanh_ * tanh_;
+        //float softmax = tanhf(inputs[index]);
+        //results[index] = 1.f - tanh_ * tanh_;
     }
 }
 
@@ -256,4 +269,9 @@ void activation_functions_parallel::tanh_derivative(std::vector<matrix *> m)
 void activation_functions_parallel::softmax(std::vector<matrix *> m)
 {
     __helper(*m[0], *m[1],__kernel_softmax);
+}
+
+void activation_functions_parallel::softmax_derivative(std::vector<matrix *> m)
+{
+    __helper(*m[0], *m[1],__kernel_softmax_derivative);
 }

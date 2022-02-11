@@ -287,5 +287,5 @@ void loss_functions_parallel::cross_entropy_loss(std::vector<matrix *> m)
 
 void loss_functions_parallel::cross_entropy_loss_derivative(std::vector<matrix *> m)
 {
-    __helper(*m[0], *m[1], *m[2], __kernel_binary_cross_entropy_loss_derivative);
+    __helper(*m[0], *m[1], *m[2], __kernel_cross_entropy_loss_derivative);
 }
