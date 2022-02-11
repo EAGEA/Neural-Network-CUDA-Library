@@ -171,10 +171,11 @@ __global__ void __kernel_cross_entropy_loss(float *errors,
 {
     size_t index = blockIdx.x * blockDim.x + threadIdx.x;
     float loss = .0f;
-    // Check if the thread is in the matrix dimensions.
+    // Check if the thread is in the vector dimensions.
     if (index < size)
     {
-        loss += -(labels[index] * logf(predictions[index]));
+        for(int i = 0; i < size; i++)
+            loss += -(labels[i] * logf(predictions[i]));
     }
     errors[index] = loss;
 }
@@ -185,11 +186,11 @@ __global__ void __kernel_cross_entropy_loss_derivative(float *errors,
 {
     size_t index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // Check if the thread is in the matrix dimensions.
+    // Check if the thread is in the vector dimensions.
     if (index < size)
     {
-        errors[index] = -(labels[index] / predictions[index]
-                          - (1.f - labels[index]) / (1.f - predictions[index]));
+        errors[index] = -(labels[index] / predictions[index])
+                + ((1.f - labels[index]) / (1.f - predictions[index]));
     }
 }
 

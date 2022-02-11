@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     // Train the neural network.
     auto start = high_resolution_clock::now();
     nn.fit(train, loss_functions::CROSS_ENTROPY_LOSS,
-           1,2, 0.01);
+           1,1, 0.01);
     auto end = high_resolution_clock::now();
     std::chrono::duration<double> diff = end - start;
     std::cout << "TOTAL TIME : " << diff.count() << " seconds.\n";

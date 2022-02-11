@@ -80,6 +80,7 @@ void neural_network::_backward_propagation(matrix &predictions,
                                            matrix &labels,
                                            const function &loss_function)
 {
+    auto cost = loss_function.compute({ &predictions, &labels });
     auto errors = loss_function.compute_derivatives({ &predictions, &labels });
 
     for (size_t i = _layers.size(); i > 0; i --)
