@@ -176,13 +176,38 @@ __global__ void __kernel_softmax(float *results, float *inputs,
 __global__ void __kernel_softmax_derivative(float *results, float *inputs,
                                          size_t notused, size_t size)
 {
-    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * size + col;
 
+    float sum = .0f;
+    float softmax_x = .0f;
+    float softmax_y = .0f;
     // Check if the thread is in the matrix dimensions.
-    if (index < size)
+    if (row < size && col < size)
     {
-        //float softmax = tanhf(inputs[index]);
-        //results[index] = 1.f - tanh_ * tanh_;
+        //S(x)
+        for(int i = 0; i < size; i++)
+        {
+            sum+=exp(inputs[i]);
+        }
+        softmax_x = exp(inputs[row])/sum;
+        //S(y)
+        for(int i = 0; i < size; i++)
+        {
+            sum+=exp(inputs[i]);
+        }
+        softmax_y = exp(inputs[col])/sum;
+        // S(x) * (1 - S(x))
+        if(row == col)
+        {
+            results[index] = softmax_x * (1 - softmax_x);
+        }
+        // -S(x) * S(y)
+        else
+        {
+            results[index] = -softmax_x * softmax_y;
+        }
     }
 }
 
