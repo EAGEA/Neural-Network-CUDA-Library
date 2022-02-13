@@ -186,17 +186,13 @@ __global__ void __kernel_softmax_derivative(float *results, float *inputs,
     // Check if the thread is in the matrix dimensions.
     if (row < size && col < size)
     {
-        //S(x)
         for(int i = 0; i < size; i++)
         {
             sum+=exp(inputs[i]);
         }
+        //S(x)
         softmax_x = exp(inputs[row])/sum;
         //S(y)
-        for(int i = 0; i < size; i++)
-        {
-            sum+=exp(inputs[i]);
-        }
         softmax_y = exp(inputs[col])/sum;
         // S(x) * (1 - S(x))
         if(row == col)

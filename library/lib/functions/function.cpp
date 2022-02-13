@@ -30,9 +30,19 @@ matrix function::compute(std::vector<matrix *> inputs) const
 
 matrix function::compute_derivatives(std::vector<matrix *> inputs) const
 {
-    auto outputs = matrix(inputs[0]->get_dimensions(),
-                          "function::" + _id + "_derivative("
-                          + inputs[0]->get_id() + ")");
+    matrix outputs;
+    if(_id == "softmax")
+    {
+        outputs = matrix(std::pair<size_t, size_t>(inputs[0]->get_dimensions().second,inputs[0]->get_dimensions().second),
+                              "function::" + _id + "_derivative("
+                              + inputs[0]->get_id() + ")");
+    }
+    else
+    {
+        outputs = matrix(inputs[0]->get_dimensions(),
+                              "function::" + _id + "_derivative("
+                              + inputs[0]->get_id() + ")");
+    }
     inputs.insert(inputs.begin(), &outputs);
     _df(inputs);
 
