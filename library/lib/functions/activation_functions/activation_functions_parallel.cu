@@ -257,7 +257,7 @@ void __helper_softmax(const matrix &results, const matrix &inputs,
     cudaMemcpy(device_sum,&sum,sizeof(float),cudaMemcpyHostToDevice);
 
     // Do computations with CUDA threads.
-    kernel<<<block_dims, thread_dims>>>(
+    kernel<<<block_dims, thread_dims,inputs.get_length() * sizeof(float)>>>(
             device_data1, device_data2,
             results.get_dimensions().first, results.get_dimensions().second,device_sum);
     // Wait for all threads.
