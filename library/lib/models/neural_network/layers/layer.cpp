@@ -80,7 +80,7 @@ void layer::backward_propagation(matrix &errors, layer *next)
     if (next != nullptr)
     {
         // If not the output layer.
-        errors = next->_weights * errors;
+        errors = next->_weights * errors.transpose();
     }
 
     errors = errors.hadamard_product(_derivatives.transpose());
