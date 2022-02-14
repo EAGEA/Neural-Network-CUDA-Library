@@ -14,7 +14,7 @@ using namespace cudaNN;
 
 /**
  * Basic calls of activation functions on matrices.
- * Includes CUDA tests.
+ * Includes CUDA examples.
  */
 int main(int argc, char *argv[])
 {

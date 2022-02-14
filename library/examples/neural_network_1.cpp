@@ -51,21 +51,32 @@ int main(int argc, char *argv[])
                               activation_functions::LINEAR)
             }
     );
-    // Train the neural network.
-    auto start = high_resolution_clock::now();
+    // Train the neural network and record the time.
+    float time;
+    util::CPU_start_record(&time);
     nn.fit(train, loss_functions::BINARY_CROSS_ENTROPY_LOSS,
            2,16, 0.01);
-    auto end = high_resolution_clock::now();
-    std::chrono::duration<double> diff = end - start;
-    std::cout << "TOTAL TIME : " << diff.count() << " seconds.\n";
+    util::CPU_end_record(&time);
     // Predict using the test dataset.
     auto predictions = nn.predict(test);
-    // Print ground truths and the predictions.
+    // Print ground truths and the predictions, compute accuracy on this test.
+    auto correct = 0;
     for (size_t i = 0; i < predictions.size(); i ++)
     {
         std::cout << "-------------------------------------------" << std::endl;
         matrix::print(test.get(i).get_labels());
         matrix::print(predictions[i]);
     }
+    // Logs.
+    std::cout << std::endl
+              << "TRAIN TIME: "
+              << time / 1000.f
+              << " seconds"
+              << std::endl;
+    std::cout << "ACCURACY: "
+              << (int) (100.f * (float) correct / (float) predictions.size())
+              << "%"
+              << std::endl;
+
     return EXIT_SUCCESS;
 }

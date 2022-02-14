@@ -28,24 +28,24 @@ if (CUDA_FOUND)
             "lib/functions/loss_functions/loss_functions_parallel.cu"
             "lib/functions/loss_functions/loss_functions_sequential.cpp"
             "lib/util/util.cpp"
-            tests/debug_network.cpp)
-    # Build tests ######################################################
-    add_executable(test_matrix tests/matrix.cpp)
-    target_link_libraries(test_matrix CudaNN)
+            examples/neural_network_2.cpp)
+    # Build examples ######################################################
+    add_executable(matrix examples/matrix.cpp)
+    target_link_libraries(matrix CudaNN)
     ###
-    add_executable(test_activation_functions tests/activation_functions.cpp)
-    target_link_libraries(test_activation_functions CudaNN)
+    add_executable(activation_functions examples/activation_functions.cpp)
+    target_link_libraries(activation_functions CudaNN)
     ###
-    add_executable(test_loss_functions tests/loss_functions.cpp)
-    target_link_libraries(test_loss_functions CudaNN)
+    add_executable(loss_functions examples/loss_functions.cpp)
+    target_link_libraries(loss_functions CudaNN)
     ###
-    add_executable(test_neural_network tests/neural_network.cpp)
-    target_link_libraries(test_neural_network CudaNN)
+    add_executable(neural_network_1 examples/neural_network_1.cpp)
+    target_link_libraries(neural_network_1 CudaNN)
     ###
-    add_executable(test_debug_network tests/debug_network.cpp)
-    target_link_libraries(test_debug_network CudaNN)
+    add_executable(neural_network_2 examples/neural_network_2.cpp)
+    target_link_libraries(neural_network_2 CudaNN)
     ###
-    add_executable(test_op_time tests/op_time.cpp)
-    target_link_libraries(test_op_time CudaNN)
+    add_executable(op_time examples/op_time.cpp)
+    target_link_libraries(op_time CudaNN)
     ###
 endif ()

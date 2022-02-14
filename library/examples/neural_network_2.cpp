@@ -21,7 +21,8 @@ using namespace std::chrono;
  * Train it with a part of the dataset, and predict with
  * another part. Print results.
  */
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     // Init random generator.
     std::srand((unsigned int) std::time(nullptr));
 
@@ -51,25 +52,23 @@ int main(int argc, char *argv[]) {
     //Biases from this layer to the next
     //l->print_biases();
 
-    // Train the neural network.
-    auto start = high_resolution_clock::now();
+    // Train the neural network and record the time.
+    float time;
+    util::CPU_start_record(&time);
     nn.fit(train, loss_functions::CROSS_ENTROPY_LOSS,
            1,1, 0.01);
-    auto end = high_resolution_clock::now();
-    std::chrono::duration<double> diff = end - start;
-    std::cout << "TOTAL TIME : " << diff.count() << " seconds.\n";
-
+    util::CPU_end_record(&time);
     // Predict using the test dataset.
     auto predictions = nn.predict(test);
-    // Print ground truths and the predictions.
-    float correct = .0f;
+    // Print ground truths and the predictions, compute accuracy on this test.
+    auto correct = 0.f;
     for (size_t i = 0; i < predictions.size(); i ++)
     {
         std::cout << "-------------------------------------------" << std::endl;
         matrix::print(test.get(i).get_labels());
         matrix::print(predictions[i]);
-        float max = .0f;
-        int id = 0;
+        auto max = .0f;
+        auto id = 0;
         for(int j = 0; j < predictions[i].get_length(); j++)
         {
             if(predictions[i][j] >= max)
@@ -83,8 +82,16 @@ int main(int argc, char *argv[]) {
             correct+=.1f;
         }
     }
-    std::cout << "Accuracy : " << (correct/predictions.size()) * 1000 << "%\n";
-
+    // Logs.
+    std::cout << std::endl
+              << "TRAIN TIME: "
+              << time / 1000.f
+              << " seconds"
+              << std::endl;
+    std::cout << "ACCURACY: "
+              << (int) (1000.f * correct / (float) predictions.size())
+              << "%"
+              << std::endl;
 
     return EXIT_SUCCESS;
 }

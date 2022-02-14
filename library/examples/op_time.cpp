@@ -17,6 +17,8 @@ using namespace cudaNN;
 
 /**
  * Compute the total time of the operations on matrices.
+ * Execute the operations either on the device or host
+ * depending on the -global.h/_USE_GPU- variable.
  * Output them in .csv files to be plotted.
  */
 int main(int argc, char *argv[])

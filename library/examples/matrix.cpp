@@ -15,7 +15,7 @@ using namespace cudaNN;
 /**
  * Examples of basic operations on matrices with basic operators
  * and constructors.
- * Includes CUDA tests.
+ * Includes CUDA examples.
  */
 int main(int argc, char *argv[])
 {
