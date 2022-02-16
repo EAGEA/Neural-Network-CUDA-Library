@@ -181,19 +181,20 @@ __global__ void __kernel_softmax_derivative(float *results, float *inputs,
                                             float *sum,
                                             size_t nb_rows, size_t nb_cols)
 {
-    extern __shared__ float sharedsum[];
+    // DO a reduction to compute the sum.
+    extern __shared__ float shared_sum[];
     unsigned int tid = threadIdx.x;
     size_t col = blockIdx.x * blockDim.x + tid;
 
     // Copy into shared memory.
-    sharedsum[tid] = inputs[col];
+    shared_sum[tid] = inputs[col];
     __syncthreads();
 
     for (size_t stride = blockDim.x/2; stride > 0; stride >>= 1)
     {
-        if(tid < stride)
+        if (tid < stride)
         {
-            sharedsum[tid] += sharedsum[tid + stride];
+            shared_sum[tid] += shared_sum[tid + stride];
         }
     }
 
@@ -201,14 +202,16 @@ __global__ void __kernel_softmax_derivative(float *results, float *inputs,
 
     if (tid == 0)
     {
-        sum[0] = sharedsum[0];
+        sum[0] = shared_sum[0];
     }
 
-    //DERIVATIVE OF SOFTMAX
+    // Compute the derivative.
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
     size_t index = row * nb_cols + col;
     float softmax_x = .0f;
     float softmax_y = .0f;
+
+    __syncthreads();
 
     // Derivative of softmax using the sum.
     if (row < nb_rows && col < nb_cols)
@@ -262,7 +265,7 @@ void __helper_softmax(const matrix &results, const matrix &inputs,
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 
-    //Sum init for softmax
+    // Sum init for softmax.
     float sum = .0f;
 
     float *device_data1;
