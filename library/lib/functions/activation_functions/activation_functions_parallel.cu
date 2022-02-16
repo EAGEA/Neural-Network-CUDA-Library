@@ -181,7 +181,7 @@ __global__ void __kernel_softmax_derivative(float *results, float *inputs,
                                             float *sum,
                                             size_t nb_rows, size_t nb_cols)
 {
-    // DO a reduction to compute the sum.
+    // Do a reduction to compute the sum.
     extern __shared__ float shared_sum[];
     unsigned int tid = threadIdx.x;
     size_t col = blockIdx.x * blockDim.x + tid;
@@ -213,21 +213,21 @@ __global__ void __kernel_softmax_derivative(float *results, float *inputs,
 
     __syncthreads();
 
-    // Derivative of softmax using the sum.
+    // Use the previously computed sum.
     if (row < nb_rows && col < nb_cols)
     {
         // S(x)
         softmax_x = exp(inputs[row])/sum[0];
         // S(y)
         softmax_y = exp(inputs[col])/sum[0];
-        // S(x) * (1 - S(x))
         if (row == col)
         {
+            // S(x) * (1 - S(x))
             results[index] = softmax_x * (1 - softmax_x);
         }
-        // -S(x) * S(y)
         else
         {
+            // -S(x) * S(y)
             results[index] = -softmax_x * softmax_y;
         }
     }

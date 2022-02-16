@@ -61,6 +61,10 @@ int main(int argc, char *argv[])
     matrix::print(loss_functions::BINARY_CROSS_ENTROPY_LOSS.compute({ &m1, &m2 }));
     matrix::print(loss_functions::BINARY_CROSS_ENTROPY_LOSS.compute_derivatives({&m1, &m2}));
     // ----------- //
+    std::cout << "> Cross entropy loss (CE)" << std::endl;
+    matrix::print(loss_functions::CROSS_ENTROPY_LOSS.compute({ &m1, &m2 }));
+    matrix::print(loss_functions::CROSS_ENTROPY_LOSS.compute_derivatives({&m1, &m2}));
+    // ----------- //
 
     return EXIT_SUCCESS;
 }
