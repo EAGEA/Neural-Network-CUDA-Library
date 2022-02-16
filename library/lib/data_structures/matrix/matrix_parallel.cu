@@ -137,8 +137,30 @@ __global__ void __kernel_do_hadamard_product(float *v1, float *v2,
 
 __global__ void __kernel_do_sum(float *data, size_t nb_rows, size_t nb_cols)
 {
-    __shared__ size_t length;
+    // Do a reduction to compute the sum.
+    extern __shared__ float shared_sum[];
+    size_t tid = threadIdx.x;
+    size_t col = blockIdx.x * blockDim.x + tid;
 
+    // Copy into shared memory.
+    shared_sum[tid] = data[col];
+    __syncthreads();
+
+    for (size_t stride = blockDim.x/2; stride > 0; stride >>= 1)
+    {
+        if (tid < stride)
+        {
+            shared_sum[tid] += shared_sum[tid + stride];
+        }
+    }
+
+    __syncthreads();
+
+    if (tid == 0)
+    {
+        data[0] = shared_sum[0];
+    }
+    /*
     // Perform a reduction on "data".
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -160,6 +182,7 @@ __global__ void __kernel_do_sum(float *data, size_t nb_rows, size_t nb_cols)
             size --;
         }
     }
+     */
 }
 
 __global__ void __kernel_do_transpose(float *data1, const float *data2,
@@ -357,7 +380,7 @@ void matrix_parallel::do_sum(float *result, const matrix &m)
     // Prepare data on device.
     start_operation(m, &device_data);
     // Do computations with CUDA threads.
-    __kernel_do_sum<<<block_dims, thread_dims, sizeof(size_t)>>>(
+    __kernel_do_sum<<<block_dims, thread_dims, m.get_length() * sizeof(float)>>>(
             device_data,
             m.get_dimensions().first, m.get_dimensions().second);
     // Wait for all threads.
