@@ -70,24 +70,28 @@ __global__ void __kernel_binary_step_derivative(float *results, float *inputs,
 }
 
 __global__ void __kernel_sigmoid(float *results, float *inputs,
-                                 size_t notused, size_t size)
+                                 size_t nb_rows, size_t nb_cols)
 {
-    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
 
     // Check if the thread is in the matrix dimensions.
-    if (index < size)
+    if (row < nb_rows && col < nb_cols)
     {
         results[index] = 1.f / (1.f + expf(-inputs[index]));
     }
 }
 
 __global__ void __kernel_sigmoid_derivative(float *results, float *inputs,
-                                            size_t notused, size_t size)
+                                            size_t nb_rows, size_t nb_cols)
 {
-    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
 
     // Check if the thread is in the matrix dimensions.
-    if (index < size)
+    if (row < nb_rows && col < nb_cols)
     {
         float sigmoid = 1.f / (1.f + expf(-inputs[index]));
         results[index] = sigmoid * (1.f - sigmoid);
@@ -95,48 +99,56 @@ __global__ void __kernel_sigmoid_derivative(float *results, float *inputs,
 }
 
 __global__ void __kernel_relu(float *results, float *inputs,
-                              size_t notused, size_t size)
+                              size_t nb_rows, size_t nb_cols)
 {
-    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
 
     // Check if the thread is in the matrix dimensions.
-    if (index < size)
+    if (row < nb_rows && col < nb_cols)
     {
         results[index] = fmax(0.f, inputs[index]);
     }
 }
 
 __global__ void __kernel_relu_derivative(float *results, float *inputs,
-                                         size_t notused, size_t size)
+                                         size_t nb_rows, size_t nb_cols)
 {
-    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
 
     // Check if the thread is in the matrix dimensions.
-    if (index < size)
+    if (row < nb_rows && col < nb_cols)
     {
         results[index] = inputs[index] > 0 ? 1.f : 0.f;
     }
 }
 
 __global__ void __kernel_tanh(float *results, float *inputs,
-                              size_t notused, size_t size)
+                              size_t nb_rows, size_t nb_cols)
 {
-    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
 
     // Check if the thread is in the matrix dimensions.
-    if (index < size)
+    if (row < nb_rows && col < nb_cols)
     {
         results[index] = tanhf(inputs[index]);
     }
 }
 
 __global__ void __kernel_tanh_derivative(float *results, float *inputs,
-                                         size_t notused, size_t size)
+                                         size_t nb_rows, size_t nb_cols)
 {
-    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
 
     // Check if the thread is in the matrix dimensions.
-    if (index < size)
+    if (row < nb_rows && col < nb_cols)
     {
         float tanh_ = tanhf(inputs[index]);
         results[index] = 1.f - tanh_ * tanh_;
@@ -144,62 +156,69 @@ __global__ void __kernel_tanh_derivative(float *results, float *inputs,
 }
 
 __global__ void __kernel_softmax(float *results, float *inputs,
-                                 size_t notused,size_t size, float *sum)
+                                 float *sum,
+                                 size_t nb_rows, size_t nb_cols)
 {
-    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
-    float ssum = .0f;
+    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
+    size_t index = row * nb_cols + col;
+
+    float sum_ = .0f;
     // Check if the thread is in the matrix dimensions.
-    if (index < size)
+    if (row < nb_rows && col < nb_cols)
     {
-        for(int i = 0; i < size; i++)
+        for (int i = 0; i < nb_rows * nb_cols; i++)
         {
-            ssum+=exp(inputs[i]);
+            sum_ += exp(inputs[i]);
         }
 
-        results[index] = exp(inputs[index])/ssum;
+        results[index] = exp(inputs[index]) / sum_;
         __syncthreads();
     }
 }
 
 __global__ void __kernel_softmax_derivative(float *results, float *inputs,
-                                         size_t notused, size_t size,float *sum)
+                                            float *sum,
+                                            size_t nb_rows, size_t nb_cols)
 {
-    //REDUCTION OF EXP(X)
-
-    //Reduction initialization
     extern __shared__ float sharedsum[];
     unsigned int tid = threadIdx.x;
     size_t col = blockIdx.x * blockDim.x + tid;
 
-    //Copy into shared memory
+    // Copy into shared memory.
     sharedsum[tid] = inputs[col];
     __syncthreads();
 
-    for(int stride = blockDim.x/2; stride > 0; stride >>= 1)
+    for (size_t stride = blockDim.x/2; stride > 0; stride >>= 1)
     {
         if(tid < stride)
         {
             sharedsum[tid] += sharedsum[tid + stride];
         }
     }
+
     __syncthreads();
-    if(tid == 0) sum[0] = sharedsum[0];
+
+    if (tid == 0)
+    {
+        sum[0] = sharedsum[0];
+    }
 
     //DERIVATIVE OF SOFTMAX
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * size + col;
+    size_t index = row * nb_cols + col;
     float softmax_x = .0f;
     float softmax_y = .0f;
 
     // Derivative of softmax using the sum.
-    if (row < size && col < size)
+    if (row < nb_rows && col < nb_cols)
     {
-        //S(x)
+        // S(x)
         softmax_x = exp(inputs[row])/sum[0];
-        //S(y)
+        // S(y)
         softmax_y = exp(inputs[col])/sum[0];
         // S(x) * (1 - S(x))
-        if(row == col)
+        if (row == col)
         {
             results[index] = softmax_x * (1 - softmax_x);
         }
@@ -237,7 +256,7 @@ void __helper(const matrix &results, const matrix &inputs,
 }
 
 void __helper_softmax(const matrix &results, const matrix &inputs,
-              void (kernel)(float *result, float *inputs, size_t nb_rows, size_t nb_cols, float *sum))
+                      void (kernel)(float *result, float *inputs, float *sum, size_t nb_rows, size_t nb_cols))
 {
     auto cuda_dims = util::get_cuda_dims(inputs.get_dimensions());
     auto block_dims = cuda_dims.first;
@@ -258,8 +277,8 @@ void __helper_softmax(const matrix &results, const matrix &inputs,
 
     // Do computations with CUDA threads.
     kernel<<<block_dims, thread_dims,inputs.get_length() * sizeof(float)>>>(
-            device_data1, device_data2,
-            results.get_dimensions().first, results.get_dimensions().second,device_sum);
+            device_data1, device_data2, device_sum,
+            results.get_dimensions().first, results.get_dimensions().second);
     // Wait for all threads.
     CUDA_CHECK(cudaDeviceSynchronize());
     // Retrieve/free data from device.
