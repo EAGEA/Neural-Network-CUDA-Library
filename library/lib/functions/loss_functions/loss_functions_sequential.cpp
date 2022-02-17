@@ -91,3 +91,27 @@ void loss_functions_sequential::binary_cross_entropy_loss_derivative(std::vector
                           - (1.f - m[2]->get_data()[i]) / (1.f - m[1]->get_data()[i]));
     }
 }
+
+void loss_functions_sequential::cross_entropy_loss(std::vector<matrix *> m)
+{
+    float loss = .0f;
+
+    for (size_t i = 0; i < m[0]->get_length(); i ++)
+    {
+        loss += -(m[2]->get_data()[i] * logf(m[1]->get_data()[i]));
+    }
+
+    for (size_t i = 0; i < m[0]->get_length(); i ++)
+    {
+        m[0]->get_data()[i] = loss;
+    }
+}
+
+void loss_functions_sequential::cross_entropy_loss_derivative(std::vector<matrix *> m)
+{
+    for (size_t i = 0; i < m[0]->get_length(); i ++)
+    {
+        m[0]->get_data()[i] = -(m[2]->get_data()[i] / m[1]->get_data()[i])
+                + ((1.f - m[2]->get_data()[i]) / (1.f - m[1]->get_data()[i]));
+    }
+}

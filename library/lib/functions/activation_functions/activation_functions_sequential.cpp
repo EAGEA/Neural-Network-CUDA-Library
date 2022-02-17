@@ -89,3 +89,40 @@ void activation_functions_sequential::tanh_derivative(std::vector<matrix *> m)
         m[0]->get_data()[i] = 1.f - tanh_ * tanh_;
     }
 }
+
+void activation_functions_sequential::softmax(std::vector<matrix *> m)
+{
+    float sum = 0.f;
+
+    for (size_t i = 0; i < m[0]->get_length(); i ++)
+    {
+        sum += expf(m[1]->get_data()[i]);
+    }
+
+    for (size_t i = 0; i < m[0]->get_length(); i ++)
+    {
+        m[0]->get_data()[i] = expf(m[1]->get_data()[i]) / sum;
+    }
+}
+
+void activation_functions_sequential::softmax_derivative(std::vector<matrix *> m)
+{
+    float sum = m[1]->sum();
+
+    for (size_t i = 0; i < m[0]->get_length(); i ++)
+    {
+        size_t row = i / m[0]->get_dimensions().second;
+        size_t col = i % m[0]->get_dimensions().second;
+        float softmax_x = expf(m[1]->get_data()[row]) / sum;
+        float softmax_y = expf(m[1]->get_data()[col]) / sum;
+
+        if (row == col)
+        {
+            m[0]->get_data()[i] = softmax_x * (1 - softmax_x);
+        }
+        else
+        {
+            m[0]->get_data()[i] = -softmax_x * softmax_y;
+        }
+    }
+}

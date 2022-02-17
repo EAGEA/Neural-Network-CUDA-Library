@@ -120,8 +120,8 @@ namespace cudaNN
          * Increase as the predicted probability diverges from the actual label.
          */
         const auto CROSS_ENTROPY_LOSS = function("cross_entropy_loss",
-                                                        cross_entropy_loss,
-                                                        cross_entropy_loss_derivative);
+                                                 cross_entropy_loss,
+                                                 cross_entropy_loss_derivative);
     }
 }
 

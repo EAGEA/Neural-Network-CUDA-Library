@@ -150,8 +150,8 @@ __global__ void __kernel_binary_cross_entropy_loss(float *errors,
 }
 
 __global__ void __kernel_binary_cross_entropy_loss_derivative(float *errors,
-                                                   float *predictions, float *labels,
-                                                   size_t nb_rows, size_t nb_cols)
+                                                              float *predictions, float *labels,
+                                                              size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -166,24 +166,25 @@ __global__ void __kernel_binary_cross_entropy_loss_derivative(float *errors,
 }
 
 __global__ void __kernel_cross_entropy_loss(float *errors,
-                                                   float *predictions, float *labels,
-                                                   size_t nb_rows, size_t nb_cols)
+                                            float *predictions, float *labels,
+                                            size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
     size_t index = row * nb_cols + col;
 
-    float loss = .0f;
     // Check if the thread is in the matrix dimensions.
     if (row < nb_rows && col < nb_cols)
     {
-        for(int i = 0; i < nb_rows * nb_cols; i++)
+        float loss = .0f;
+// TODO REDUCTION
+        for (size_t i = 0; i < nb_rows * nb_cols; i++)
         {
             loss += -(labels[i] * logf(predictions[i]));
         }
-    }
 
-    errors[index] = loss;
+        errors[index] = loss;
+    }
 }
 
 __global__ void __kernel_cross_entropy_loss_derivative(float *errors,
@@ -198,7 +199,7 @@ __global__ void __kernel_cross_entropy_loss_derivative(float *errors,
     if (row < nb_rows && col < nb_cols)
     {
         errors[index] = -(labels[index] / predictions[index])
-                + ((1.f - labels[index]) / (1.f - predictions[index]));
+                        + ((1.f - labels[index]) / (1.f - predictions[index]));
     }
 }
 

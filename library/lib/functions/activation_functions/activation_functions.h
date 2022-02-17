@@ -46,6 +46,8 @@ namespace cudaNN
         void relu_derivative(std::vector<matrix *> m);
         void tanh(std::vector<matrix *> m);
         void tanh_derivative(std::vector<matrix *> m);
+        void softmax(std::vector<matrix *> m);
+        void softmax_derivative(std::vector<matrix *> m);
     }
 
 
