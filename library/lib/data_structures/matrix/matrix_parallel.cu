@@ -135,54 +135,38 @@ __global__ void __kernel_do_hadamard_product(float *v1, float *v2,
     }
 }
 
-__global__ void __kernel_do_sum(float *data, size_t nb_rows, size_t nb_cols)
+__global__ void __kernel_do_sum(float *data, float *result,
+                                size_t nb_rows, size_t nb_cols)
 {
-    // Do a reduction to compute the sum.
-    extern __shared__ float shared_sum[];
-    size_t tid = threadIdx.x;
-    size_t col = blockIdx.x * blockDim.x + tid;
-
-    // Copy into shared memory.
-    shared_sum[tid] = data[col];
-    __syncthreads();
-
-    for (size_t stride = blockDim.x/2; stride > 0; stride >>= 1)
-    {
-        if (tid < stride)
-        {
-            shared_sum[tid] += shared_sum[tid + stride];
-        }
-    }
-
-    __syncthreads();
-
-    if (tid == 0)
-    {
-        data[0] = shared_sum[0];
-    }
-    /*
-    // Perform a reduction on "data".
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
     size_t row = blockIdx.y * blockDim.y + threadIdx.y;
     size_t index = row * nb_cols + col;
-    length = nb_rows * nb_cols;
 
-    for (size_t size = length; size >= 1; size /= 2)
+    if (index < nb_rows * nb_cols)
     {
-        if (size != length && index < size)
+        // Do a reduction to compute the sum.
+        extern __shared__ float shared_sum[];
+        // Copy into shared memory.
+        shared_sum[threadIdx.x] = data[blockIdx.x * blockDim.x + threadIdx.x];
+
+        __syncthreads();
+
+        for (size_t stride = blockDim.x / 2; stride > 0; stride >>= 1)
         {
-            data[index] += data[index + size];
+            if (threadIdx.x < stride)
+            {
+                shared_sum[threadIdx.x] += shared_sum[threadIdx.x + stride];
+            }
         }
 
         __syncthreads();
 
-        if (size % 2 != 0 && index == size - 1)
+        // Retrieve and sum the sum computed by each block.
+        if (threadIdx.x == 0)
         {
-            data[1] += data[index];
-            size --;
+            atomicAdd(result, shared_sum[0]);
         }
     }
-     */
 }
 
 __global__ void __kernel_do_transpose(float *data1, const float *data2,
@@ -234,7 +218,7 @@ void matrix_parallel::add(const matrix &m1, const matrix &m2)
         m1.get_data()[i] += m2.get_data()[i];
     }
     /*
-    auto cuda_dims = util::get_cuda_dims(m1.get_dimensions());
+    auto cuda_dims = util::get_cuda_2dims(m1.get_dimensions());
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 
@@ -264,7 +248,7 @@ void matrix_parallel::subtract(const matrix &m1, const matrix &m2)
         m1.get_data()[i] += m2.get_data()[i];
     }
     /*
-    auto cuda_dims = util::get_cuda_dims(m1.get_dimensions());
+    auto cuda_dims = util::get_cuda_2dims(m1.get_dimensions());
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 
@@ -289,7 +273,7 @@ void matrix_parallel::subtract(const matrix &m1, const matrix &m2)
 void matrix_parallel::multiply(const matrix &m,
                       const matrix &m1, const matrix &m2)
 {
-    auto cuda_dims = util::get_cuda_dims(m.get_dimensions());
+    auto cuda_dims = util::get_cuda_2dims(m.get_dimensions());
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 
@@ -322,7 +306,7 @@ void matrix_parallel::multiply(const matrix &m, float f)
         m.get_data()[i] *= f;
     }
     /*
-    auto cuda_dims = util::get_cuda_dims(m.get_dimensions());
+    auto cuda_dims = util::get_cuda_2dims(m.get_dimensions());
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 
@@ -348,7 +332,7 @@ void matrix_parallel::do_hadamard_product(const matrix &v1, const matrix &v2)
         v1.get_data()[i] *= v2.get_data()[i];
     }
     /*
-    auto cuda_dims = util::get_cuda_dims(v1.get_dimensions());
+    auto cuda_dims = util::get_cuda_2dims(v1.get_dimensions());
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 
@@ -372,29 +356,48 @@ void matrix_parallel::do_hadamard_product(const matrix &v1, const matrix &v2)
 
 void matrix_parallel::do_sum(float *result, const matrix &m)
 {
-    auto cuda_dims = util::get_cuda_dims(m.get_dimensions());
+    // We use a reduction that assumes that the data is contained
+    // in an array of size 2^n. Therefore, we round up to the next
+    // power of 2 our matrix array.
+    auto ceil2 = util::ceil2(m.get_length());
+    auto cuda_dims = util::get_cuda_1dims(
+            std::pair<size_t, size_t>(ceil2, 1));
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
+    *result = 0.f;
 
     float *device_data;
+    float *device_result;
+
     // Prepare data on device.
-    start_operation(m, &device_data);
+    // - Allocate memory on device (of size 2^n).
+    CUDA_CHECK(cudaMalloc(&device_data, ceil2 * sizeof(float)));
+    // - Copy the matrix to this memory.
+    CUDA_CHECK(cudaMemcpy(device_data, m.get_data(),
+                          m.get_length() * sizeof(float),
+                          cudaMemcpyHostToDevice));
+    // Allocate result.
+    CUDA_CHECK(cudaMalloc(&device_result, sizeof(float)));
+    CUDA_CHECK(cudaMemcpy(device_result, result,
+                          sizeof(float),
+                          cudaMemcpyHostToDevice));
     // Do computations with CUDA threads.
-    __kernel_do_sum<<<block_dims, thread_dims, m.get_length() * sizeof(float)>>>(
-            device_data,
+    __kernel_do_sum<<<block_dims, thread_dims, ceil2 * sizeof(float)>>>(
+            device_data, device_result,
             m.get_dimensions().first, m.get_dimensions().second);
     // Wait for all threads.
     CUDA_CHECK(cudaDeviceSynchronize());
     // Retrieve/free data from device.
-    CUDA_CHECK(cudaMemcpy(result, device_data,
+    CUDA_CHECK(cudaMemcpy(result, device_result,
                           sizeof(float),
                           cudaMemcpyDeviceToHost));
     CUDA_CHECK(cudaFree(device_data));
+    CUDA_CHECK(cudaFree(device_result));
 }
 
 void matrix_parallel::do_transpose(matrix &result, const matrix &m)
 {
-    auto cuda_dims = util::get_cuda_dims(m.get_dimensions());
+    auto cuda_dims = util::get_cuda_2dims(m.get_dimensions());
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 

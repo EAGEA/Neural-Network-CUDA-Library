@@ -207,7 +207,7 @@ void __helper(const matrix &errors,
               void (kernel)(float *errors, float *predictions, float *labels,
                             size_t nb_rows, size_t nb_cols))
 {
-    auto cuda_dims = util::get_cuda_dims(predictions.get_dimensions());
+    auto cuda_dims = util::get_cuda_2dims(predictions.get_dimensions());
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 

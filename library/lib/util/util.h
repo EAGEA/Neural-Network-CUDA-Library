@@ -39,11 +39,23 @@ namespace cudaNN
         void ERROR_EXIT();
 
         /**
-         * @param dimensions - the pair <nb_rows, nb_cols> to map on a CUDA grid.
+         * @return the smallest integral power of two that is not smaller than "n".
+         */
+        uint64_t ceil2(uint64_t n);
+
+        /**
+         * @param dimensions - the pair <nb_rows, nb_cols> to map on a 2D CUDA grid.
          * @return - the CUDA block/thread configuration such that it
          * covers a grid of size "nb_rows" * "nb_cols".
          */
-        std::pair<dim3, dim3> get_cuda_dims(std::pair<size_t, size_t> dimensions);
+        std::pair<dim3, dim3> get_cuda_2dims(std::pair<size_t, size_t> dimensions);
+
+        /**
+         * @param dimensions - the pair <nb_rows, nb_cols> to map on a 1D CUDA grid.
+         * @return - the CUDA block/thread configuration such that it
+         * covers a grid of size "nb_rows" * "nb_cols".
+         */
+        std::pair<dim3, dim3> get_cuda_1dims(std::pair<size_t, size_t> dimensions);
 
         void GPU_start_record(cudaEvent_t &start_event, cudaEvent_t &end_event);
         void GPU_end_record(float *time_event, cudaEvent_t &start_event, cudaEvent_t &end_event);

@@ -159,21 +159,37 @@ __global__ void __kernel_softmax(float *results, float *inputs,
                                  float *sum,
                                  size_t nb_rows, size_t nb_cols)
 {
-    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
+    // Do a reduction to compute the sum.
+    extern __shared__ float shared_sum[];
+    // Copy into shared memory.
+    shared_sum[threadIdx.x] = expf(inputs[blockIdx.x * blockDim.x + threadIdx.x]);
 
-    float sum_ = .0f;
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    __syncthreads();
+
+    for (size_t stride = blockDim.x / 2; stride > 0; stride >>= 1)
     {
-        for (int i = 0; i < nb_rows * nb_cols; i++)
+        if (threadIdx.x < stride)
         {
-            sum_ += exp(inputs[i]);
+            shared_sum[threadIdx.x] += shared_sum[threadIdx.x + stride];
         }
+    }
 
-        results[index] = exp(inputs[index]) / sum_;
-        __syncthreads();
+    __syncthreads();
+
+    // Retrieve and sum the sum computed by each block.
+    if (threadIdx.x == 0)
+    {
+        atomicAdd(sum, shared_sum[0]);
+    }
+
+    // Compute the softmax using the previously computed sum.
+    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
+
+    __syncthreads();
+
+    if (index < nb_rows * nb_cols)
+    {
+        results[index] = expf(inputs[index]) / sum[0];
     }
 }
 
@@ -183,51 +199,45 @@ __global__ void __kernel_softmax_derivative(float *results, float *inputs,
 {
     // Do a reduction to compute the sum.
     extern __shared__ float shared_sum[];
-    unsigned int tid = threadIdx.x;
-    size_t col = blockIdx.x * blockDim.x + tid;
-
     // Copy into shared memory.
-    shared_sum[tid] = inputs[col];
+    shared_sum[threadIdx.x] = inputs[blockIdx.x * blockDim.x + threadIdx.x];
+
     __syncthreads();
 
-    for (size_t stride = blockDim.x/2; stride > 0; stride >>= 1)
+    for (size_t stride = blockDim.x / 2; stride > 0; stride >>= 1)
     {
-        if (tid < stride)
+        if (threadIdx.x < stride)
         {
-            shared_sum[tid] += shared_sum[tid + stride];
+            shared_sum[threadIdx.x] += shared_sum[threadIdx.x + stride];
         }
     }
 
     __syncthreads();
 
-    if (tid == 0)
+    // Retrieve and sum the sum computed by each block.
+    if (threadIdx.x == 0)
     {
-        sum[0] = shared_sum[0];
+        atomicAdd(sum, shared_sum[0]);
     }
 
-    // Compute the derivative.
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
-    float softmax_x = .0f;
-    float softmax_y = .0f;
+    // Compute the derivative using the previously computed sum.
+    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
 
     __syncthreads();
 
-    // Use the previously computed sum.
-    if (row < nb_rows && col < nb_cols)
+    if (index < nb_rows * nb_cols)
     {
-        // S(x)
-        softmax_x = exp(inputs[row])/sum[0];
-        // S(y)
-        softmax_y = exp(inputs[col])/sum[0];
+        size_t row = index / nb_cols;
+        size_t col = index % nb_cols;
+        float softmax_x = expf(inputs[row]) / sum[0];
+        float softmax_y = expf(inputs[col]) / sum[0];
+
         if (row == col)
         {
-            // S(x) * (1 - S(x))
             results[index] = softmax_x * (1 - softmax_x);
         }
         else
         {
-            // -S(x) * S(y)
             results[index] = -softmax_x * softmax_y;
         }
     }
@@ -236,7 +246,7 @@ __global__ void __kernel_softmax_derivative(float *results, float *inputs,
 void __helper(const matrix &results, const matrix &inputs,
               void (kernel)(float *result, float *inputs, size_t nb_rows, size_t nb_cols))
 {
-    auto cuda_dims = util::get_cuda_dims(inputs.get_dimensions());
+    auto cuda_dims = util::get_cuda_2dims(inputs.get_dimensions());
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 
@@ -259,36 +269,49 @@ void __helper(const matrix &results, const matrix &inputs,
 }
 
 void __helper_softmax(const matrix &results, const matrix &inputs,
-                      void (kernel)(float *result, float *inputs, float *sum, size_t nb_rows, size_t nb_cols))
+                      void (kernel)(float *result, float *inputs, float *sum,
+                                    size_t nb_rows, size_t nb_cols))
 {
-    auto cuda_dims = util::get_cuda_dims(inputs.get_dimensions());
+    // We use a reduction that assumes that the data is contained
+    // in an array of size 2^n. Therefore, we round up to the next
+    // power of 2 our matrix array.
+    auto ceil2 = util::ceil2(inputs.get_length());
+    auto cuda_dims = util::get_cuda_1dims(
+            std::pair<size_t, size_t>(ceil2, 1));
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 
     // Sum init for softmax.
-    float sum = .0f;
-
     float *device_data1;
     float *device_data2;
-    float *device_sum;
+    float *sum;
+    float zero = 0.f;
 
     // Prepare data on device.
     matrix_parallel::start_operation(results, &device_data1);
-    matrix_parallel::start_operation(inputs, &device_data2);
-    cudaMalloc(&device_sum,1 * sizeof(float));
-    cudaMemcpy(device_sum,&sum,sizeof(float),cudaMemcpyHostToDevice);
-
+    // For the matrix on which we will do the reduction:
+    // - Allocate memory on device (of size 2^n).
+    CUDA_CHECK(cudaMalloc(&device_data2, ceil2 * sizeof(float)));
+    // - Copy the matrix to this memory.
+    CUDA_CHECK(cudaMemcpy(device_data2, inputs.get_data(),
+                          inputs.get_length() * sizeof(float),
+                          cudaMemcpyHostToDevice));
+    // - Allocate for the sum.
+    CUDA_CHECK(cudaMalloc(&sum, sizeof(float)));
+    CUDA_CHECK(cudaMemcpy(sum, &zero,
+                          sizeof(float),
+                          cudaMemcpyHostToDevice));
     // Do computations with CUDA threads.
-    kernel<<<block_dims, thread_dims,inputs.get_length() * sizeof(float)>>>(
-            device_data1, device_data2, device_sum,
+    kernel<<<block_dims, thread_dims, ceil2 * sizeof(float)>>>(
+            device_data1, device_data2,
+            sum,
             results.get_dimensions().first, results.get_dimensions().second);
     // Wait for all threads.
     CUDA_CHECK(cudaDeviceSynchronize());
     // Retrieve/free data from device.
     matrix_parallel::end_operation(results, &device_data1);
     matrix_parallel::end_operation(inputs, &device_data2);
-    cudaMemcpy(&sum,device_sum,sizeof(float),cudaMemcpyDeviceToHost);
-    cudaFree(&device_sum);
+    CUDA_CHECK(cudaFree(sum));
 }
 
 

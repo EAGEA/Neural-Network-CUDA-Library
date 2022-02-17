@@ -66,7 +66,20 @@ void util::ERROR_EXIT()
     std::exit(EXIT_FAILURE);
 }
 
-std::pair<dim3, dim3> util::get_cuda_dims(std::pair<size_t, size_t> dimensions)
+uint64_t util::ceil2(uint64_t n)
+{
+    n --;
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+    n |= n >> 32;
+    n ++;
+    return n;
+}
+
+std::pair<dim3, dim3> util::get_cuda_2dims(std::pair<size_t, size_t> dimensions)
 {
     size_t nb_rows = dimensions.first;
     size_t nb_cols = dimensions.second;
@@ -84,7 +97,36 @@ std::pair<dim3, dim3> util::get_cuda_dims(std::pair<size_t, size_t> dimensions)
         threads_per_block.y = side;
     }
 
-    DEBUG("util::get_cuda_dims",
+    DEBUG("util::get_cuda_2dims",
+          "nb_cols=" + std::to_string(nb_cols)
+          + " & nb_rows=" + std::to_string(nb_rows)
+          + " => Grid=(" + std::to_string(blocks_per_grid.x)
+          + ", " + std::to_string(blocks_per_grid.y)
+          + ", " + std::to_string(blocks_per_grid.z)
+          + ") & Block=(" + std::to_string(threads_per_block.x)
+          + ", " + std::to_string(threads_per_block.y)
+          + ", " + std::to_string(threads_per_block.z)
+          + ")"
+    );
+
+    return { blocks_per_grid, threads_per_block };
+}
+
+std::pair<dim3, dim3> util::get_cuda_1dims(std::pair<size_t, size_t> dimensions)
+{
+    size_t nb_rows = dimensions.first;
+    size_t nb_cols = dimensions.second;
+
+    dim3 blocks_per_grid(1);
+    dim3 threads_per_block = dim3(nb_cols * nb_rows);
+
+    if (nb_rows * nb_cols > MAX_NB_THREADS_BLOCK)
+    {
+        blocks_per_grid.x = std::ceil((float) (nb_rows * nb_cols) / (float) MAX_NB_THREADS_BLOCK);
+        threads_per_block.x = MAX_NB_THREADS_BLOCK;
+    }
+
+    DEBUG("util::get_cuda_1dims",
           "nb_cols=" + std::to_string(nb_cols)
           + " & nb_rows=" + std::to_string(nb_rows)
           + " => Grid=(" + std::to_string(blocks_per_grid.x)
