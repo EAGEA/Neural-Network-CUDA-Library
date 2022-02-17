@@ -8,7 +8,7 @@
 	</a>	
 	<h1>Neural Network CUDA Library</h1>
 	<p>
-    <b>Implementation of a basic neural network and datasets using C++ and CUDA.</b>
+    <b>Implementation of a basic neural network, functions and datasets using C++ and CUDA.</b>
 	</p>
 	<br>
 	<br>
