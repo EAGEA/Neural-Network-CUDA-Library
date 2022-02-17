@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
                               activation_functions::SOFTMAX)
             }
     );
-
+    nn.print();
     //Print the first layer at the beginning
     auto l = nn.get_layer(1);
     //Weights from this layer to the next

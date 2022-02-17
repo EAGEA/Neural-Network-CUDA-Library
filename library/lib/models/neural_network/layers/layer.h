@@ -48,12 +48,13 @@ namespace cudaNN
             void gradient_descent(size_t batch_size, float learning_rate);
 
             /**
-             * Printing functions of the layer
+             * Printing functions of the layer.
              */
             void print_neurons();
             void print_weights();
             void print_biases();
             void print_errors();
+            void print();
 
             size_t size() const;
 

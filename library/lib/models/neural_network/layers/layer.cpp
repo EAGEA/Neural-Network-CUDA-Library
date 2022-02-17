@@ -130,6 +130,11 @@ void layer::print_errors()
     matrix::print(_errors);
 }
 
+void layer::print()
+{
+    std::cout << "Activation: " << _activation_function.get_id() << std::endl;
+    std::cout << "Size:       " << _size << std::endl;
+}
 
 size_t layer::size() const
 {

@@ -48,3 +48,8 @@ matrix function::compute_derivatives(std::vector<matrix *> inputs) const
 
     return outputs;
 }
+
+std::string function::get_id() const
+{
+    return _id;
+}

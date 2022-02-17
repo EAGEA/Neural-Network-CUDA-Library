@@ -36,6 +36,8 @@ namespace cudaNN
              */
             matrix compute_derivatives(std::vector<matrix *> inputs) const;
 
+            std::string get_id() const;
+
         private:
 
             const std::string _id;

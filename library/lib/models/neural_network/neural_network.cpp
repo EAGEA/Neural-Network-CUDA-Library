@@ -98,7 +98,20 @@ void neural_network::_gradient_descent(size_t batch_size, float learning_rate)
     }
 }
 
-layer *neural_network::get_layer(int idx)
+layer *neural_network::get_layer(int i)
 {
-    return _layers[idx];
+    return _layers[i];
+}
+
+void neural_network::print()
+{
+    std::cout << "---------------------------" << std::endl;
+    std::cout << "Neural Network" << std::endl;
+    std::cout << "---------------------------" << std::endl;
+
+    for (auto l: _layers)
+    {
+        l->print();
+        std::cout << "---------------------------" << std::endl;
+    }
 }
