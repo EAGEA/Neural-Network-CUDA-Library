@@ -286,7 +286,7 @@ void matrix_parallel::multiply(const matrix &m,
     start_operation(m1, &device_data1);
     start_operation(m2, &device_data2);
     // Do computations with CUDA threads.
-    __kernel_multiply<<<block_dims, thread_dims>>>(
+    __kernel_multiply<<<block_dims, thread_dims,1024 * 2 * sizeof(float)>>>(
             device_result,
             device_data1, device_data2,
             m1.get_dimensions().first, m1.get_dimensions().second,
