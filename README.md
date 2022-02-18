@@ -146,16 +146,16 @@ train/test split.
   static dataset load_mult();
   ```
   * Load the Multiplication Dataset
-    For the "dataset::MULT_SIZE" entries, generate "dataset::MULT_N" random numbers
-    in [0, "dataset::MULT_MAX"[ (the features), and associate them to the result
-    of the multiplication between them (the label of size "dataset::MULT_NB_FEATURES").
+    For the `dataset::MULT_SIZE` entries, generate `dataset::MULT_N` random numbers
+    in [0, `dataset::MULT_MAX`[ (the features), and associate them to the result
+    of the multiplication between them (the label of size `dataset::MULT_NB_FEATURES`).
 - ```cpp 
   static dataset load_smallimg();
   ```
   * Load the Image Dataset
-    For the "dataset::SMALLIMG_SIZE" entries, generate a random img
-    of size "dataset::SMALLIMG_NB_FEATURES", and associate them to the
-    labels of size "dataset::SMALLIMG_NB_LABELS".
+    For the `dataset::SMALLIMG_SIZE` entries, generate a random img
+    of size `dataset::SMALLIMG_NB_FEATURES`, and associate them to the
+    labels of size `dataset::SMALLIMG_NB_LABELS`.
 - ```cpp 
   static void print(dataset &d);
   ```
@@ -277,7 +277,7 @@ A matrix of size N*M has N rows and M columns (row major).
 - ```cpp 
   float sum() const;
   ```
-  * **@return** - the sum of all the values in "_data". 
+  * **@return** - the sum of all the values in the matrix. 
 - ```cpp 
   matrix transpose() const;
   ```

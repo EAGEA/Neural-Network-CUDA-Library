@@ -84,7 +84,7 @@ namespace cudaNN
             matrix hadamard_product(const matrix &v);
 
             /**
-             * @return - the sum of all the values in "_data".
+             * @return - the sum of all the values in the matrix.
              */
             float sum() const;
 
