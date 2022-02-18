@@ -64,7 +64,8 @@
 
 #### Class entry _([Source](https://github.com/emilienaufauvre/Neural-Network-CUDA-Library/blob/master/library/lib/data_structures/dataset/entry) · [Example](https://github.com/emilienaufauvre/Neural-Network-CUDA-Library/blob/master/library/examples/neural_network_1.cpp))_
 
-Entry in a dataset. Contains features (to be predicted), and annotated labels.
+Entry in a dataset. Contains features (to do predictions on),
+and annotated labels (to be predicted).
 
 - ```cpp 
   entry(matrix features, matrix labels);
