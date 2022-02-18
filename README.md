@@ -43,11 +43,11 @@
 
 ## API reference <a id="api_reference"></a>
 
-- [Global]("#api_reference_global)
-- [Data structures]("#api_reference_data_structures)
-- [Functions]("#api_reference_functions)
-- [Models]("#api_reference_models)
-- [Util]("#api_reference_util)
+- [Global](#api_reference_global)
+- [Data structures](#api_reference_data_structures)
+- [Functions](#api_reference_functions)
+- [Models](#api_reference_models)
+- [Util](#api_reference_util)
 
 ### Global <a id="api_reference_global"></a>
 
