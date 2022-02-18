@@ -17,7 +17,8 @@ namespace cudaNN
     /**
      * Model implementation of a neural network.
      * Current implementation can be used with dataset 
-     * of 1 row features and 1 row labels.
+     * of 1 row features and 1 row labels (horizontal vectors).
+     * Is made of layers.
      */
     class neural_network: public model
     {

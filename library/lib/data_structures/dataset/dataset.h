@@ -20,7 +20,9 @@
 namespace cudaNN
 {
     /**
-     * Dataset representation.
+     * Dataset representation. Contains multiple entries and
+     * can perform operations like batch partitioning or
+     * train/test split.
      */
     class dataset
     {

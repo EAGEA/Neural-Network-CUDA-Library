@@ -11,7 +11,7 @@
 namespace cudaNN
 {
     /**
-     * Entry in a dataset.
+     * Entry in a dataset. Contains features (to be predicted), and annotated labels.
      */
     class entry
     {

@@ -27,7 +27,10 @@ namespace cudaNN
 
 
     /**
-     * Layer of neurons, to be included in a neural network. 
+     * Layer of neurons, to be included in a neural network.
+     * Uses an activation function to compute output of each neuron.
+     * The input of this function (for each neuron) is the
+     * weighted sum of the previous layer outputs, summed with a bias.
      */
     class layer
     {

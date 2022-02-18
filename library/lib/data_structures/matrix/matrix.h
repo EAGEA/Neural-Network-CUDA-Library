@@ -22,7 +22,7 @@ namespace cudaNN
 {
     /**
      * Matrix representation. Depending on the current configuration
-     * either do computations on the host or the device.
+     * (global.h) either do computations on the host or the device.
      * A matrix of size N*M has N rows and M columns (row major).
      */
     class matrix

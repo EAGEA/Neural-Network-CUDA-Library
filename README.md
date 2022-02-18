@@ -64,7 +64,7 @@
 
 #### Class entry _([Source](https://github.com/emilienaufauvre/Neural-Network-CUDA-Library/blob/master/library/lib/data_structures/dataset/entry) · [Example](https://github.com/emilienaufauvre/Neural-Network-CUDA-Library/blob/master/library/examples/neural_network_1.cpp))_
 
-Entry in a dataset.
+Entry in a dataset. Contains features (to be predicted), and annotated labels.
 
 - ```cpp 
   entry(matrix features, matrix labels);
@@ -101,7 +101,9 @@ Entry in a dataset.
 
 #### Class dataset _([Source](https://github.com/emilienaufauvre/Neural-Network-CUDA-Library/blob/master/library/lib/data_structures/dataset/) · [Example](https://github.com/emilienaufauvre/Neural-Network-CUDA-Library/blob/master/library/examples/neural_network_1.cpp))_
 
-Dataset representation.
+Dataset representation. Contains multiple entries and
+can perform operations like batch partitioning or
+train/test split.
 
 - ```cpp 
   dataset();
@@ -162,7 +164,7 @@ Dataset representation.
 #### Class matrix _([Source](https://github.com/emilienaufauvre/Neural-Network-CUDA-Library/blob/master/library/lib/data_structures/matrix/) · [Example](https://github.com/emilienaufauvre/Neural-Network-CUDA-Library/blob/master/library/examples/matrix.cpp))_
 
 Matrix representation. Depending on the current configuration
-either do computations on the host or the device.
+(`global.h`) either do computations on the _host_ or the _device_.
 A matrix of size N*M has N rows and M columns (row major).
 
 - ```cpp 
@@ -394,6 +396,9 @@ Compute and return the error between two matrices;
 #### Class layer
 
 Layer of neurons, to be included in a neural network.
+Uses an activation function to compute output of each neuron.
+The input of this function (for each neuron) is the 
+weighted sum of the previous layer outputs, summed with a bias.
 
 - ```cpp
   enum initializations
@@ -451,7 +456,8 @@ Layer of neurons, to be included in a neural network.
 
 Model implementation of a neural network.
 Current implementation can be used with dataset
-of 1 row features and 1 row labels.
+of 1 row features and 1 row labels (horizontal vectors).
+Is made of layers.
 
 - ```cpp
   neural_network(std::initializer_list<layer *> layers);
