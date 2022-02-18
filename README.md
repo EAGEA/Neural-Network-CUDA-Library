@@ -1,6 +1,6 @@
 [![Generic badge](https://img.shields.io/badge/license-Unlicense-green.svg)](https://shields.io/)
-[![Generic badge](https://img.shields.io/badge/CUDA-version_11-yellow.svg)](https://shields.io/)
-[![Generic badge](https://img.shields.io/badge/C++-version_11-yellow.svg)](https://shields.io/)
+[![Generic badge](https://img.shields.io/badge/CUDA-version_11-orange.svg)](https://shields.io/)
+[![Generic badge](https://img.shields.io/badge/C++-version_11-orange.svg)](https://shields.io/)
 
 <div align="center">
 	<br>
