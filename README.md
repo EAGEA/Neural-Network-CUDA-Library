@@ -25,9 +25,11 @@
 
 ## Introduction <a id="introduction"></a>
 
+### Summary 
+
 ### Architecture
 
-###
+### Challenges    
 
 ## Performances <a id="performances"></a>
 
@@ -51,10 +53,12 @@
 
 ### Global <a id="api_reference_global"></a>
 
-- To execute NVIDIA codes on GPU you must set the variable `lib/global.h/_USE_GPU`,
-otherwise the code will be executed on CPU.
-- To display debug logs, you must set the variables `lib/global.h/_DEBUG`.
-- To display error logs, you must set the variables `lib/global.h/_ERROR`.
+- To execute NVIDIA codes on GPU you must set the macro `lib/global.h/_USE_GPU`,
+  otherwise the code will be executed on CPU (default `true`).
+- To display debug logs, you must set the macro `lib/global.h/_DEBUG` (default `false`).
+- To display error logs, you must set the macro `lib/global.h/_ERROR` (default `true`).
+- To adapt the code to your GPU, you must set the value of the macro `lib/global.h/MAX_NB_THREADS_BLOCK`
+  which is the maximal number of threads in a block (default `1024` corresponding to Nvidia RTX 6000).
  
 ### Data structures <a id="api_reference_data_structures"></a>
 

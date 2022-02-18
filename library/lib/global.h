@@ -17,5 +17,10 @@
 #define _DEBUG false
 #define _ERROR true
 
+/**
+ * Max number of thread in a block (to be set depending on GPU).
+ */
+#define MAX_NB_THREADS_BLOCK 1024
+
 
 #endif //CUDANN_GLOBAL_H

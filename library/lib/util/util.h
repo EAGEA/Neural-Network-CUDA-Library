@@ -21,8 +21,6 @@
 #define TERM_RED     "\033[31m"
 #define TERM_GREEN   "\033[92m"
 
-#define MAX_NB_THREADS_BLOCK 1024
-
 #define CUDA_CHECK(ans) { util::CUDA_ASSERT((ans), __FILE__, __LINE__); }
 
 
