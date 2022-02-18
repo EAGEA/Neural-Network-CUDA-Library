@@ -55,9 +55,9 @@ namespace cudaNN
 
             /**
              * @multiplication_dataset
-             * - for the "MULT_SIZE" entry, generate "MULT_N" random numbers
+             * - for the "MULT_SIZE" entries, generate "MULT_N" random numbers
              * in [0, "MULT_MAX"[ (the features), and associate them to the result
-             * of the multiplication between them (the label).
+             * of the multiplication between them (the label of size "MULT_NB_LABELS).
              */
             static const size_t MULT_SIZE = 256;
             static const size_t MULT_NB_FEATURES = 2;
@@ -67,6 +67,9 @@ namespace cudaNN
 
             /**
              * @image_datase
+             * - for the "SMALLIMG_SIZE" entries, generate a random img
+             * of size "SMALLIMG_NB_FEATURES", and associate them to the
+             * labels of size "SMALLIMG_NB_LABELS".
              */
 
             static const size_t SMALLIMG_SIZE = 8;

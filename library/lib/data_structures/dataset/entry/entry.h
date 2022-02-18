@@ -27,6 +27,9 @@ namespace cudaNN
             bool compare_labels(const matrix &labels) const;
             bool compare(const entry &e) const;
 
+            bool operator==(const entry &e) const;
+            bool operator!=(const entry &e) const;
+
             /**
              * Print the given entry.
              * @param e - the entry concerned.
@@ -38,13 +41,6 @@ namespace cudaNN
             const matrix _features;
             const matrix _labels;
     };
-
-
-    namespace element_operators
-    {
-        bool operator==(const entry &e1, const entry &e2);
-        bool operator!=(const entry &e1, const entry &e2);
-    }
 }
 
 

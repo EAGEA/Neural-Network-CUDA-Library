@@ -15,9 +15,9 @@
 namespace cudaNN
 {
     /**
-     * Weights type of initialization.
-     * @XAVIER for tanh activation.
-     * @HE for RELU activation.
+     * Layer weights type of initialization.
+     * @XAVIER - for tanh activation.
+     * @HE - for RELU activation.
      */
     enum initializations
     {
@@ -40,12 +40,15 @@ namespace cudaNN
              * @param activation_function - the function that compute the output of a neuron.
              */
             layer(const size_t input_size, const size_t nb_neurons,
-                  initializations init,
-                  const function &activation_function);
+                  initializations init = initializations::HE,
+                  const function &activation_function = activation_functions::LINEAR);
 
             matrix feed_forward(matrix &inputs);
             void backward_propagation(matrix &errors, layer *next);
             void gradient_descent(size_t batch_size, float learning_rate);
+
+            std::string get_activation_function() const;
+            size_t size() const;
 
             /**
              * Printing functions of the layer.
@@ -54,9 +57,12 @@ namespace cudaNN
             void print_weights();
             void print_biases();
             void print_errors();
-            void print();
 
-            size_t size() const;
+            /**
+             * Print the given layer (activation function and size).
+             * @param l - the layer concerned.
+             */
+            static void print(const layer &l);
 
         private:
 

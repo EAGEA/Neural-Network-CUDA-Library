@@ -9,10 +9,10 @@ using namespace cudaNN;
 
 
 layer::layer(const size_t input_size, const size_t nb_neurons,
-             initializations init,
-             const function &activation_function):
-        _size(nb_neurons),
-        _biases(1, nb_neurons, "layer::biases"),
+             initializations init /*= initializations::HE*/,
+             const function &activation_function /*= activation_functions::LINEAR*/):
+_size(nb_neurons),
+_biases(1, nb_neurons, "layer::biases"),
         _weights(input_size, nb_neurons, "layer::weights"),
         _activation_function(activation_function),
         _first_entry(true)
@@ -110,6 +110,16 @@ void layer::gradient_descent(size_t batch_size, float learning_rate)
     _first_entry = true;
 }
 
+size_t layer::size() const
+{
+    return _size;
+}
+
+std::string layer::get_activation_function() const
+{
+    return _activation_function.get_id();
+}
+
 void layer::print_neurons()
 {
     matrix::print(_inputs);
@@ -130,13 +140,8 @@ void layer::print_errors()
     matrix::print(_errors);
 }
 
-void layer::print()
+void layer::print(const layer &l)
 {
-    std::cout << "Activation: " << _activation_function.get_id() << std::endl;
-    std::cout << "Size:       " << _size << std::endl;
-}
-
-size_t layer::size() const
-{
-    return _size;
+    std::cout << "Activation: " << l._activation_function.get_id() << std::endl;
+    std::cout << "Size:       " << l._size << std::endl;
 }

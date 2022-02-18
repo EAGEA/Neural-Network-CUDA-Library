@@ -103,15 +103,15 @@ layer *neural_network::get_layer(int i)
     return _layers[i];
 }
 
-void neural_network::print()
+void neural_network::print(const neural_network &n)
 {
     std::cout << "---------------------------" << std::endl;
     std::cout << "Neural Network" << std::endl;
     std::cout << "---------------------------" << std::endl;
 
-    for (auto l: _layers)
+    for (auto l: n._layers)
     {
-        l->print();
+        layer::print(*l);
         std::cout << "---------------------------" << std::endl;
     }
 }

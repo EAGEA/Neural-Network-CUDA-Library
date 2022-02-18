@@ -65,7 +65,7 @@ matrix::matrix(std::initializer_list<float> values, std::pair<size_t, size_t> di
                std::string id)
 {
     _id = std::move(id);
-    allocate(dimensions);
+    _allocate(dimensions);
     std::copy(values.begin(), values.end(), _data);
 }
 
@@ -77,17 +77,17 @@ matrix::matrix(const float *values, std::pair<size_t, size_t> dimensions):
 matrix::matrix(const float *values, std::pair<size_t, size_t> dimensions, std::string id)
 {
     _id = std::move(id);
-    allocate(dimensions);
+    _allocate(dimensions);
     std::copy(values, values + get_length() * sizeof(float), _data);
 }
 
 matrix::~matrix()
 {
     //util::DEBUG("matrix::matrix_parallel_parallel", "--- " + _id);
-    free();
+    _free();
 }
 
-void matrix::allocate(const std::pair<size_t, size_t> &dimensions)
+void matrix::_allocate(const std::pair<size_t, size_t> &dimensions)
 {
     _dimensions.first = dimensions.first;
     _dimensions.second = dimensions.second;
@@ -95,7 +95,7 @@ void matrix::allocate(const std::pair<size_t, size_t> &dimensions)
     _data = new float[get_length() * sizeof(float)](); // TODO remove * sizeof(float)......
 }
 
-void matrix::free()
+void matrix::_free()
 {
     // If existing, free previous memory.
     delete[] _data;
@@ -139,8 +139,8 @@ matrix &matrix::operator=(const matrix &m)
         return *this;
     }
 
-    free();
-    allocate(m.get_dimensions());
+    _free();
+    _allocate(m.get_dimensions());
     // Copy the values on host memory.
     std::copy(m.get_data(),
               m.get_data() + get_length() * sizeof(float),

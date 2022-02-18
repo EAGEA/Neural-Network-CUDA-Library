@@ -53,7 +53,7 @@ namespace cudaNN
 
     /**
      * Compute and return the outputs of the activation function for each
-     * nodes in a layer.
+     * node in a layer.
      * Each cell of the inputted matrix contains the input of a node.
      * Inputs(i) corresponds to addition between the weighted sum of the previous
      * layer outputs, and the bias of the neuron "i".

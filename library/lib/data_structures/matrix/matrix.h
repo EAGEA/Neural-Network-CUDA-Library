@@ -22,7 +22,7 @@ namespace cudaNN
 {
     /**
      * Matrix representation. Depending on the current configuration
-     * either do computations using CUDA, or sequential C++.
+     * either do computations on the host or the device.
      * A matrix of size N*M has N rows and M columns (row major).
      */
     class matrix
@@ -43,9 +43,6 @@ namespace cudaNN
             matrix(const float *values, std::pair<size_t, size_t> dimensions);
             matrix(const float *values, std::pair<size_t, size_t> dimensions, std::string id);
             ~matrix();
-
-            void allocate(const std::pair<size_t, size_t> &dimensions);
-            void free();
 
             void set_id(const std::string &id);
 
@@ -81,8 +78,8 @@ namespace cudaNN
             bool operator!=(const matrix &m) const;
 
             /**
-             * @param v - a vector.
-             * @return - return the Hadamard product between the current matrix and "v".
+             * @param v - a vector of the same dimensions as the current matrix
+             * @return - the Hadamard product between the current matrix and "v".
              */
             matrix hadamard_product(const matrix &v);
 
@@ -103,6 +100,9 @@ namespace cudaNN
             static void print(const matrix &m);
 
         private:
+
+            void _allocate(const std::pair<size_t, size_t> &dimensions);
+            void _free();
 
             std::string _id;
             std::pair<size_t, size_t> _dimensions;

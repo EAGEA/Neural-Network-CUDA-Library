@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
                               activation_functions::LINEAR)
             }
     );
-    nn.print();
+    neural_network::print(nn);
     // Train the neural network and record the time.
     float time;
     util::CPU_start_record(&time);

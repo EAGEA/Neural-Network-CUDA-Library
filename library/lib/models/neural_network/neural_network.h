@@ -35,7 +35,12 @@ namespace cudaNN
             std::vector<matrix> predict(dataset &test) const override;
             layer *get_layer(int i);
 
-            void print();
+
+            /**
+             * Print the given network (layers).
+             * @param n - the network concerned.
+             */
+            static void print(const neural_network &n);
 
         private:
 

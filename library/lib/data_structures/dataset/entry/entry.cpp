@@ -52,12 +52,12 @@ void entry::print(const entry &e)
     matrix::print(e.get_labels());
 }
 
-bool operator==(const entry &e1, const entry &e2)
+bool entry::operator==(const entry &e) const
 {
-    return e1.compare(e2);
+    return compare(e);
 }
 
-bool operator!=(const entry &e1, const entry &e2)
+bool entry::operator!=(const entry &e) const
 {
-    return ! e1.compare(e2);
+    return ! compare(e);
 }

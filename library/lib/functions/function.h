@@ -17,12 +17,14 @@ namespace cudaNN
 
     /**
      * Abstract wrapper to execute a function or its derivative on matrices.
+     * The wrapped functions should be of the form "function_t", such that
+     * the first matrix is the output (results), and the following the parameters.
      */
     class function
     {
         public:
 
-            function(std::string id, function_t , function_t _f);
+            function(std::string id, function_t f, function_t df);
 
             /**
              * @param inputs - the matrices to be used for computation.

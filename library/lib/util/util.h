@@ -39,7 +39,7 @@ namespace cudaNN
         void ERROR_EXIT();
 
         /**
-         * @return the smallest integral power of two that is not smaller than "n".
+         * @return - the smallest integral power of two that is not smaller than "n".
          */
         uint64_t ceil2(uint64_t n);
 
@@ -57,9 +57,31 @@ namespace cudaNN
          */
         std::pair<dim3, dim3> get_cuda_1dims(std::pair<size_t, size_t> dimensions);
 
+        /**
+         * Start the record of GPU execution time
+         * @param start_event - the starting event.
+         * @param end_event - the ending event.
+         */
         void GPU_start_record(cudaEvent_t &start_event, cudaEvent_t &end_event);
+
+        /**
+         * End the record of GPU execution time
+         * @param time_event - the final execution time (ms).
+         * @param start_event - the starting event.
+         * @param end_event - the ending event.
+         */
         void GPU_end_record(float *time_event, cudaEvent_t &start_event, cudaEvent_t &end_event);
+
+        /**
+         * Start the record of CPU execution time
+         * @param end_event - the start event.
+         */
         void CPU_start_record(float *time_event);
+
+        /**
+         * End the record of CPU execution time
+         * @param end_event - the end event (ms).
+         */
         void CPU_end_record(float *time_event);
     };
 }
