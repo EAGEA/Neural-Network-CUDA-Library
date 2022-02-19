@@ -29,6 +29,8 @@
 
 ### Architecture
 
+<img src="res/architecture.png">
+
 ### Challenges    
 
 ## Performances <a id="performances"></a>
