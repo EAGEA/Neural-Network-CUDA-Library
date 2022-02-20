@@ -49,6 +49,7 @@ namespace cudaNN
             const std::string &get_id() const;
             float *get_data() const;
             float *get_data();
+            float get_max();
 
             /**
              * @return - the number of rows, and columns of the matrix.

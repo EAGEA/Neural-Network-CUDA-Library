@@ -96,7 +96,7 @@ void activation_functions_sequential::softmax(std::vector<matrix *> m)
 
     for (size_t i = 0; i < m[0]->get_length(); i ++)
     {
-        sum += expf(m[1]->get_data()[i]);
+        sum += expf(m[1]->get_data()[i] - m[1]->get_max());
     }
 
     for (size_t i = 0; i < m[0]->get_length(); i ++)

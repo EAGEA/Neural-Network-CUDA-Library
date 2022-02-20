@@ -156,13 +156,13 @@ __global__ void __kernel_tanh_derivative(float *results, float *inputs,
 }
 
 __global__ void __kernel_softmax(float *results, float *inputs,
-                                 float *sum,
+                                 float *sum, float max_d,
                                  size_t nb_rows, size_t nb_cols)
 {
     // Do a reduction to compute the sum.
     extern __shared__ float shared_sum[];
     // Copy into shared memory.
-    shared_sum[threadIdx.x] = expf(inputs[blockIdx.x * blockDim.x + threadIdx.x]);
+    shared_sum[threadIdx.x] = expf(inputs[blockIdx.x * blockDim.x + threadIdx.x] - max_d);
 
     __syncthreads();
 
@@ -189,12 +189,12 @@ __global__ void __kernel_softmax(float *results, float *inputs,
 
     if (index < nb_rows * nb_cols)
     {
-        results[index] = expf(inputs[index]) / sum[0];
+        results[index] = expf(inputs[index] - max_d) / sum[0];
     }
 }
 
 __global__ void __kernel_softmax_derivative(float *results, float *inputs,
-                                            float *sum,
+                                            float *sum, float max_d,
                                             size_t nb_rows, size_t nb_cols)
 {
     // Do a reduction to compute the sum.
@@ -229,8 +229,8 @@ __global__ void __kernel_softmax_derivative(float *results, float *inputs,
     {
         size_t row = index / nb_cols;
         size_t col = index % nb_cols;
-        float softmax_x = expf(inputs[row]) / sum[0];
-        float softmax_y = expf(inputs[col]) / sum[0];
+        float softmax_x = expf(inputs[row] - max_d) / sum[0];
+        float softmax_y = expf(inputs[col] - max_d) / sum[0];
 
         if (row == col)
         {
@@ -268,8 +268,8 @@ void __helper(const matrix &results, const matrix &inputs,
     matrix_parallel::end_operation(inputs, &device_data2);
 }
 
-void __helper_softmax(const matrix &results, const matrix &inputs,
-                      void (kernel)(float *result, float *inputs, float *sum,
+void __helper_softmax(const matrix &results, const matrix &inputs, float max_data,
+                      void (kernel)(float *result, float *inputs, float *sum, float max_d,
                                     size_t nb_rows, size_t nb_cols))
 {
     // We use a reduction that assumes that the data is contained
@@ -304,7 +304,7 @@ void __helper_softmax(const matrix &results, const matrix &inputs,
     // Do computations with CUDA threads.
     kernel<<<block_dims, thread_dims, ceil2 * sizeof(float)>>>(
             device_data1, device_data2,
-            sum,
+            sum, max_data,
             results.get_dimensions().first, results.get_dimensions().second);
     // Wait for all threads.
     CUDA_CHECK(cudaDeviceSynchronize());
@@ -372,10 +372,10 @@ void activation_functions_parallel::tanh_derivative(std::vector<matrix *> m)
 
 void activation_functions_parallel::softmax(std::vector<matrix *> m)
 {
-    __helper_softmax(*m[0], *m[1],__kernel_softmax);
+    __helper_softmax(*m[0], *m[1],m[1]->get_max(),__kernel_softmax);
 }
 
 void activation_functions_parallel::softmax_derivative(std::vector<matrix *> m)
 {
-    __helper_softmax(*m[0], *m[1],__kernel_softmax_derivative);
+    __helper_softmax(*m[0], *m[1],m[1]->get_max(),__kernel_softmax_derivative);
 }
