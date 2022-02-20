@@ -245,7 +245,7 @@ void matrix_parallel::subtract(const matrix &m1, const matrix &m2)
     // Execute on CPU (more performances).
     for (size_t i = 0; i < m1.get_length(); i ++)
     {
-        m1.get_data()[i] += m2.get_data()[i];
+        m1.get_data()[i] -= m2.get_data()[i];
     }
     /*
     auto cuda_dims = util::get_cuda_2dims(m1.get_dimensions());
@@ -286,7 +286,7 @@ void matrix_parallel::multiply(const matrix &m,
     start_operation(m1, &device_data1);
     start_operation(m2, &device_data2);
     // Do computations with CUDA threads.
-    __kernel_tiled_multiply<<<block_dims, thread_dims,TILE_WIDTH * TILE_WIDTH * 2 * sizeof(float)>>>(
+    __kernel_multiply<<<block_dims, thread_dims,TILE_WIDTH * TILE_WIDTH * 2 * sizeof(float)>>>(
             device_result,
             device_data1, device_data2,
             m1.get_dimensions().first, m1.get_dimensions().second,

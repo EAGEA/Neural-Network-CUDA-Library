@@ -16,6 +16,9 @@
 #define inputs_x 8
 #define inputs_y 1
 
+//Learning rate
+#define lr 0.1
+
 using namespace cudaNN;
 
 int main(int argc, char *argv[])
@@ -46,7 +49,7 @@ int main(int argc, char *argv[])
     {
         inputs[i] = 0.2;
     }
-    //Print of the layer
+    //Print of the layer BEFORE
     std::cout << "BEFORE : weights \n";
     matrix::print(weights);
     std::cout << "BEFORE : errors \n";
@@ -54,6 +57,11 @@ int main(int argc, char *argv[])
     std::cout << "BEFORE : inputs \n";
     matrix::print(inputs);
 
-    auto mtest = errors * inputs.transpose();
-    matrix::print(mtest);
+    //Print the matrices when update weights AFTER
+    std::cout << "AFTER : delta_weights \n";
+    auto delta_weights = (inputs * errors.transpose()) * lr;
+    matrix::print(delta_weights);
+    weights = weights - delta_weights;
+    std::cout << "AFTER : weights \n";
+    matrix::print(weights);
 }
