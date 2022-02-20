@@ -19,13 +19,14 @@ __global__ void __kernel_add(float *data1, const float *data2,
                              size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
     // Check if thread index is in the output dimensions.
-    if (row < nb_rows && col < nb_cols)
+    if (col < nb_cols)
     {
-        data1[index] += data2[index];
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            data1[nb_cols * i + col] += data2[nb_cols * i + col];
+        }
     }
 }
 
@@ -33,13 +34,14 @@ __global__ void __kernel_subtract(float *data1, const float *data2,
                                   size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
     // Check if thread index is in the output dimensions.
-    if (row < nb_rows && col < nb_cols)
+    if (col < nb_cols)
     {
-        data1[index] -= data2[index];
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            data1[nb_cols * i + col] -= data2[nb_cols * i + col];
+        }
     }
 }
 
@@ -111,13 +113,14 @@ __global__ void __kernel_multiply(float *data, float f,
                                   size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
     // Check if thread index is in the output dimensions.
-    if (row < nb_rows && col < nb_cols)
+    if (col < nb_cols)
     {
-        data[index] *= f;
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            data[nb_cols * i + col] *= f;
+        }
     }
 }
 
@@ -125,13 +128,14 @@ __global__ void __kernel_do_hadamard_product(float *v1, float *v2,
                                              size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
     // Check if thread index is in the output dimensions.
-    if (row < nb_rows && col < nb_cols)
+    if (col < nb_cols)
     {
-        v1[index] *= v2[index];
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            v1[nb_cols * i + col] *= v2[nb_cols * i + col];
+        }
     }
 }
 
@@ -212,19 +216,13 @@ void matrix_parallel::end_operation(const matrix &m, float **device_data)
 
 void matrix_parallel::add(const matrix &m1, const matrix &m2)
 {
-    // Execute on CPU (more performances).
-    for (size_t i = 0; i < m1.get_length(); i ++)
-    {
-        m1.get_data()[i] += m2.get_data()[i];
-    }
-    /*
-    auto cuda_dims = util::get_cuda_2dims(m1.get_dimensions());
+    auto cuda_dims = util::get_cuda_1dims(
+            std::pair<size_t, size_t>(1, m1.get_dimensions().second));
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 
     float *device_data1;
     float *device_data2;
-
     // Prepare data on device.
     start_operation(m1, &device_data1);
     start_operation(m2, &device_data2);
@@ -237,18 +235,12 @@ void matrix_parallel::add(const matrix &m1, const matrix &m2)
     // Retrieve/free data from device.
     end_operation(m1, &device_data1);
     end_operation(m2, &device_data2);
-     */
 }
 
 void matrix_parallel::subtract(const matrix &m1, const matrix &m2)
 {
-    // Execute on CPU (more performances).
-    for (size_t i = 0; i < m1.get_length(); i ++)
-    {
-        m1.get_data()[i] -= m2.get_data()[i];
-    }
-    /*
-    auto cuda_dims = util::get_cuda_2dims(m1.get_dimensions());
+    auto cuda_dims = util::get_cuda_1dims(
+            std::pair<size_t, size_t>(1, m1.get_dimensions().second));
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 
@@ -267,7 +259,6 @@ void matrix_parallel::subtract(const matrix &m1, const matrix &m2)
     // Retrieve/free data from device.
     end_operation(m1, &device_data1);
     end_operation(m2, &device_data2);
-     */
 }
 
 void matrix_parallel::multiply(const matrix &m,
@@ -301,12 +292,8 @@ void matrix_parallel::multiply(const matrix &m,
 
 void matrix_parallel::multiply(const matrix &m, float f)
 {
-    for (size_t i = 0; i < m.get_length(); i ++)
-    {
-        m.get_data()[i] *= f;
-    }
-    /*
-    auto cuda_dims = util::get_cuda_2dims(m.get_dimensions());
+    auto cuda_dims = util::get_cuda_1dims(
+            std::pair<size_t, size_t>(1, m.get_dimensions().second));
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 
@@ -322,17 +309,12 @@ void matrix_parallel::multiply(const matrix &m, float f)
     CUDA_CHECK(cudaDeviceSynchronize());
     // Retrieve/free data from device.
     end_operation(m, &device_data);
-     */
 }
 
 void matrix_parallel::do_hadamard_product(const matrix &v1, const matrix &v2)
 {
-    for (size_t i = 0; i < v1.get_length(); i ++)
-    {
-        v1.get_data()[i] *= v2.get_data()[i];
-    }
-    /*
-    auto cuda_dims = util::get_cuda_2dims(v1.get_dimensions());
+    auto cuda_dims = util::get_cuda_1dims(
+            std::pair<size_t, size_t>(1, v1.get_dimensions().second));
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 
@@ -351,7 +333,6 @@ void matrix_parallel::do_hadamard_product(const matrix &v1, const matrix &v2)
     // Retrieve/free data from device.
     end_operation(v1, &device_data1);
     end_operation(v2, &device_data2);
-     */
 }
 
 void matrix_parallel::do_sum(float *result, const matrix &m)
