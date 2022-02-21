@@ -27,12 +27,74 @@
 
 ### Summary 
 
+This repository is the implementation a basic neural network, functions and datasets library using C++ and CUDA. 
+The use of a GPU allows the library to quickly build large models, with many processing units, on large datasets, 
+faster than with classical CPU.
+
 ### Architecture
+
+#### Modules
+
+Here are the main modules of the library. As it is clearly exposed on the following 
+diagrams, the matrix class is the data structure at the origin of every other structure.
+
+- An overview of the library:
+
+<img src="res/architecture_simple.png">
+
+- A more detailed view of the library: 
 
 <img src="res/architecture.png">
 
-### Challenges    
+#### CUDA kernels
 
+Here is a quick summary of the CUDA pattern usages through the library.
+
+|                                  | Shared Memory | Reduction | Tiles | Column |
+|:---------------------------------|:-------------:|:---------:|:-----:|:------:|
+| matrix addition                  |               |     ️     |       | ✗️  ️  |️️                          
+| matrix subtraction               |               |     ️     |       | ✗️  ️  |️️                          
+| matrix multiplication            |      ✗️       |           |  ✗️   |        |
+| matrix multiplication by a float |               |           |       |   ✗️   |
+| matrix Hadamard product          |               |           |       |   ✗️   |
+| matrix sum                       |      ✗️       |    ✗️     |       |        |
+| matrix transpose                 |       ️       |           |       |   ✗️   |
+
+|                        | Shared Memory | Reduction | Tiles | Column |
+|:-----------------------|:-------------:|:---------:|:-----:|:------:|
+| linear                 |               |     ️     |       | ✗️ ️ ️ |️️                          
+| linear derivative      |               |     ️     |       | ✗️ ️ ️ |️️                          
+| binary step            |               |     ️     |       | ✗️ ️ ️ |️️                          
+| binary step derivative |               |     ️     |       | ✗️ ️ ️ |️️                          
+| sigmoid                |               |     ️     |       | ✗️ ️ ️ |️️                          
+| sigmoid derivative     |               |     ️     |       | ✗️️  ️ |️️                          
+| relu                   |               |     ️     |       | ✗️  ️  |️️                          
+| relu derivative        |               |     ️     |       | ✗️  ️  |️️                          
+| tanh                   |               |     ️     |       | ✗️  ️  |️️                          
+| tanh derivative        |               |     ️     |       | ✗️ ️ ️ |️️                          
+| softmax                |      ✗️️      |   ✗️  ️   |       |  ️  ️  |️️                          
+| softmax derivative     |      ✗️       |   ✗️  ️   |       |  ️  ️  |️️                          
+
+|                                      | Shared Memory | Reduction | Tiles | Column |
+|:-------------------------------------|:-------------:|:---------:|:-----:|:------:|
+| mean squared error                   |               |     ️     |       |  ✗️️   |️️                          
+| mean squared error derivative        |               |     ️     |       |  ✗️️   |️️                          
+| mean absolute error                  |               |     ️     |       |  ✗️️   |️️                          
+| mean absolute error derivative       |               |     ️     |       |  ✗️️   |️️                          
+| mean bias error                      |               |     ️     |       |  ✗️️   |️️                          
+| mean bias error derivative           |               |     ️     |       |  ✗️️   |️️                          
+| hinge loss                           |               |     ️     |       |  ✗️️   |️️                          
+| hinge loss derivative                |               |     ️     |       |  ✗️️   |️️                          
+| binary cross entropy loss            |               |     ️     |       |  ✗️️   |️️                          
+| binary cross entropy loss derivative |               |     ️     |       |  ✗️️   |️️                          
+| cross entropy loss                   |      ✗️       |  ✗️    ️  |       |   ️️   |️️                          
+| cross entropy loss derivative        |               |     ️     |       |  ✗️️   |️️                          
+
+- **Shared Memory:** the kernel involve the use of shared memory for each executing block.
+- **Reduction:** the kernel involve the use of the multi-blocks reduction pattern.
+- **Tiles:** the kernel involve tile organization (limited global memory accesses).
+- **Column:** the kernel involve column organization (a thread computing a column).
+ 
 ## Performances <a id="performances"></a>
 
 ### Device and host specifications
