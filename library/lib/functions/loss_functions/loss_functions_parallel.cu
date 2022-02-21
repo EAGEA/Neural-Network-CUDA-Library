@@ -18,13 +18,16 @@ __global__ void __kernel_mean_squared_error(float *errors,
                                             size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        errors[index] = std::pow(labels[index] - predictions[index], 2.0f);
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            errors[nb_cols * i + col] = std::pow(
+                    labels[nb_cols * i + col] - predictions[nb_cols * i + col],
+                    2.0f);
+        }
     }
 }
 
@@ -33,13 +36,14 @@ __global__ void __kernel_mean_squared_error_derivative(float *errors,
                                             size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        errors[index] = -2.f * (labels[index] - predictions[index]);
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            errors[nb_cols * i + col] = -2.f * (labels[nb_cols * i + col] - predictions[nb_cols * i + col]);
+        }
     }
 }
 
@@ -48,13 +52,14 @@ __global__ void __kernel_mean_absolute_error(float *errors,
                                              size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        errors[index] = std::abs(labels[index] - predictions[index]);
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            errors[nb_cols * i + col] = std::abs(labels[nb_cols * i + col] - predictions[nb_cols * i + col]);
+        }
     }
 }
 
@@ -63,13 +68,15 @@ __global__ void __kernel_mean_absolute_error_derivative(float *errors,
                                              size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        errors[index] = predictions[index] > labels[index] ? +1.f : -1.f;
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            errors[nb_cols * i + col] = predictions[nb_cols * i + col] > labels[nb_cols * i + col] ?
+                                        +1.f : -1.f;
+        }
     }
 }
 
@@ -78,13 +85,14 @@ __global__ void __kernel_mean_bias_error(float *errors,
                                          size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        errors[index] = labels[index] - predictions[index];
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            errors[nb_cols * i + col] = labels[nb_cols * i + col] - predictions[nb_cols * i + col];
+        }
     }
 }
 
@@ -93,13 +101,14 @@ __global__ void __kernel_mean_bias_error_derivative(float *errors,
                                          size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        errors[index] = -1.f;
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            errors[nb_cols * i + col] = -1.f;
+        }
     }
 }
 
@@ -108,13 +117,15 @@ __global__ void __kernel_hinge_loss(float *errors,
                                     size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        errors[index] = std::fmax(0.f, 1.f - labels[index] * predictions[index]);
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            errors[nb_cols * i + col] = std::fmax(0.f,
+                                                  1.f - labels[nb_cols * i + col] * predictions[nb_cols * i + col]);
+        }
     }
 }
 
@@ -123,13 +134,16 @@ __global__ void __kernel_hinge_loss_derivative(float *errors,
                                     size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        errors[index] = predictions[index] > 1.f ? 0.f : -labels[index] * 1.f; // TODO check
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            // TODO check if correct definition.
+            errors[nb_cols * i + col] = predictions[nb_cols * i + col] > 1.f ?
+                                        0.f : -labels[nb_cols * i + col] * 1.f;
+        }
     }
 }
 
@@ -138,14 +152,17 @@ __global__ void __kernel_binary_cross_entropy_loss(float *errors,
                                                    size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        errors[index] = -(labels[index] * logf(predictions[index])
-                          + (1.f - labels[index]) * logf(1.f - predictions[index]));
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            errors[nb_cols * i + col] = -(labels[nb_cols * i + col]
+                                          * logf(predictions[nb_cols * i + col])
+                                          + (1.f - labels[nb_cols * i + col])
+                                            * logf(1.f - predictions[nb_cols * i + col]));
+        }
     }
 }
 
@@ -154,14 +171,17 @@ __global__ void __kernel_binary_cross_entropy_loss_derivative(float *errors,
                                                               size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        errors[index] = -(labels[index] / predictions[index]
-                          - (1.f - labels[index]) / (1.f - predictions[index]));
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            errors[nb_cols * i + col] = -(labels[nb_cols * i + col]
+                                          / predictions[nb_cols * i + col]
+                                          - (1.f - labels[nb_cols * i + col])
+                                            / (1.f - predictions[nb_cols * i + col]));
+        }
     }
 }
 
@@ -192,14 +212,17 @@ __global__ void __kernel_cross_entropy_loss_derivative(float *errors,
                                                        size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        errors[index] = -(labels[index] / predictions[index])
-                        + ((1.f - labels[index]) / (1.f - predictions[index]));
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            errors[nb_cols * i + col] = -(labels[nb_cols * i + col]
+                                          / predictions[nb_cols * i + col])
+                                        + ((1.f - labels[nb_cols * i + col])
+                                           / (1.f - predictions[nb_cols * i + col]));
+        }
     }
 }
 
@@ -208,7 +231,8 @@ void __helper(const matrix &errors,
               void (kernel)(float *errors, float *predictions, float *labels,
                             size_t nb_rows, size_t nb_cols))
 {
-    auto cuda_dims = util::get_cuda_2dims(predictions.get_dimensions());
+    auto cuda_dims = util::get_cuda_1dims(
+            std::pair<size_t, size_t>(1, predictions.get_dimensions().second));
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 

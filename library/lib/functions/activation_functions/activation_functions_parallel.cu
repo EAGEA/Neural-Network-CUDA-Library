@@ -17,13 +17,14 @@ __global__ void __kernel_linear(float *results, float *inputs,
                                 size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        results[index] = inputs[index];
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            results[nb_cols * i + col] = inputs[nb_cols * i + col];
+        }
     }
 }
 
@@ -31,13 +32,14 @@ __global__ void __kernel_linear_derivative(float *results, float *inputs,
                                            size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        results[index] = 1.f;
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            results[nb_cols * i + col] = 1.f;
+        }
     }
 }
 
@@ -45,13 +47,14 @@ __global__ void __kernel_binary_step(float *results, float *inputs,
                                      size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        results[index] = inputs[index] < 0.f ? 0.f : 1.f;
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            results[nb_cols * i + col] = inputs[nb_cols * i + col] < 0.f ? 0.f : 1.f;
+        }
     }
 }
 
@@ -59,13 +62,14 @@ __global__ void __kernel_binary_step_derivative(float *results, float *inputs,
                                                 size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        results[index] = 0.f;
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            results[nb_cols * i + col] = 0.f;
+        }
     }
 }
 
@@ -73,13 +77,14 @@ __global__ void __kernel_sigmoid(float *results, float *inputs,
                                  size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        results[index] = 1.f / (1.f + expf(-inputs[index]));
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            results[nb_cols * i + col] = 1.f / (1.f + expf(-inputs[nb_cols * i + col]));
+        }
     }
 }
 
@@ -87,14 +92,15 @@ __global__ void __kernel_sigmoid_derivative(float *results, float *inputs,
                                             size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        float sigmoid = 1.f / (1.f + expf(-inputs[index]));
-        results[index] = sigmoid * (1.f - sigmoid);
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            float sigmoid = 1.f / (1.f + expf(-inputs[nb_cols * i + col]));
+            results[nb_cols * i + col] = sigmoid * (1.f - sigmoid);
+        }
     }
 }
 
@@ -102,13 +108,14 @@ __global__ void __kernel_relu(float *results, float *inputs,
                               size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        results[index] = fmax(0.f, inputs[index]);
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            results[nb_cols * i + col] = fmax(0.f, inputs[nb_cols * i + col]);
+        }
     }
 }
 
@@ -116,13 +123,14 @@ __global__ void __kernel_relu_derivative(float *results, float *inputs,
                                          size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        results[index] = inputs[index] > 0 ? 1.f : 0.f;
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            results[nb_cols * i + col] = inputs[nb_cols * i + col] > 0 ? 1.f : 0.f;
+        }
     }
 }
 
@@ -130,13 +138,14 @@ __global__ void __kernel_tanh(float *results, float *inputs,
                               size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        results[index] = tanhf(inputs[index]);
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            results[nb_cols * i + col] = tanhf(inputs[nb_cols * i + col]);
+        }
     }
 }
 
@@ -144,14 +153,15 @@ __global__ void __kernel_tanh_derivative(float *results, float *inputs,
                                          size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index = row * nb_cols + col;
 
-    // Check if the thread is in the matrix dimensions.
-    if (row < nb_rows && col < nb_cols)
+    // Check if thread index is in the output dimensions.
+    if (col < nb_cols)
     {
-        float tanh_ = tanhf(inputs[index]);
-        results[index] = 1.f - tanh_ * tanh_;
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            float tanh_ = tanhf(inputs[nb_cols * i + col]);
+            results[nb_cols * i + col] = 1.f - tanh_ * tanh_;
+        }
     }
 }
 
@@ -246,7 +256,8 @@ __global__ void __kernel_softmax_derivative(float *results, float *inputs,
 void __helper(const matrix &results, const matrix &inputs,
               void (kernel)(float *result, float *inputs, size_t nb_rows, size_t nb_cols))
 {
-    auto cuda_dims = util::get_cuda_2dims(inputs.get_dimensions());
+    auto cuda_dims = util::get_cuda_1dims(
+            std::pair<size_t, size_t>(1, inputs.get_dimensions().second));
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 

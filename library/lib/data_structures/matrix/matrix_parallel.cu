@@ -389,7 +389,8 @@ void matrix_parallel::do_sum(float *result, const matrix &m)
 
 void matrix_parallel::do_transpose(matrix &result, const matrix &m)
 {
-    auto cuda_dims = util::get_cuda_2dims(m.get_dimensions());
+    auto cuda_dims = util::get_cuda_1dims(
+            std::pair<size_t, size_t>(1, m.get_dimensions().second));
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 
