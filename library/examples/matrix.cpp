@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     {
         for (size_t j= 0; j < y; j ++)
         {
-            m1[i * y + j] = i * j;
+            m1[i * y + j] = i * y + j;
         }
     }
     matrix::print(m1);

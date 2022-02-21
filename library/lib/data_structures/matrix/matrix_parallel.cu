@@ -7,7 +7,7 @@
 
 using namespace cudaNN;
 
-#define TILE_WIDTH 32
+#define TILE_DIM 32
 
 
 /**
@@ -68,43 +68,54 @@ __global__ void __kernel_multiply(float *result,
 }
 
 __global__ void __kernel_tiled_multiply(float *result,
-                                  const float *data1, const float *data2,
-                                  size_t nb_rows_1, size_t nb_cols_1,
-                                  size_t nb_rows_2, size_t nb_cols_2)
+                                        const float *data1, const float *data2,
+                                        size_t nb_rows_1, size_t nb_cols_1,
+                                        size_t nb_rows_2, size_t nb_cols_2)
 {
-    __shared__ float subTileData1[TILE_WIDTH][TILE_WIDTH];
-    __shared__ float subTileData2[TILE_WIDTH][TILE_WIDTH];
+    __shared__ float subTileData1[TILE_DIM][TILE_DIM];
+    __shared__ float subTileData2[TILE_DIM][TILE_DIM];
 
-    int tx = threadIdx.x; int ty = threadIdx.y;
-    size_t col = blockIdx.x * TILE_WIDTH + threadIdx.x;
-    size_t row = blockIdx.y * TILE_WIDTH + threadIdx.y;
+    size_t tx = threadIdx.x;
+    size_t ty = threadIdx.y;
+    size_t col = blockIdx.x * TILE_DIM + threadIdx.x;
+    size_t row = blockIdx.y * TILE_DIM + threadIdx.y;
 
     float sum = .0f;
 
-    for(int m = 0; m < (nb_cols_1 - 1)/TILE_WIDTH + 1; m++)
+    for (int m = 0; m < (nb_cols_1 - 1) / TILE_DIM + 1; m++)
     {
-        if( row < nb_cols_1 && m * TILE_WIDTH + tx < nb_cols_1)
+        if ( row < nb_cols_1 && m * TILE_DIM + tx < nb_cols_1)
         {
-            subTileData1[ty][tx] = data1[row * nb_cols_1 + m * TILE_WIDTH + tx];
+            subTileData1[ty][tx] = data1[row * nb_cols_1 + m * TILE_DIM + tx];
         }
-        else subTileData1[ty][tx] = 0;
+        else
+        {
+            subTileData1[ty][tx] = 0;
+        }
 
-        if( col < nb_cols_2 && m * TILE_WIDTH + ty < nb_cols_2)
+        if (col < nb_cols_2 && m * TILE_DIM + ty < nb_cols_2)
         {
-            subTileData2[ty][tx] = data2[(m * TILE_WIDTH + ty) * nb_cols_2 + col];
+            subTileData2[ty][tx] = data2[(m * TILE_DIM + ty) * nb_cols_2 + col];
         }
-        else subTileData2[ty][tx] = 0;
+        else
+        {
+            subTileData2[ty][tx] = 0;
+        }
 
         __syncthreads();
-        if(row < nb_cols_1 && col < nb_cols_2)
+
+        if (row < nb_cols_1 && col < nb_cols_2)
         {
-            for (int k = 0; k < TILE_WIDTH; ++k) {
+            for (int k = 0; k < TILE_DIM; ++k)
+            {
                 sum += subTileData1[ty][k] * subTileData2[k][tx];
             }
         }
         __syncthreads();
     }
-    if(row < nb_cols_1 && col < nb_cols_2) {
+
+    if (row < nb_cols_1 && col < nb_cols_2)
+    {
         result[row * nb_cols_2 + col] = sum;
     }
 }
@@ -177,14 +188,14 @@ __global__ void __kernel_do_transpose(float *data1, const float *data2,
                                       size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
-    size_t row = blockIdx.y * blockDim.y + threadIdx.y;
-    size_t index_1 = row * nb_cols + col;
-    size_t index_2 = col * nb_rows + row;
 
     // Check if thread index is in the output dimensions.
-    if (row < nb_rows && col < nb_cols)
+    if (col < nb_cols)
     {
-        data1[index_2] = data2[index_1];
+        for (size_t i = 0; i < nb_rows; i ++)
+        {
+            data1[nb_rows * col + i] = data2[nb_cols * i + col];
+        }
     }
 }
 
@@ -277,7 +288,7 @@ void matrix_parallel::multiply(const matrix &m,
     start_operation(m1, &device_data1);
     start_operation(m2, &device_data2);
     // Do computations with CUDA threads.
-    __kernel_multiply<<<block_dims, thread_dims,TILE_WIDTH * TILE_WIDTH * 2 * sizeof(float)>>>(
+    __kernel_multiply<<<block_dims, thread_dims,TILE_DIM * TILE_DIM * 2 * sizeof(float)>>>(
             device_result,
             device_data1, device_data2,
             m1.get_dimensions().first, m1.get_dimensions().second,
