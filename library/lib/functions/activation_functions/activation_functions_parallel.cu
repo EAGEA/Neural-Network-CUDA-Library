@@ -169,37 +169,40 @@ __global__ void __kernel_softmax(float *results, float *inputs,
                                  float *sum, float max_d,
                                  size_t nb_rows, size_t nb_cols)
 {
-    // Do a reduction to compute the sum.
-    extern __shared__ float shared_sum[];
-    // Copy into shared memory.
-    shared_sum[threadIdx.x] = expf(inputs[blockIdx.x * blockDim.x + threadIdx.x] - max_d);
-
-    __syncthreads();
-
-    for (size_t stride = blockDim.x / 2; stride > 0; stride >>= 1)
-    {
-        if (threadIdx.x < stride)
-        {
-            shared_sum[threadIdx.x] += shared_sum[threadIdx.x + stride];
-        }
-    }
-
-    __syncthreads();
-
-    // Retrieve and sum the sum computed by each block.
-    if (threadIdx.x == 0)
-    {
-        atomicAdd(sum, shared_sum[0]);
-    }
-
-    // Compute the softmax using the previously computed sum.
     size_t index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    __syncthreads();
 
     if (index < nb_rows * nb_cols)
     {
-        results[index] = expf(inputs[index] - max_d) / sum[0];
+        // Do a reduction to compute the sum.
+        extern __shared__ float shared_sum[];
+        // Copy into shared memory.
+        shared_sum[threadIdx.x] = expf(inputs[index] - max_d);
+
+        __syncthreads();
+
+        for (size_t stride = blockDim.x / 2; stride > 0; stride >>= 1)
+        {
+            if (threadIdx.x < stride)
+            {
+                shared_sum[threadIdx.x] += shared_sum[threadIdx.x + stride];
+            }
+        }
+
+        __syncthreads();
+
+        // Retrieve and sum the sum computed by each block.
+        if (threadIdx.x == 0)
+        {
+            atomicAdd(sum, shared_sum[0]);
+        }
+
+        __syncthreads();
+
+        // Compute the softmax using the previously computed sum.
+        if (index < nb_rows * nb_cols)
+        {
+            results[index] = expf(inputs[index] - max_d) / sum[0];
+        }
     }
 }
 
@@ -207,48 +210,51 @@ __global__ void __kernel_softmax_derivative(float *results, float *inputs,
                                             float *sum, float max_d,
                                             size_t nb_rows, size_t nb_cols)
 {
-    // Do a reduction to compute the sum.
-    extern __shared__ float shared_sum[];
-    // Copy into shared memory.
-    shared_sum[threadIdx.x] = inputs[blockIdx.x * blockDim.x + threadIdx.x];
-
-    __syncthreads();
-
-    for (size_t stride = blockDim.x / 2; stride > 0; stride >>= 1)
-    {
-        if (threadIdx.x < stride)
-        {
-            shared_sum[threadIdx.x] += shared_sum[threadIdx.x + stride];
-        }
-    }
-
-    __syncthreads();
-
-    // Retrieve and sum the sum computed by each block.
-    if (threadIdx.x == 0)
-    {
-        atomicAdd(sum, shared_sum[0]);
-    }
-
-    // Compute the derivative using the previously computed sum.
     size_t index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    __syncthreads();
 
     if (index < nb_rows * nb_cols)
     {
-        size_t row = index / nb_cols;
-        size_t col = index % nb_cols;
-        float softmax_x = expf(inputs[row] - max_d) / sum[0];
-        float softmax_y = expf(inputs[col] - max_d) / sum[0];
+        // Do a reduction to compute the sum.
+        extern __shared__ float shared_sum[];
+        // Copy into shared memory.
+        shared_sum[threadIdx.x] = inputs[index];
 
-        if (row == col)
+        __syncthreads();
+
+        for (size_t stride = blockDim.x / 2; stride > 0; stride >>= 1)
         {
-            results[index] = softmax_x * (1 - softmax_x);
+            if (threadIdx.x < stride)
+            {
+                shared_sum[threadIdx.x] += shared_sum[threadIdx.x + stride];
+            }
         }
-        else
+
+        __syncthreads();
+
+        // Retrieve and sum the sum computed by each block.
+        if (threadIdx.x == 0)
         {
-            results[index] = -softmax_x * softmax_y;
+            atomicAdd(sum, shared_sum[0]);
+        }
+
+        __syncthreads();
+
+        // Compute the derivative using the previously computed sum.
+        if (index < nb_rows * nb_cols)
+        {
+            size_t row = index / nb_cols;
+            size_t col = index % nb_cols;
+            float softmax_x = expf(inputs[row] - max_d) / sum[0];
+            float softmax_y = expf(inputs[col] - max_d) / sum[0];
+
+            if (row == col)
+            {
+                results[index] = softmax_x * (1 - softmax_x);
+            }
+            else
+            {
+                results[index] = -softmax_x * softmax_y;
+            }
         }
     }
 }
@@ -280,7 +286,7 @@ void __helper(const matrix &results, const matrix &inputs,
 }
 
 void __helper_softmax(const matrix &results, const matrix &inputs, float max_data,
-                      void (kernel)(float *result, float *inputs, float *sum, float max_d,
+                      void (kernel)(float *result, float *inputs, float *sum, float max_data,
                                     size_t nb_rows, size_t nb_cols))
 {
     // We use a reduction that assumes that the data is contained
@@ -292,7 +298,6 @@ void __helper_softmax(const matrix &results, const matrix &inputs, float max_dat
     auto block_dims = cuda_dims.first;
     auto thread_dims = cuda_dims.second;
 
-    // Sum init for softmax.
     float *device_data1;
     float *device_data2;
     float *sum;
@@ -307,13 +312,13 @@ void __helper_softmax(const matrix &results, const matrix &inputs, float max_dat
     CUDA_CHECK(cudaMemcpy(device_data2, inputs.get_data(),
                           inputs.get_length() * sizeof(float),
                           cudaMemcpyHostToDevice));
-    // - Allocate for the sum.
+    // Allocate for the sum.
     CUDA_CHECK(cudaMalloc(&sum, sizeof(float)));
     CUDA_CHECK(cudaMemcpy(sum, &zero,
                           sizeof(float),
                           cudaMemcpyHostToDevice));
     // Do computations with CUDA threads.
-    kernel<<<block_dims, thread_dims, ceil2 * sizeof(float)>>>(
+    kernel<<<block_dims, thread_dims, (ceil2 / block_dims.x) * sizeof(float)>>>(
             device_data1, device_data2,
             sum, max_data,
             results.get_dimensions().first, results.get_dimensions().second);

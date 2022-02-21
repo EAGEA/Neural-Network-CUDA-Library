@@ -129,18 +129,7 @@ float *matrix::get_data()
 
 float matrix::get_max()
 {
-    float max = 0.01;
-    for(int i = 0; i < _dimensions.first; i++)
-    {
-        for(int j = 0; j < _dimensions.second; j++)
-        {
-            if(_data[i * _dimensions.second + j] > max)
-            {
-                max = _data[i * _dimensions.second + j];
-            }
-        }
-    }
-    return max;
+    return *std::max_element(_data, _data + get_length());
 }
 
 const std::string &matrix::get_id() const

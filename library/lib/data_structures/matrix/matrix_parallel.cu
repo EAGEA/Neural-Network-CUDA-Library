@@ -374,7 +374,7 @@ void matrix_parallel::do_sum(float *result, const matrix &m)
                           sizeof(float),
                           cudaMemcpyHostToDevice));
     // Do computations with CUDA threads.
-    __kernel_do_sum<<<block_dims, thread_dims, ceil2 * sizeof(float)>>>(
+    __kernel_do_sum<<<block_dims, thread_dims, (ceil2 / block_dims.x) * sizeof(float)>>>(
             device_data, device_result,
             m.get_dimensions().first, m.get_dimensions().second);
     // Wait for all threads.
