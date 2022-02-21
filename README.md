@@ -27,9 +27,10 @@
 
 ### Summary 
 
-This repository is the implementation a basic neural network, functions and datasets library using C++ and CUDA. 
-The use of a GPU allows the library to quickly build large models, with many processing units, on large datasets, 
-faster than with classical CPU.
+This repository is an implementation of a basic neural network, the necessary functions and 
+datasets, as a library, using C++ and CUDA. 
+The use of a GPU allows the library to quickly build large models, with many processing units, 
+on large datasets, faster than with classical CPU.
 
 ### Architecture
 
