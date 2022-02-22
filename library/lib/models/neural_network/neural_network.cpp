@@ -81,6 +81,8 @@ void neural_network::_backward_propagation(matrix &predictions,
                                            const function &loss_function)
 {
     auto errors = loss_function.compute_derivatives({ &predictions, &labels });
+    util::INFO("neural_network::_backward_propagation",
+                "loss is " + std::to_string(loss_function.compute({ &predictions, &labels })[0]));
 
     for (size_t i = _layers.size(); i > 0; i --)
     {

@@ -17,23 +17,39 @@ __global__ void __kernel_mean_squared_error(float *errors,
                                             float *predictions, float *labels,
                                             size_t nb_rows, size_t nb_cols)
 {
-    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // Check if thread index is in the output dimensions.
-    if (col < nb_cols)
+    if (index < nb_rows * nb_cols)
     {
-        for (size_t i = 0; i < nb_rows; i ++)
+        // Do a reduction to compute the loss.
+        extern __shared__ float shared_loss[];
+        // Copy into shared memory.
+        shared_loss[threadIdx.x] = std::pow(labels[index] - predictions[index],
+                                            2.0f) / (float) (nb_cols * nb_rows);
+
+        __syncthreads();
+
+        for (size_t stride = blockDim.x / 2; stride > 0; stride >>= 1)
         {
-            errors[nb_cols * i + col] = std::pow(
-                    labels[nb_cols * i + col] - predictions[nb_cols * i + col],
-                    2.0f);
+            if (threadIdx.x < stride)
+            {
+                shared_loss[threadIdx.x] += shared_loss[threadIdx.x + stride];
+            }
+        }
+
+        __syncthreads();
+
+        // Retrieve and sum the sum computed by each block.
+        if (threadIdx.x == 0)
+        {
+            atomicAdd(errors, shared_loss[0]);
         }
     }
 }
 
 __global__ void __kernel_mean_squared_error_derivative(float *errors,
-                                            float *predictions, float *labels,
-                                            size_t nb_rows, size_t nb_cols)
+                                                       float *predictions, float *labels,
+                                                       size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -51,21 +67,39 @@ __global__ void __kernel_mean_absolute_error(float *errors,
                                              float *predictions, float *labels,
                                              size_t nb_rows, size_t nb_cols)
 {
-    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // Check if thread index is in the output dimensions.
-    if (col < nb_cols)
+    if (index < nb_rows * nb_cols)
     {
-        for (size_t i = 0; i < nb_rows; i ++)
+        // Do a reduction to compute the loss.
+        extern __shared__ float shared_loss[];
+        // Copy into shared memory.
+        shared_loss[threadIdx.x] = std::abs(labels[index] - predictions[index])
+                                   / (float) (nb_cols * nb_rows);
+
+        __syncthreads();
+
+        for (size_t stride = blockDim.x / 2; stride > 0; stride >>= 1)
         {
-            errors[nb_cols * i + col] = std::abs(labels[nb_cols * i + col] - predictions[nb_cols * i + col]);
+            if (threadIdx.x < stride)
+            {
+                shared_loss[threadIdx.x] += shared_loss[threadIdx.x + stride];
+            }
+        }
+
+        __syncthreads();
+
+        // Retrieve and sum the sum computed by each block.
+        if (threadIdx.x == 0)
+        {
+            atomicAdd(errors, shared_loss[0]);
         }
     }
 }
 
 __global__ void __kernel_mean_absolute_error_derivative(float *errors,
-                                             float *predictions, float *labels,
-                                             size_t nb_rows, size_t nb_cols)
+                                                        float *predictions, float *labels,
+                                                        size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -84,21 +118,39 @@ __global__ void __kernel_mean_bias_error(float *errors,
                                          float *predictions, float *labels,
                                          size_t nb_rows, size_t nb_cols)
 {
-    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // Check if thread index is in the output dimensions.
-    if (col < nb_cols)
+    if (index < nb_rows * nb_cols)
     {
-        for (size_t i = 0; i < nb_rows; i ++)
+        // Do a reduction to compute the loss.
+        extern __shared__ float shared_loss[];
+        // Copy into shared memory.
+        shared_loss[threadIdx.x] = (labels[index] - predictions[index])
+                                   / (float) (nb_cols * nb_rows);
+
+        __syncthreads();
+
+        for (size_t stride = blockDim.x / 2; stride > 0; stride >>= 1)
         {
-            errors[nb_cols * i + col] = labels[nb_cols * i + col] - predictions[nb_cols * i + col];
+            if (threadIdx.x < stride)
+            {
+                shared_loss[threadIdx.x] += shared_loss[threadIdx.x + stride];
+            }
+        }
+
+        __syncthreads();
+
+        // Retrieve and sum the sum computed by each block.
+        if (threadIdx.x == 0)
+        {
+            atomicAdd(errors, shared_loss[0]);
         }
     }
 }
 
 __global__ void __kernel_mean_bias_error_derivative(float *errors,
-                                         float *predictions, float *labels,
-                                         size_t nb_rows, size_t nb_cols)
+                                                    float *predictions, float *labels,
+                                                    size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -116,22 +168,40 @@ __global__ void __kernel_hinge_loss(float *errors,
                                     float *predictions, float *labels,
                                     size_t nb_rows, size_t nb_cols)
 {
-    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // Check if thread index is in the output dimensions.
-    if (col < nb_cols)
+    if (index < nb_rows * nb_cols)
     {
-        for (size_t i = 0; i < nb_rows; i ++)
+        // Do a reduction to compute the loss.
+        extern __shared__ float shared_loss[];
+        // Copy into shared memory.
+        shared_loss[threadIdx.x] = std::fmax(0.f,
+                                             1.f - labels[index] * predictions[index])
+                                   / (float) (nb_cols * nb_rows);
+
+        __syncthreads();
+
+        for (size_t stride = blockDim.x / 2; stride > 0; stride >>= 1)
         {
-            errors[nb_cols * i + col] = std::fmax(0.f,
-                                                  1.f - labels[nb_cols * i + col] * predictions[nb_cols * i + col]);
+            if (threadIdx.x < stride)
+            {
+                shared_loss[threadIdx.x] += shared_loss[threadIdx.x + stride];
+            }
+        }
+
+        __syncthreads();
+
+        // Retrieve and sum the sum computed by each block.
+        if (threadIdx.x == 0)
+        {
+            atomicAdd(errors, shared_loss[0]);
         }
     }
 }
 
 __global__ void __kernel_hinge_loss_derivative(float *errors,
-                                    float *predictions, float *labels,
-                                    size_t nb_rows, size_t nb_cols)
+                                               float *predictions, float *labels,
+                                               size_t nb_rows, size_t nb_cols)
 {
     size_t col = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -151,17 +221,35 @@ __global__ void __kernel_binary_cross_entropy_loss(float *errors,
                                                    float *predictions, float *labels,
                                                    size_t nb_rows, size_t nb_cols)
 {
-    size_t col = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // Check if thread index is in the output dimensions.
-    if (col < nb_cols)
+    if (index < nb_rows * nb_cols)
     {
-        for (size_t i = 0; i < nb_rows; i ++)
+        // Do a reduction to compute the loss.
+        extern __shared__ float shared_loss[];
+        // Copy into shared memory.
+        shared_loss[threadIdx.x] = -(labels[index]
+                                     * logf(predictions[index])
+                                     + (1.f - labels[index])
+                                       * logf(1.f - predictions[index]))
+                                   / (float) (nb_rows * nb_cols);
+
+        __syncthreads();
+
+        for (size_t stride = blockDim.x / 2; stride > 0; stride >>= 1)
         {
-            errors[nb_cols * i + col] = -(labels[nb_cols * i + col]
-                                          * logf(predictions[nb_cols * i + col])
-                                          + (1.f - labels[nb_cols * i + col])
-                                            * logf(1.f - predictions[nb_cols * i + col]));
+            if (threadIdx.x < stride)
+            {
+                shared_loss[threadIdx.x] += shared_loss[threadIdx.x + stride];
+            }
+        }
+
+        __syncthreads();
+
+        // Retrieve and sum the sum computed by each block.
+        if (threadIdx.x == 0)
+        {
+            atomicAdd(errors, shared_loss[0]);
         }
     }
 }
@@ -185,7 +273,7 @@ __global__ void __kernel_binary_cross_entropy_loss_derivative(float *errors,
     }
 }
 
-__global__ void __kernel_cross_entropy_loss(float *errors, float *loss,
+__global__ void __kernel_cross_entropy_loss(float *errors,
                                             float *predictions, float *labels,
                                             size_t nb_rows, size_t nb_cols)
 {
@@ -213,15 +301,7 @@ __global__ void __kernel_cross_entropy_loss(float *errors, float *loss,
         // Retrieve and sum the sum computed by each block.
         if (threadIdx.x == 0)
         {
-            atomicAdd(loss, shared_loss[0]);
-        }
-
-        __syncthreads();
-
-        // Compute the softmax using the previously computed sum.
-        if (index < nb_rows * nb_cols)
-        {
-            errors[index] = loss[0];
+            atomicAdd(errors, shared_loss[0]);
         }
     }
 }
@@ -276,10 +356,10 @@ void __helper(const matrix &errors,
     matrix_parallel::end_operation(labels, &device_data2);
 }
 
-void __helper_cross_entropy_loss(const matrix &errors,
-                                 const matrix &predictions, const matrix &labels,
-                                 void (kernel)(float *errors, float *loss, float *predictions, float *labels,
-                                               size_t nb_rows, size_t nb_cols))
+void __helper_reduction(const matrix &errors,
+                        const matrix &predictions, const matrix &labels,
+                        void (kernel)(float *errors, float *predictions, float *labels,
+                                      size_t nb_rows, size_t nb_cols))
 {
     // We use a reduction that assumes that the data is contained
     // in an array of size 2^n. Therefore, we round up to the next
@@ -293,8 +373,6 @@ void __helper_cross_entropy_loss(const matrix &errors,
     float *device_data0;
     float *device_data1;
     float *device_data2;
-    float *loss;
-    float zero = 0.f;
 
     // Prepare data on device.
     matrix_parallel::start_operation(errors, &device_data0);
@@ -309,14 +387,9 @@ void __helper_cross_entropy_loss(const matrix &errors,
     CUDA_CHECK(cudaMemcpy(device_data2, labels.get_data(),
                           labels.get_length() * sizeof(float),
                           cudaMemcpyHostToDevice));
-    // Allocate for the sum.
-    CUDA_CHECK(cudaMalloc(&loss, sizeof(float)));
-    CUDA_CHECK(cudaMemcpy(loss, &zero,
-                          sizeof(float),
-                          cudaMemcpyHostToDevice));
     // Do computations with CUDA threads.
     kernel<<<block_dims, thread_dims, (ceil2 / block_dims.x) * sizeof(float)>>>(
-            device_data0, loss,
+            device_data0,
             device_data1, device_data2,
             errors.get_dimensions().first, errors.get_dimensions().second);
     // Wait for all threads.
@@ -325,7 +398,6 @@ void __helper_cross_entropy_loss(const matrix &errors,
     matrix_parallel::end_operation(errors, &device_data0);
     matrix_parallel::end_operation(predictions, &device_data1);
     matrix_parallel::end_operation(labels, &device_data2);
-    CUDA_CHECK(cudaFree(loss));
 }
 
 
@@ -336,7 +408,7 @@ void __helper_cross_entropy_loss(const matrix &errors,
 
 void loss_functions_parallel::mean_squared_error(std::vector<matrix *> m)
 {
-    __helper(*m[0], *m[1], *m[2], __kernel_mean_squared_error);
+    __helper_reduction(*m[0], *m[1], *m[2], __kernel_mean_squared_error);
 }
 
 void loss_functions_parallel::mean_squared_error_derivative(std::vector<matrix *> m)
@@ -346,7 +418,7 @@ void loss_functions_parallel::mean_squared_error_derivative(std::vector<matrix *
 
 void loss_functions_parallel::mean_absolute_error(std::vector<matrix *> m)
 {
-    __helper(*m[0], *m[1], *m[2], __kernel_mean_absolute_error);
+    __helper_reduction(*m[0], *m[1], *m[2], __kernel_mean_absolute_error);
 }
 
 void loss_functions_parallel::mean_absolute_error_derivative(std::vector<matrix *> m)
@@ -356,7 +428,7 @@ void loss_functions_parallel::mean_absolute_error_derivative(std::vector<matrix 
 
 void loss_functions_parallel::mean_bias_error(std::vector<matrix *> m)
 {
-    __helper(*m[0], *m[1], *m[2], __kernel_mean_bias_error);
+    __helper_reduction(*m[0], *m[1], *m[2], __kernel_mean_bias_error);
 }
 
 void loss_functions_parallel::mean_bias_error_derivative(std::vector<matrix *> m)
@@ -366,7 +438,7 @@ void loss_functions_parallel::mean_bias_error_derivative(std::vector<matrix *> m
 
 void loss_functions_parallel::hinge_loss(std::vector<matrix *> m)
 {
-    __helper(*m[0], *m[1], *m[2], __kernel_hinge_loss);
+    __helper_reduction(*m[0], *m[1], *m[2], __kernel_hinge_loss);
 }
 
 void loss_functions_parallel::hinge_loss_derivative(std::vector<matrix *> m)
@@ -376,7 +448,7 @@ void loss_functions_parallel::hinge_loss_derivative(std::vector<matrix *> m)
 
 void loss_functions_parallel::binary_cross_entropy_loss(std::vector<matrix *> m)
 {
-    __helper(*m[0], *m[1], *m[2], __kernel_binary_cross_entropy_loss);
+    __helper_reduction(*m[0], *m[1], *m[2], __kernel_binary_cross_entropy_loss);
 }
 
 void loss_functions_parallel::binary_cross_entropy_loss_derivative(std::vector<matrix *> m)
@@ -386,7 +458,7 @@ void loss_functions_parallel::binary_cross_entropy_loss_derivative(std::vector<m
 
 void loss_functions_parallel::cross_entropy_loss(std::vector<matrix *> m)
 {
-    __helper_cross_entropy_loss(*m[0], *m[1], *m[2], __kernel_cross_entropy_loss);
+    __helper_reduction(*m[0], *m[1], *m[2], __kernel_cross_entropy_loss);
 }
 
 void loss_functions_parallel::cross_entropy_loss_derivative(std::vector<matrix *> m)

@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
                               activation_functions::SIGMOID),
                     new layer(2048, 1024,
                               initializations::XAVIER,
-                              activation_functions::TANH),
+                              activation_functions::RELU),
                     new layer(1024, 512,
                               initializations::HE,
                               activation_functions::RELU),
