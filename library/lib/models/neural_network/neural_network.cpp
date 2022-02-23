@@ -21,6 +21,12 @@ void neural_network::fit(dataset &data,
                          bool print_loss /*= true*/,
                          size_t delta_loss /*= 100*/)
 {
+    if (print_loss)
+    {
+        // Name the csv column if the print option is set.
+        util::add_to_csv("Loss", PATH_LOSS_FILE);
+    }
+
     size_t nb_batches = data.size() / batch_size;
     size_t entries = 0;
 

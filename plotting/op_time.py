@@ -18,6 +18,13 @@ def print_data(csv_1, csv_2, ax, title):
 
 
 def main():
+    """
+    Print the CPU and GPU execution times obtained from
+    the "lib/examples/op_time.cpp" test (that records
+    the execution time of every matrix operation).
+    The file obtained from the test should be placed in the "data/"
+    directory.
+    """
     NB_OPERATIONS = 7
     NB_ROWS = 2
     NB_COLS = 4
@@ -54,7 +61,7 @@ def main():
     manager = plt.get_current_fig_manager()
     manager.full_screen_toggle()
     # Save into pdf.
-    plt.savefig("output", format="pdf", dpi=1200)
+    plt.savefig("op_time", format="pdf", dpi=1200)
     # Show the graph.
     plt.show()
 
