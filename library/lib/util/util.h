@@ -81,6 +81,12 @@ namespace cudaNN
          * @param end_event - the end event (ms).
          */
         void CPU_end_record(float *time_event);
+
+        /**
+         * Record the cost after the forward pass
+         * @param cost - cost computed by the loss function.
+         */
+        void LOSS_record(float cost);
     };
 }
 
