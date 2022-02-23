@@ -6,7 +6,6 @@
 #include <iostream>
 #include <fstream>
 
-using namespace std;
 using namespace cudaNN;
 
 
@@ -167,10 +166,10 @@ void util::CPU_end_record(float *time_event)
     *time_event = 1000.f * ((float) std::clock() - *time_event) / CLOCKS_PER_SEC;
 }
 
-void util::LOSS_record(float cost)
+void util::add_to_csv(const std::string &row, const std::string &path)
 {
-    ofstream loss_file;
-    loss_file.open("loss.csv",std::ios::app);
-    loss_file << cost << "\n";
-    loss_file.close();
+    std::ofstream file;
+    file.open(path, std::ios::app);
+    file << row << std::endl;
+    file.close();
 }

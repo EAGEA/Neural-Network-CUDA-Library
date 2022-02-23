@@ -534,7 +534,8 @@ Is made of layers.
            size_t epochs = 1,
            size_t batch_size = 1,
            float learning_rate = 0.01,
-           size_t print_loss = 100) override;
+           bool print_loss = true,
+           size_t delta_loss = 100) override;
   ```
   * Train the model on the given training dataset ("features", "labels").
   * **@param data** - features and labels to work on.
@@ -543,7 +544,10 @@ Is made of layers.
   * **@param epochs** - the number of iterations of the training process.
   * **@param batch_size** - the size of the samples during the training.
   * **@param learning_rate** - the learning rate for training
-  * **@param print_loss** - the number of item processed before printing the loss.
+  * **@param print_loss** - if set to true, the loss is printed in a file, and in the
+    console.
+  * **@param delta_loss** - if "print_loss"; the number of entries processed before
+    printing the loss.
 - ```cpp
   matrix predict(const matrix &features) const override;
   ```
@@ -624,3 +628,9 @@ Utility functions (log, CUDA, etc.).
   ```
   * End the record of CPU execution time
   * **@param end_event** - the end event (ms).
+- ```cpp
+  void add_to_csv(const std::string &row, const std::string &path);
+  ``` 
+  * Add a row to a csv file.
+  * **@param row** - the row content to add (without the line break).
+  * **@param path** - the path of csv file.

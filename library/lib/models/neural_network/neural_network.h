@@ -12,6 +12,9 @@
 #include <initializer_list>
 
 
+#define PATH_LOSS_FILE "loss.csv"
+
+
 namespace cudaNN
 {
     /**
@@ -31,7 +34,8 @@ namespace cudaNN
                      size_t epochs = 1,
                      size_t batch_size = 1,
                      float learning_rate = 0.01,
-                     size_t print_loss = 100) override;
+                     bool print_loss = true,
+                     size_t delta_loss = 100) override;
 
             matrix predict(const matrix &features) const override;
             std::vector<matrix> predict(dataset &test) const override;

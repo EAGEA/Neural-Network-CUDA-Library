@@ -15,10 +15,11 @@ neural_network::neural_network(std::initializer_list<layer *> layers):
 
 void neural_network::fit(dataset &data,
                          const function &loss_function,
-                         const size_t epochs /*= 1*/,
-                         const size_t batch_size /*= 1*/,
-                         const float learning_rate /*= 0.01*/,
-                         const size_t print_loss /*= 100*/)
+                         size_t epochs /*= 1*/,
+                         size_t batch_size /*= 1*/,
+                         float learning_rate /*= 0.01*/,
+                         bool print_loss /*= true*/,
+                         size_t delta_loss /*= 100*/)
 {
     size_t nb_batches = data.size() / batch_size;
     size_t entries = 0;
@@ -42,12 +43,14 @@ void neural_network::fit(dataset &data,
                 auto predictions = _feed_forward(e.get_features());
                 auto labels = e.get_labels();
                 _backward_propagation(predictions, labels, loss_function);
-                // Log the loss.
-                if ((entries ++) % print_loss == 0)
+                // Log + save the loss.
+                if (print_loss && (entries ++) % delta_loss == 0)
                 {
+                    auto loss = std::to_string(loss_function.compute(
+                            { &predictions, &labels })[0]);
                     util::INFO("neural_network::_backward_propagation",
-                               "loss is " + std::to_string(
-                                       loss_function.compute({ &predictions, &labels })[0]));
+                               "loss is " + loss);
+                    util::add_to_csv(loss, PATH_LOSS_FILE);
                 }
             }
 

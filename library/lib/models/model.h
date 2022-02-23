@@ -27,14 +27,18 @@ namespace cudaNN
              * @param epochs - the number of iterations of the training process.
              * @param batch_size - the size of the samples during the training.
              * @param learning_rate - the learning rate for training
-             * @param print_loss - the number of item processed before printing the loss.
+             * @param print_loss - if set to true, the loss is printed in a file, and in the
+             * console.
+             * @param delta_loss - if "print_loss"; the number of entries processed before
+             * printing the loss.
              */
             virtual void fit(dataset &data,
                              const function &loss_function,
                              size_t epochs = 1,
                              size_t batch_size = 1,
                              float learning_rate = 0.01,
-                             size_t print_loss = 100) = 0;
+                             bool print_loss = true,
+                             size_t delta_loss = 100) = 0;
 
             /**
              * @param features - the features of a dataset entry.

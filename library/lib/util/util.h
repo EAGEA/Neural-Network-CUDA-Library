@@ -83,10 +83,11 @@ namespace cudaNN
         void CPU_end_record(float *time_event);
 
         /**
-         * Record the cost after the forward pass
-         * @param cost - cost computed by the loss function.
+         * Add a row to a csv file.
+         * @param row - the row content to add (without the line break).
+         * @param path - the path of csv file.
          */
-        void LOSS_record(float cost);
+        void add_to_csv(const std::string &row, const std::string &path);
     };
 }
 

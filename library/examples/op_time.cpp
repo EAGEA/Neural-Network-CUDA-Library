@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
     for (size_t i = 0; i < NB_OPERATIONS; i ++)
     {
-        csv[i].open("outputs/" + std::to_string(i) + "_"
+        csv[i].open(std::to_string(i) + "_"
                     + std::string(_USE_GPU ? "gpu" : "cpu") + ".csv");
         csv[i] << "Nb elements;" + std::string(_USE_GPU ? "GPU" : "CPU") + " Time\n";
     }
