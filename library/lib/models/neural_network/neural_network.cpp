@@ -17,12 +17,14 @@ void neural_network::fit(dataset &data,
                          const function &loss_function,
                          const size_t epochs /*= 1*/,
                          const size_t batch_size /*= 1*/,
-                         const float learning_rate /*= 0.01*/)
+                         const float learning_rate /*= 0.01*/,
+                         const size_t print_loss /*= 100*/)
 {
+    size_t nb_batches = data.size() / batch_size;
+    size_t entries = 0;
+
     for (size_t i = 1; i <= epochs; i ++)
     {
-        size_t nb_batches = data.size() / batch_size;
-
         util::INFO("neural_network::fit",
                     "Starting epoch " + std::to_string(i) 
                     + " with " + std::to_string(nb_batches) + " batches");
@@ -40,6 +42,13 @@ void neural_network::fit(dataset &data,
                 auto predictions = _feed_forward(e.get_features());
                 auto labels = e.get_labels();
                 _backward_propagation(predictions, labels, loss_function);
+                // Log the loss.
+                if ((entries ++) % print_loss == 0)
+                {
+                    util::INFO("neural_network::_backward_propagation",
+                               "loss is " + std::to_string(
+                                       loss_function.compute({ &predictions, &labels })[0]));
+                }
             }
 
             _gradient_descent(batch_size, learning_rate);
@@ -81,8 +90,6 @@ void neural_network::_backward_propagation(matrix &predictions,
                                            const function &loss_function)
 {
     auto errors = loss_function.compute_derivatives({ &predictions, &labels });
-    util::INFO("neural_network::_backward_propagation",
-                "loss is " + std::to_string(loss_function.compute({ &predictions, &labels })[0]));
 
     for (size_t i = _layers.size(); i > 0; i --)
     {

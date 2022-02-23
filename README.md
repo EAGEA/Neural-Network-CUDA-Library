@@ -533,14 +533,27 @@ Is made of layers.
            const function &loss_function,
            size_t epochs = 1,
            size_t batch_size = 1,
-           float learning_rate = 0.01) override;
+           float learning_rate = 0.01,
+           size_t print_loss = 100) override;
   ```
+  * Train the model on the given training dataset ("features", "labels").
+  * **@param data** - features and labels to work on.
+  * **@param loss_function** - function that may be used to calculate cost
+    during backpropagation of neural networks for example.
+  * **@param epochs** - the number of iterations of the training process.
+  * **@param batch_size** - the size of the samples during the training.
+  * **@param learning_rate** - the learning rate for training
+  * **@param print_loss** - the number of item processed before printing the loss.
 - ```cpp
   matrix predict(const matrix &features) const override;
   ```
+  * **@param features** - the features of a dataset entry.
+  * **@return** - the predictions of the model, on the given "features".
 - ```cpp
   std::vector<matrix> predict(dataset &test) const override;
   ```
+  * **@param test** - a dataset for testing prediction abilities.
+  * **@return** - the predictions of the model, on the given dataset.
 - ```cpp
   layer *get_layer(int i);
   ```
