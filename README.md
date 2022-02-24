@@ -78,15 +78,15 @@ Here is a quick summary of the CUDA pattern usages through the library.
 
 |                                      | Shared Memory | Reduction | Tiles | Column |
 |:-------------------------------------|:-------------:|:---------:|:-----:|:------:|
-| mean squared error                   |               |     ️     |       |  ✗️️   |️️                          
+| mean squared error                   |       ✗       |  ✗     ️  |       |   ️️   |️️                          
 | mean squared error derivative        |               |     ️     |       |  ✗️️   |️️                          
-| mean absolute error                  |               |     ️     |       |  ✗️️   |️️                          
+| mean absolute error                  |       ✗       |  ✗    ️   |       |   ️️   |️️                          
 | mean absolute error derivative       |               |     ️     |       |  ✗️️   |️️                          
-| mean bias error                      |               |     ️     |       |  ✗️️   |️️                          
+| mean bias error                      |       ✗       |  ✗    ️   |       |   ️️   |️️                          
 | mean bias error derivative           |               |     ️     |       |  ✗️️   |️️                          
-| hinge loss                           |               |     ️     |       |  ✗️️   |️️                          
+| hinge loss                           |       ✗       |   ✗   ️   |       |   ️️   |️️                          
 | hinge loss derivative                |               |     ️     |       |  ✗️️   |️️                          
-| binary cross entropy loss            |               |     ️     |       |  ✗️️   |️️                          
+| binary cross entropy loss            |       ✗       |   ✗   ️   |       |   ️️   |️️                          
 | binary cross entropy loss derivative |               |     ️     |       |  ✗️️   |️️                          
 | cross entropy loss                   |      ✗️       |  ✗️    ️  |       |   ️️   |️️                          
 | cross entropy loss derivative        |               |     ️     |       |  ✗️️   |️️                          

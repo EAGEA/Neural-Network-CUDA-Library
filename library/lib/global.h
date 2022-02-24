@@ -9,7 +9,7 @@
 /**
  * Execute on device or host.
  */
-#define _USE_GPU true
+#define _USE_GPU false
 
 /**
  * Show logs.

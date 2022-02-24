@@ -16,7 +16,9 @@ def main():
     """
     Print the loss csv file obtained during the training
     of a neural network.
-    The file should be placed in "data/" directory.
+    The loss file (loss.csv) obtained from a neural network
+    training (with option "print_loss" set), should be placed
+    in the "data/" directory.
     """
     NB_ROWS = 1
     NB_COLS = 1

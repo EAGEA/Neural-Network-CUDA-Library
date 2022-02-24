@@ -45,8 +45,11 @@ if (CUDA_FOUND)
     add_executable(neural_network_2 examples/neural_network_2.cpp)
     target_link_libraries(neural_network_2 CudaNN)
     ###
-    add_executable(op_time examples/op_time.cpp)
-    target_link_libraries(op_time CudaNN)
+    add_executable(op_time_matrices examples/op_time_matrices.cpp)
+    target_link_libraries(op_time_matrices CudaNN)
+    ###
+    add_executable(op_time_functions examples/op_time_functions.cpp)
+    target_link_libraries(op_time_functions CudaNN)
     ###
     add_executable(debug_backprop examples/debug_backprop.cpp examples/debug_backprop.cpp)
     target_link_libraries(debug_backprop CudaNN)

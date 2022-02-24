@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     float time;
     util::CPU_start_record(&time);
     nn.fit(train, loss_functions::BINARY_CROSS_ENTROPY_LOSS,
-           2,16, 0.01, true, 1);
+           2, 16, 0.01, true, 1);
     util::CPU_end_record(&time);
     // Predict using the test dataset.
     auto predictions = nn.predict(test);
@@ -67,6 +67,11 @@ int main(int argc, char *argv[])
         std::cout << "-------------------------------------------" << std::endl;
         matrix::print(test.get(i).get_labels());
         matrix::print(predictions[i]);
+
+        if (predictions[i] == test.get(i).get_labels())
+        {
+            correct ++;
+        }
     }
     // Logs.
     std::cout << std::endl
