@@ -19,9 +19,27 @@
 
 ## Resources
 
+- [Instructions](#instructions)
 - [Introduction](#introduction)
 - [Performances](#performances)
 - [API Reference](#api_reference)
+
+## Instructions <a id="instructions"></a>
+
+To build the library using CLI, you can do the following:
+
+```bash
+cd Neural-Network-CUDA-Library/library
+mkdir build
+cd build/
+cmake ..
+```
+
+Then you can compile examples (from the `examples` folder) and more using:
+
+```bash
+make
+```
 
 ## Introduction <a id="introduction"></a>
 
