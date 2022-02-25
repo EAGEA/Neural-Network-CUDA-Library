@@ -35,7 +35,7 @@ cd build/
 cmake ..
 ```
 
-Then you can compile examples (from the `examples` folder) and more using:
+Then you can compile examples (from the `examples` folder), and more using:
 
 ```bash
 make
