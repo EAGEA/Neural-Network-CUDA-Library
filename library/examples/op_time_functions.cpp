@@ -12,9 +12,10 @@
 using namespace cudaNN;
 
 
-#define MIN_POWER 0
-#define MAX_POWER 10
-#define NB_FUNCTIONS 12 * 2
+#define STEP 32
+#define MIN_SIZE STEP
+#define MAX_SIZE 512
+#define NB_FUNCTIONS (12 * 2)
 
 
 // To record execution time depending on if we are using GPU or not.
@@ -65,11 +66,10 @@ int main(int argc, char *argv[])
 
     float time_event[NB_FUNCTIONS];
 
-    for (size_t i = MIN_POWER; i <= MAX_POWER; i ++)
+    for (size_t i = MIN_SIZE; i <= MAX_SIZE; i += STEP)
     {
-        auto size = (size_t) std::pow(2.f, i);
-        auto m1 = matrix(size, size, "1");
-        auto m2 = matrix(size, size, "2");
+        auto m1 = matrix(i, i, "1");
+        auto m2 = matrix(i, i, "2");
 
         // Activation functions.
         wrapper(activation_functions::LINEAR, m1, m2, time_event[0], time_event[1]);
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
             csv[j] << std::to_string(i) + ";" + std::to_string(time_event[j]) + "\n";
         }
 
-        std::cout << "Functions on 2^" << i << " × 2^" << i << " matrices over." << std::endl;
+        std::cout << "Functions on " << i << " × " << i << " matrices over." << std::endl;
     }
 
     for (auto &item: csv)

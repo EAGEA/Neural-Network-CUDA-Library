@@ -4,12 +4,12 @@ import pandas as pd
 
 def print_data(csv_1, csv_2, ax, title):
     # Uses the first column for the x axes.
-    csv_1.plot(x = csv_1.columns[0], marker='o', xticks=csv_1.iloc[:,0], legend = 0, ax=ax)
-    csv_2.plot(x = csv_2.columns[0], marker='x', xticks=csv_2.iloc[:,0], legend = 0, ax=ax)
-    # Set the bottom value to 0 for the Y axes.
-    ax.set_ylim(bottom=0)
+    csv_1.plot(x=csv_1.columns[0], marker='o', xticks=[64,1024,2048], ax=ax)
+    csv_2.plot(x=csv_2.columns[0], marker='x', xticks=[64,1024,2048], ax=ax)
     # Set the title.
     ax.set_title(title, fontsize=20)
+
+    ax.set_yscale("log")
 
 
 
@@ -31,11 +31,11 @@ def main():
                   "Hadamard product\nbetween 2 matrices", 
                   "Sum of the values\n of a matrix",
                   "Transpose\n of a matrix"]
-    XLABEL = "Elements in the matrices (2^N)"
+    XLABEL = "Size of a side of\nthe squared input matrices"
     YLABEL = "Execution time (ms)"
 
     fig, ax = plt.subplots(nrows=NB_ROWS, ncols=NB_COLS)
-    fig.tight_layout();
+    plt.tight_layout(pad=3);
 
     for i in range(0, NB_ROWS):
         for j in range(0, NB_COLS):
@@ -47,12 +47,9 @@ def main():
             else:
                 ax[i][j].set_visible(False)
 
-    # Legend.
-    ax.flatten()[-2].legend(loc="upper center", bbox_to_anchor=(2.25, 0.5), ncol=NB_COLS)
     # Set the labels.
-    plt.setp(ax[0, :], xlabel=XLABEL)
-    plt.setp(ax[1, :], xlabel=XLABEL)
-    plt.setp(ax[:, 0], ylabel=YLABEL)
+    plt.setp(ax[:, :], xlabel=XLABEL)
+    plt.setp(ax[:, :], ylabel=YLABEL)
     # Full screen.
     manager = plt.get_current_fig_manager()
     manager.full_screen_toggle()

@@ -51,6 +51,8 @@ diagrams, the matrix class is the data structure at the origin of every other st
 
 Here is a quick summary of the CUDA pattern usages through the library.
 
+- The matrix operations:
+ 
 |                                  | Shared Memory | Reduction | Tiles | Column |
 |:---------------------------------|:-------------:|:---------:|:-----:|:------:|
 | matrix addition                  |               |     ️     |       | ✗️  ️  |️️                          
@@ -61,6 +63,8 @@ Here is a quick summary of the CUDA pattern usages through the library.
 | matrix sum                       |      ✗️       |    ✗️     |       |        |
 | matrix transpose                 |       ️       |           |       |   ✗️   |
 
+- The activation function operations:
+ 
 |                        | Shared Memory | Reduction | Tiles | Column |
 |:-----------------------|:-------------:|:---------:|:-----:|:------:|
 | linear                 |               |     ️     |       | ✗️ ️ ️ |️️                          
@@ -76,6 +80,8 @@ Here is a quick summary of the CUDA pattern usages through the library.
 | softmax                |      ✗️️      |   ✗️  ️   |       |  ️  ️  |️️                          
 | softmax derivative     |      ✗️       |   ✗️  ️   |       |  ️  ️  |️️                          
 
+- The loss function operations:
+ 
 |                                      | Shared Memory | Reduction | Tiles | Column |
 |:-------------------------------------|:-------------:|:---------:|:-----:|:------:|
 | mean squared error                   |       ✗       |  ✗     ️  |       |   ️️   |️️                          
@@ -91,10 +97,18 @@ Here is a quick summary of the CUDA pattern usages through the library.
 | cross entropy loss                   |      ✗️       |  ✗️    ️  |       |   ️️   |️️                          
 | cross entropy loss derivative        |               |     ️     |       |  ✗️️   |️️                          
 
-- **Shared Memory:** the kernel involve the use of shared memory for each executing block.
-- **Reduction:** the kernel involve the use of the multi-blocks reduction pattern.
-- **Tiles:** the kernel involve tile organization (limited global memory accesses).
-- **Column:** the kernel involve column organization (a thread computing a column).
+- **Shared Memory:** to avoid a lot of global memory accesses, and prevent a slow-down 
+  in the execution, we have to consider the use of shared memory. Thus, these implementations 
+  on GPU consider the data load in the shared memory to perform the computations, before 
+  retrieving the results on the global memory to finish the operation.
+- **Reduction:** when computing the sum of a matrix entries, our kernel implementation 
+  perform reductions that are always combined with the use of shared memory.
+- **Tiles:** for computation handling matrices (like the multiplication), it is a good way 
+  to load in shared memory a small piece of the matrix, perform the computation locally and  
+  then go back to the local result in the global result (global memory). 
+- **Column:** to optimize some operations, the use of one thread per matrix column is effective. 
+  Indeed it allows adjacent threads inside a warp to access adjacent data locations in the memory.
+
  
 ## Performances <a id="performances"></a>
 
@@ -102,7 +116,18 @@ Here is a quick summary of the CUDA pattern usages through the library.
 
 ### Matrices
 
+<img src="res/op_time_matrices_1.png">
+<img src="res/op_time_matrices_2.png">
+
 ### Functions
+
+- The activation function operations:
+
+<img src="res/op_time_functions_1.png">
+
+- The loss function operations:
+
+<img src="res/op_time_functions_2.png">
 
 ### Datasets
 

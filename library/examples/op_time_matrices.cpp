@@ -10,8 +10,9 @@
 using namespace cudaNN;
 
 
-#define MIN_POWER 0
-#define MAX_POWER 10
+#define STEP 64
+#define MIN_SIZE STEP
+#define MAX_SIZE 2048
 #define NB_OPERATIONS 7
 
 
@@ -98,19 +99,18 @@ int main(int argc, char *argv[])
     float time_event[NB_OPERATIONS];
     cudaEvent_t start_event, end_event;
 
-    for (size_t i = MIN_POWER; i <= MAX_POWER; i ++)
+    for (size_t i = MIN_SIZE; i <= MAX_SIZE; i += STEP)
     {
-        auto size = (size_t) std::pow(2.f, i);
-        auto m1 = matrix(size, size, "1");
-        auto m2 = matrix(size, size, "2");
+        auto m1 = matrix(i, i, "1");
+        auto m2 = matrix(i, i, "2");
 
         wrapper(&matrix::operator+, m1, m2, time_event[0]);
-        wrapper(&matrix::operator-, m1, m2, time_event[0]);
-        wrapper(&matrix::operator*, m1, m2, time_event[0]);
-        wrapper(&matrix::operator*, m1, time_event[0]);
-        wrapper(&matrix::hadamard_product, m1, m2, time_event[0]);
-        wrapper(&matrix::sum, m1, time_event[0]);
-        wrapper(&matrix::transpose, m1, time_event[0]);
+        wrapper(&matrix::operator-, m1, m2, time_event[1]);
+        wrapper(&matrix::operator*, m1, m2, time_event[2]);
+        wrapper(&matrix::operator*, m1, time_event[3]);
+        wrapper(&matrix::hadamard_product, m1, m2, time_event[4]);
+        wrapper(&matrix::sum, m1, time_event[5]);
+        wrapper(&matrix::transpose, m1, time_event[6]);
 
         // Add to the files.
         for (size_t j = 0; j < NB_OPERATIONS; j ++)
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
             csv[j] << std::to_string(i) + ";" + std::to_string(time_event[j]) + "\n";
         }
 
-        std::cout << "Operations on 2^" << i << " × 2^" << i << " matrices over." << std::endl;
+        std::cout << "Functions on " << i << " × " << i << " matrices over." << std::endl;
     }
 
     for (auto &item: csv)
